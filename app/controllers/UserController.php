@@ -1,6 +1,6 @@
 <?php
-namespace App\Controllers;
-use App\Models\User;
+namespace V01\Touristchain\Controllers;
+use V01\Touristchain\Models\User;
 
 class UsersController extends BaseController {
     public function index(): void {

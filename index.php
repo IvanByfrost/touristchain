@@ -1,20 +1,21 @@
 <?php
-// Punto de entrada TouristChain
+// index.php — TouristChain Front Controller (fuera de public)
+declare(strict_types=1);
 
-// 1. Definir raíz
-define('ROOT', dirname(__DIR__));
+define('ROOT', __DIR__);
 
-// 2. Autoload si existe (lo haremos luego con Composer)
-// require ROOT . '/vendor/autoload.php';
+// 1) Autoload: Composer instalado en /app/vendor
+require 'vendor/autoload.php';
 
-// 3. Incluir Router (todavía MVP mínimo)
-require ROOT . '/App/Core/Router.php';
+// 2) Namespaces que usaremos
+use V01\Touristchain\Core\Router;
+use V01\Touristchain\Controllers\HomeController;
 
-// 4. Instanciar Router
+// 3) Instanciar Router
 $router = new Router();
 
-// 5. Registrar rutas
-$router->get('/', [\App\Controllers\HomeController::class, 'index']);
+// 4) Rutas mínimas
+$router->get('/', [HomeController::class, 'index']);
 
-// 6. Despachar la petición actual
+// 5) Despachar
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

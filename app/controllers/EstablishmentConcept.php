@@ -1,6 +1,6 @@
 <?php
-namespace App\Controllers;
-use App\Models\Establishment;
+namespace V01\Touristchain\Controllers;
+use V01\Touristchain\Models\Establishment;
 
 class EstablishmentsController extends BaseController {
     public function index(): void {

@@ -1,50 +1,33 @@
 <?php
-namespace App\Models;
+declare(strict_types=1);
 
-class Partner extends BaseModel
+namespace V01\Touristchain\Models;
+
+use V01\Touristchain\Models\BaseModel; // Ajusta este use si tu BaseModel vive en otro namespace
+
+/**
+ * Partner (ActiveRecord simple sobre BaseModel)
+ *
+ * Requiere que, en el bootstrap de tu app, hayas llamado:
+ *   BaseModel::useConnection($pdo);
+ */
+final class Partner extends BaseModel
 {
-    public static function create(array $data) {
-        require(__DIR__ . '/../../../config.php');
-        $sql = 'INSERT INTO partner (name, type, description, location) VALUES (?, ?, ?, ?)';
-        $stmt = $pdo->prepare($sql);
-        return $stmt->execute([
-            $data['name'],
-            $data['type'],
-            $data['description'],
-            $data['location']
-        ]);
-    }
+    /** Nombre de la tabla (ajusta a 'partners' si tu esquema es plural). */
+    protected static string $table = 'partner';
 
-    public static function all() {
-        require(__DIR__ . '/../../../config.php');
-        $stmt = $pdo->query('SELECT * FROM partner');
-        return $stmt->fetchAll();
-    }
+    /** Clave primaria. */
+    protected static string $primaryKey = 'id';
 
-    public static function find(int $id) {
-        require(__DIR__ . '/../../../config.php');
-        $stmt = $pdo->prepare('SELECT * FROM partner WHERE id = ?');
-        $stmt->execute([$id]);
-        return $stmt->fetch();
-    }
+    /** Columnas asignables en create/update. */
+    protected static array $fillable = ['name', 'type', 'description', 'location'];
 
-    public static function update(int $id, array $data) {
-        require(__DIR__ . '/../../../config.php');
-        $sql = 'UPDATE partner SET name = ?, type = ?, description = ?, location = ? WHERE id = ?';
-        $stmt = $pdo->prepare($sql);
-        return $stmt->execute([
-            $data['name'],
-            $data['type'],
-            $data['description'],
-            $data['location'],
-            $id
-        ]);
-    }
+    /** Desactiva timestamps si tu tabla NO tiene created_at/updated_at. */
+    protected static bool $timestamps = false;
 
-    public static function delete(int $id) {
-        require(__DIR__ . '/../../../config.php');
-        $sql = 'DELETE FROM partner WHERE id = ?';
-        $stmt = $pdo->prepare($sql);
-        return $stmt->execute([$id]);
-    }
+    /** Soft deletes desactivado (no hay deleted_at). */
+    protected static bool $softDeletes = false;
+
+    // Nota: No necesitas redefinir create/all/find/update/delete:
+    // vienen heredados de BaseModel y usan PDO preparado correctamente.
 }

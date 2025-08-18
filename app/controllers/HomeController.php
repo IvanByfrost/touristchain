@@ -1,5 +1,5 @@
 <?php
-namespace App\Controllers;
+namespace V01\Touristchain\Controllers;
 
 class HomeController
 {

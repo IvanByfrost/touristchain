@@ -1,5 +1,5 @@
 <?php
-namespace App\Core;
+namespace V01\Touristchain\Core;
 
 class Router
 {
