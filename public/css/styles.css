@@ -35,8 +35,8 @@
     #bgCanvas{ position:fixed; bottom:0; left:0; width:100%; height:40vh; z-index:-1; }
 
     /* ===== HERO: avión + botón (no toca las tarjetas) ===== */
-    .hero{ position:relative; height:56vh; display:flex; align-items:center; justify-content:center; }
-    .plane-stack{ position:absolute; top:22vh; left:0; right:0; display:flex; flex-direction:column; align-items:center; gap:18px; z-index:5; }
+    .hero{ position:relative; min-height: 40vh; display:flex; align-items:center; justify-content:center; padding: 2rem 0;}
+    .plane-stack{ position:relative; top:0; left:0; right:0; display:flex; flex-direction:column; align-items:center; gap: 1.25rem; z-index:5; }
     .plane-main{
       width:640px; max-width:88vw;
       position:relative; left:50%; transform:translateX(-50%);
@@ -83,6 +83,7 @@
       padding:1rem 2rem; border-radius:999px; box-shadow: 0 8px 18px rgba(0,0,0,.2);
       border:2px solid rgb(19, 16, 16);
       transition: transform .2s ease, filter .2s ease;
+      z-index: 3;   
     }
     .btn-cta:hover{ transform: translateY(-1px) scale(1.03); filter:brightness(.98); }
 

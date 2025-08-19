@@ -15,3 +15,4 @@ RewriteRule ^ index.php [L]
 AllowOverride All
 Require all granted
 Options Indexes FollowSymLinks
+

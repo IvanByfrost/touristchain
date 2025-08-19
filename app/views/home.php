@@ -26,7 +26,7 @@
     <section class="hero">
       <div class="plane-stack">
         <img id="plane-main" src="/img/avion.png" alt="Avión TouristChain"
-             class="plane-main float-main dir-left">
+          class="plane-main float-main dir-left">
         <button id="cta-reservar" class="btn-cta">¡EMPEZAR MI VIAJE!</button>
       </div>
       <!-- Canvas olas de fondo -->
@@ -45,9 +45,7 @@
       </div>
     </section>
 
-    <footer class="mt-10 mb-10 text-center opacity-80">
-      <p>© 2025 TouristChain - El Turismo Futurista</p>
-    </footer>
+
   </main>
 
   <!-- ===== LOGIN ===== -->
@@ -55,23 +53,42 @@
     <div class="mx-auto max-w-2xl px-4 pt-20 pb-16">
       <div class="p-8 rounded-2xl" style="background:rgba(131, 116, 116, 0.292); backdrop-filter:blur(10px); box-shadow:0 8px 24px rgba(0,0,0,.18);">
         <div class="flex justify-center mb-4">
-          <img src="img/avion.png" alt="Avión" class="h-24 plane-float" style="filter: drop-shadow(0 10px 18px rgba(0,0,0,.25));"/>
+          <img src="img/avion.png" alt="Avión" class="h-24 plane-float" style="filter: drop-shadow(0 10px 18px rgba(0,0,0,.25));" />
         </div>
         <h2 class="text-4xl font-extrabold text-center mb-6">Iniciar sesión</h2>
-        <form id="loginForm" class="space-y-5" onsubmit="return fakeSubmit(event,'login')">
+        <form id="loginForm" class="space-y-5" action="/api/login" method="post" novalidate>
           <div>
-            <label class="tc-label">Correo/gmail</label>
-            <input type="email" required placeholder="ejemplo@gmail.com" class="tc-input" />
+            <label class="tc-label" for="loginEmail">Correo/gmail</label>
+            <input
+              id="loginEmail"
+              name="email"
+              type="email"
+              required
+              autocomplete="email"
+              placeholder="ejemplo@gmail.com"
+              class="tc-input"
+              aria-required="true" />
           </div>
+
           <div>
-            <label class="tc-label">Contraseña</label>
-            <input type="password" required placeholder="********" class="tc-input" />
+            <label class="tc-label" for="loginPassword">Contraseña</label>
+            <input
+              id="loginPassword"
+              name="password"
+              type="password"
+              required
+              autocomplete="current-password"
+              placeholder="********"
+              class="tc-input"
+              aria-required="true" />
             <div class="text-right mt-1">
               <a href="#/olvide" class="text-sm font-semibold underline">¿Olvidaste tu contraseña?</a>
             </div>
           </div>
-          <button class="btn-cta w-full">Ingresar</button>
+
+          <button class="btn-cta w-full" type="submit">Ingresar</button>
         </form>
+
         <p class="text-center mt-6">¿No tienes cuenta?
           <a class="font-semibold underline" href="#/registro">Regístrate</a>
         </p>
@@ -85,33 +102,42 @@
     <div class="mx-auto max-w-2xl px-4 pt-20 pb-16">
       <div class="p-8 rounded-2xl" style="background:rgba(166, 247, 25, 0.2); backdrop-filter:blur(10px); box-shadow:0 8px 24px rgba(0,0,0,.18);">
         <div class="flex justify-center mb-4">
-          <img src="img/avion.png" alt="Avión" class="h-24 plane-float" style="filter: drop-shadow(0 10px 18px rgba(0,0,0,.25));"/>
+          <img src="img/avion.png" alt="Avión" class="h-24 plane-float" style="filter: drop-shadow(0 10px 18px rgba(0,0,0,.25));" />
         </div>
         <h2 class="text-4xl font-extrabold text-center mb-6">Crear Cuenta</h2>
-        <form id="registerForm" class="space-y-5" onsubmit="return fakeSubmit(event,'registro')">
+        <form id="registerForm" class="space-y-5" action="/api/register" method="post" novalidate>
           <div>
-            <label class="tc-label">Correo</label>
-            <input type="email" required placeholder="ejemplo@gmail.com" class="tc-input" />
+            <label class="tc-label" for="regEmail">Correo</label>
+            <input id="regEmail" name="email" type="email" required autocomplete="email"
+              placeholder="ejemplo@gmail.com" class="tc-input" />
           </div>
+
           <div>
-            <label class="tc-label">Contraseña</label>
-            <input type="password" required placeholder="********" class="tc-input" />
+            <label class="tc-label" for="regPass">Contraseña</label>
+            <input id="regPass" name="password" type="password" required minlength="6"
+              autocomplete="new-password" placeholder="********" class="tc-input" />
           </div>
+
           <div>
-            <label class="tc-label">Confirmar Contraseña</label>
-            <input type="password" required placeholder="********" class="tc-input" />
+            <label class="tc-label" for="regPass2">Confirmar Contraseña</label>
+            <input id="regPass2" name="password_confirm" type="password" required minlength="6"
+              autocomplete="new-password" placeholder="********" class="tc-input" />
           </div>
+
           <div>
-            <label class="tc-label">Tipo de Usuario</label>
-            <select class="tc-input">
-              <option>Selecciona tu rol</option>
-              <option>Turista</option>
-              <option>Socio</option>
-              <option>Administrador</option>
+            <label class="tc-label" for="regRole">Tipo de Usuario</label>
+            <select id="regRole" name="role" class="tc-input" required>
+              <option value="" selected disabled>Selecciona tu rol</option>
+              <option value="tourist">Turista</option>
+              <option value="partner">Socio</option>
+              <option value="admin">Administrador</option>
             </select>
           </div>
-          <button class="btn-cta w-full">Registrarse</button>
+
+          <button class="btn-cta w-full" type="submit">Registrarse</button>
+          <div id="registerMsg" class="mt-2 text-sm"></div>
         </form>
+
         <p class="text-center mt-6">¿Ya tienes cuenta?
           <a class="font-semibold underline" href="#/login">Inicia sesión</a>
         </p>
@@ -125,7 +151,7 @@
     <div class="mx-auto max-w-2xl px-4 pt-20 pb-16">
       <div class="p-8 rounded-2xl" style="background:rgba(255,255,255,.2); backdrop-filter:blur(10px); box-shadow:0 8px 24px rgba(0,0,0,.18);">
         <div class="flex justify-center mb-4">
-          <img src="img/avion.png" alt="Avión" class="h-24 plane-float" style="filter: drop-shadow(0 10px 18px rgba(0,0,0,.25));"/>
+          <img src="img/avion.png" alt="Avión" class="h-24 plane-float" style="filter: drop-shadow(0 10px 18px rgba(0,0,0,.25));" />
         </div>
         <h2 class="text-3xl font-extrabold text-center mb-6">Recuperar contraseña</h2>
         <form id="forgotForm" class="space-y-5" onsubmit="return fakeSubmit(event,'forgot')">
@@ -140,6 +166,8 @@
     </div>
   </section>
 
-    <!-- ===== JS INCLUDES ===== -->
-    <script src="<?php echo BASE_URL; ?>js/main.js" defer></script>
+  <!-- ===== JS INCLUDES ===== -->
+  <script src="/js/main.js" defer></script>
+  <script src="/js/login.js" defer></script>
+  <script src="/js/register.js" defer></script>
 </body>

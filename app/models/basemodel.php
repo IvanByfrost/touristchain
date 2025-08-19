@@ -114,7 +114,7 @@ abstract class BaseModel
     // =========================
     // Escritura
     // =========================
-    public static function create(array $data): int
+    public static function create(array $data): ?int
     {
         $table = static::table();
         $clean = static::onlyFillable($data);
