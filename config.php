@@ -1,7 +1,9 @@
 <?php
+
+define('BASE_URL', 'http://localhost:8080/touristchain/public/');
 // Configuración de conexión a la base de datos
 $host = 'localhost';
-$db   = 'touristchaindb';
+$db   = 'touristchain_db';
 $user = 'root';
 $pass = '';
 $charset = 'utf8mb4';

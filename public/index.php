@@ -3,9 +3,12 @@
 declare(strict_types=1);
 
 define('ROOT', __DIR__);
+require_once __DIR__ . '/../config.php';
+
+var_dump(BASE_URL);
 
 // 1) Autoload: Composer instalado en /app/vendor
-require 'vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 // 2) Namespaces que usaremos
 use V01\Touristchain\Core\Router;

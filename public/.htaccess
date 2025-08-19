@@ -1,0 +1,17 @@
+# Activar mod_rewrite
+RewriteEngine On
+
+# Si la petición es un archivo real (css, js, imágenes, fuentes, etc.), lo sirve directo
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule .* - [L]
+
+# Si la petición es un directorio real, también lo sirve directo
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule .* - [L]
+
+# Todo lo demás pasa por index.php (tu router/controlador frontal)
+RewriteRule ^ index.php [L]
+
+AllowOverride All
+Require all granted
+Options Indexes FollowSymLinks
