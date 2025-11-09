@@ -1,24 +1,22 @@
 package com.touristchain.models;
 
 import jakarta.persistence.*;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import java.util.Optional;
+
 
 @Entity
-@Table(name = "users")
-public class User {
+@Table(name = "mainuser")
+public class MainUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "MainUser_id")
     private Long id;
 
-    @Column(nullable = false)
     private String nombre;
-
-    @Column(nullable = false, unique = true)
     private String email;
-
-    @Column(nullable = false)
     private String password;
-
-    @Column
     private String rol;
 
     public Long getId() { return id; }
