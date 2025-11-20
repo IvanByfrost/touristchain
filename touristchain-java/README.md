@@ -169,3 +169,40 @@ Este grupo está diseñado para proporcionar transparencia y herramientas de sup
 | **Londres** 🇬🇧 | **Monitor Transaccional:** Proporciona visibilidad en tiempo real sobre el flujo de Contratos Inteligentes y actividades en la red. |
 | **Berlín** 🇩🇪 | **Detector de Riesgos Predictivo:** Aplica modelos de IA para analizar el ecosistema e identificar patrones de fraude o actividad anómala. |
 | **Bruselas** 🇧🇪 | **Generador de Cumplimiento:** Herramientas para la generación de informes y auditorías que aseguren la adhesión a las normativas legales. |
+
+## 📜 8. Registro de Cambios (Changelog) - TouristChain
+
+Este registro detalla el progreso y los hitos clave de cada versión, estructurado alrededor de la Arquitectura Temática de Módulos (Ciudades).
+
+### v1.3.0 (2026-07-20) 🚀 Lanzamiento de la Experiencia Completa
+
+Esta versión marca la finalización de los módulos de confianza y optimización de servicios, preparando la plataforma para el lanzamiento Mainnet.
+
+* ✅ **Confianza Inmutable:** Módulo `Atenas` (Historial de Reputación) completamente operativo, registrando reseñas verificadas y permanentes en la Blockchain.
+* ✅ **Optimización del Mercado:** Módulo `Tokio` (Inventario Dinámico) implementado, permitiendo a los proveedores gestionar precios y disponibilidad en tiempo real.
+* ✅ **Inteligencia en Beta:** Módulo `San Francisco` (Asistente Cognitivo de Viajes) lanzado en beta, ofreciendo recomendaciones de viaje personalizadas.
+* 🚧 **Cumplimiento y Detección:** Desarrollo avanzado de los módulos `Berlín` (Detector de Riesgos) y `Bruselas` (Generador de Cumplimiento).
+* ❌ **Próxima Fase:** La Gobernanza Descentralizada (DAO) planificada para la v2.0.
+
+---
+
+### v1.2.0 (2026-04-01) 🔒 Seguridad Financiera y Monitoreo
+
+Hito crucial que activa la protección de los fondos y la transparencia regulatoria en la red de prueba.
+
+* ✅ **Protección de Fondos:** Módulo `Nueva York` (Caja de Seguridad Escrow) completamente funcional, asegurando los pagos mediante *Smart Contracts*.
+* ✅ **Supervisión Activa:** Módulo `Londres` (Monitor Transaccional) lanzado, proporcionando la primera interfaz para el monitoreo regulatorio *on-chain*.
+* ✅ **Frontend Mejorado:** Sistema de filtrado y búsqueda avanzado implementado para una mejor experiencia de usuario.
+* 🚧 **IA en Preparación:** El motor del Módulo `San Francisco` inicia la recolección de datos y el entrenamiento de sus modelos de recomendación.
+* ❌ **Módulos Planificados:** `Atenas` y `Tokio` serán el foco de la v1.3.0.
+
+---
+
+### v1.0.0 (2025-10-25) ⚙️ Base de la Arquitectura
+
+Lanzamiento inicial del *framework* y la arquitectura modular que soporta el proyecto.
+
+* ✅ **Arquitectura Estable:** Base del *backend* en Spring Boot (Java) y *frontend* en HTML/CSS/JS.
+* ✅ **Identidad Inicial:** Módulo `Ginebra` (Identidad Propietaria) implementado para el registro inicial de usuarios.
+* ✅ **Servicios Esenciales:** Autenticación de usuarios y gestión básica de perfiles.
+* ✅ **Entorno Configurado:** Base de datos MySQL inicializada y lista para el desarrollo *off-chain*.
