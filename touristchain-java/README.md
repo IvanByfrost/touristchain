@@ -51,3 +51,121 @@ La interfaz de usuario se mantiene ligera y accesible:
 | **Markup:** | **HTML5** (Estructura de la aplicación) |
 | **Estilos:** | **CSS3** (Diseño y presentación) |
 | **Interactividad:** | JavaScript nativo (Para manejar la lógica del cliente y la interacción con la API) |
+
+## ⚙️ 5. Instalación y Puesta en Marcha (Desarrollo Local)
+
+Sigue estos pasos para obtener una copia operativa del proyecto en tu máquina local con fines de desarrollo y prueba.
+
+### Prerrequisitos
+
+* **Java Development Kit (JDK)** (Versión 17 o superior)
+* **Apache Maven** o **Gradle** (Para gestión de dependencias y compilación de Spring Boot)
+* **Node.js** (Para herramientas de Blockchain/Web3)
+* Un IDE compatible con Java (como IntelliJ IDEA o VS Code con extensiones de Java)
+
+### 1. Clonar el Repositorio
+
+```bash
+git clone [https://github.com/IvanByfrost/touristchain](https://github.com/IvanByfrost/touristchain)
+cd TouristChain
+
+# Navega al directorio de contratos (ej. 'blockchain/')
+cd ../blockchain/
+npm install
+npm run deploy-local # Comando de ejemplo para desplegar
+
+## ▶️ 6. Uso Básico
+
+Esta sección debe describir cómo interactuar con tu plataforma.
+
+```markdown
+## ▶️ 6. Uso Básico de TouristChain
+
+La plataforma TouristChain está diseñada para tres actores principales, cada uno con un conjunto de funcionalidades específicas:
+
+### A. Para Turistas (Usuarios Finales)
+
+* **Búsqueda Personalizada:** Utiliza la IA para recibir recomendaciones de destinos y servicios basadas en preferencias y historial.
+* **Reservas Seguras:** Realiza reservas de alojamiento y actividades mediante Contratos Inteligentes (Smart Contracts) que aseguran el cumplimiento de las condiciones.
+* **Verificación de Identidad:** Usa el sistema descentralizado para verificar la identidad del proveedor antes de realizar cualquier pago.
+
+### B. Para Proveedores (Empresas y Servicios)
+
+* **Gestión Descentralizada:** Utiliza el panel de control para listar servicios, gestionar la disponibilidad y configurar Smart Contracts para pagos.
+* **Reputación Inmutable:** Acumula un historial de servicio transparente y verificable en la Blockchain, mejorando su credibilidad.
+* **Pagos Instantáneos:** Recibe pagos directamente sin demoras excesivas de intermediarios.
+
+### C. Para Autoridades Gubernamentales
+
+* **Monitoreo en Tiempo Real:** Acceso a *APIs* y *dashboards* para supervisar el flujo de transacciones y la actividad del sector en la Blockchain.
+* **Cumplimiento Normativo:** Herramientas para verificar que los proveedores cumplan con las regulaciones locales mediante la información transparente registrada.
+
+## 🏗️ 7. Módulos Funcionales de TouristChain
+
+TouristChain opera a través de una arquitectura funcional dividida en tres pilares que cubren la interacción de mercado, la garantía de confianza y la supervisión regulatoria.
+
+### 1. 🤝 Módulo de Interacción y Servicios de Viaje
+
+Este grupo gestiona el núcleo de la actividad turística: la oferta y la demanda de servicios.
+
+| Módulo | Descripción |
+| :--- | :--- |
+| **Módulo de Catálogo y Oferta** | Permite a los Proveedores cargar, actualizar y gestionar sus servicios (alojamiento, tours, etc.). Incluye el motor de búsqueda y filtrado para Turistas. |
+| **Módulo de Contratación y Reservas** | Lógica central para establecer el **acuerdo de reserva** a través de un Smart Contract. Gestiona el ciclo de vida de la reserva (creación, confirmación, cancelación). |
+| **Módulo de Disponibilidad y Precios** | Herramientas para que los Proveedores definan la disponibilidad de sus servicios en tiempo real y gestionen reglas de precios dinámicas. |
+
+### 2. 🛡️ Módulo de Confianza y Transparencia
+
+Este grupo incorpora la tecnología Blockchain e IA para eliminar el fraude, garantizar la seguridad de las transacciones y personalizar la experiencia del usuario.
+
+| Módulo | Descripción |
+| :--- | :--- |
+| **Módulo de Identidad Descentralizada (DID)** | Gestiona la **identidad verificada** de Turistas y Proveedores sin necesidad de almacenar datos sensibles, asegurando la propiedad y privacidad del dato. |
+| **Módulo de Pagos y *Escrow*** | Ejecuta la lógica de **depósito de garantía** (fideicomiso digital) en la Blockchain. Garantiza que el pago se libere al Proveedor solo al confirmar el servicio o se reembolse al Turista. |
+| **Módulo de Reputación Inmutable** | Permite registrar valoraciones y reseñas de manera transparente e inmutable en la Blockchain, construyendo un historial de servicio confiable. |
+| **Módulo de Recomendación e IA** | Utiliza algoritmos de Inteligencia Artificial para analizar el comportamiento y las preferencias, ofreciendo **sugerencias de viajes altamente personalizadas**. |
+
+### 3. 🚨 Módulo Regulatorio y de Cumplimiento
+
+Este grupo proporciona las herramientas y visibilidad necesarias para que las Autoridades Gubernamentales puedan supervisar y regular el sector de forma eficiente.
+
+| Módulo | Descripción |
+| :--- | :--- |
+| **Módulo de Monitoreo de Transacciones** | Ofrece a las Autoridades una interfaz o API para **visualizar el flujo** y la actividad de los Contratos Inteligentes y las reservas en la red. |
+| **Módulo de Alerta de Anomalías** | Utiliza la IA para **detectar patrones sospechosos** (ej. fraude, lavado de dinero) y notificar automáticamente a las autoridades. |
+| **Módulo de Reporte y *Auditoría*** | Generación de informes y herramientas para verificar el cumplimiento normativo de los proveedores registrados. |
+
+## 🏗️ 7. Módulos Funcionales de TouristChain: Arquitectura Temática 🏙️
+
+TouristChain opera a través de una arquitectura funcional dividida en tres pilares, cada uno con nombres temáticos de ciudades globales que reflejan su propósito central.
+
+### 1. 🛍️ Pilares de Mercado y Experiencia de Viaje (Marketplace & UX)
+
+Este grupo se enfoca en la interacción directa entre el turista y la oferta de servicios.
+
+| Módulo (Nombre de Ciudad) | Función Central |
+| :--- | :--- |
+| **Kyoto** 🇯🇵 | **Motor de Oferta Global:** Gestión, curación y exposición de todo el catálogo de servicios turísticos. |
+| **Roma** 🇮🇹 | **Acuerdo de Reserva Smart:** Inicia y gestiona el ciclo de vida del *Smart Contract* de reserva, basándose en la ley del acuerdo. |
+| **Tokio** 🇯🇵 | **Inventario Dinámico:** Administración de la disponibilidad y las reglas de precios en tiempo real con alta eficiencia. |
+
+### 2. 🛡️ Pilares de Confianza y Datos (Blockchain & Trust)
+
+Este grupo proporciona la base de seguridad, inmutabilidad y personalización del ecosistema.
+
+| Módulo (Nombre de Ciudad) | Función Central |
+| :--- | :--- |
+| **Ginebra** 🇨🇭 | **Identidad Propietaria:** Gestión de la identidad descentralizada (*DID*) y soberana de todos los actores de la plataforma. |
+| **Nueva York** 🇺🇸 | **Caja de Seguridad Escrow:** Fideicomiso digital que maneja la retención y liberación segura de los pagos (*Escrow*). |
+| **Atenas** 🇬🇷 | **Historial de Reputación:** Registro inmutable en la *Blockchain* de las valoraciones, construyendo el legado de servicio de los proveedores. |
+| **San Francisco** 💻 | **Asistente Cognitivo de Viajes:** Ejecuta la lógica de IA para generar recomendaciones y personalización de la experiencia. |
+
+### 3. ⚖️ Pilares Regulatorios y de Cumplimiento
+
+Este grupo está diseñado para proporcionar transparencia y herramientas de supervisión a las autoridades gubernamentales.
+
+| Módulo (Nombre de Ciudad) | Función Central |
+| :--- | :--- |
+| **Londres** 🇬🇧 | **Monitor Transaccional:** Proporciona visibilidad en tiempo real sobre el flujo de Contratos Inteligentes y actividades en la red. |
+| **Berlín** 🇩🇪 | **Detector de Riesgos Predictivo:** Aplica modelos de IA para analizar el ecosistema e identificar patrones de fraude o actividad anómala. |
+| **Bruselas** 🇧🇪 | **Generador de Cumplimiento:** Herramientas para la generación de informes y auditorías que aseguren la adhesión a las normativas legales. |
