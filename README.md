@@ -78,7 +78,7 @@ npm run deploy-local # Comando de ejemplo para desplegar
 
 Esta sección debe describir cómo interactuar con tu plataforma.
 
-```markdown
+```
 ## ▶️ 6. Uso Básico de TouristChain
 
 La plataforma TouristChain está diseñada para tres actores principales, cada uno con un conjunto de funcionalidades específicas:
