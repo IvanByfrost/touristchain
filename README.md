@@ -137,21 +137,9 @@ Este grupo está diseñado para proporcionar transparencia y herramientas de sup
 
 ## 📜 8. Registro de Cambios (Changelog) - TouristChain
 
-Este registro detalla el progreso y los hitos clave de cada versión, estructurado alrededor de la Arquitectura Temática de Módulos (Ciudades).
+Este registro detalla el progreso y los hitos clave de cada versión. 
 
-### v1.3.0 (2026-07-20) 🚀 Lanzamiento de la Experiencia Completa
-
-Esta versión marca la finalización de los módulos de confianza y optimización de servicios, preparando la plataforma para el lanzamiento Mainnet.
-
-* ✅ **Confianza Inmutable:** Módulo `Atenas` (Historial de Reputación) completamente operativo, registrando reseñas verificadas y permanentes en la Blockchain.
-* ✅ **Optimización del Mercado:** Módulo `Tokio` (Inventario Dinámico) implementado, permitiendo a los proveedores gestionar precios y disponibilidad en tiempo real.
-* ✅ **Inteligencia en Beta:** Módulo `San Francisco` (Asistente Cognitivo de Viajes) lanzado en beta, ofreciendo recomendaciones de viaje personalizadas.
-* 🚧 **Cumplimiento y Detección:** Desarrollo avanzado de los módulos `Berlín` (Detector de Riesgos) y `Bruselas` (Generador de Cumplimiento).
-* ❌ **Próxima Fase:** La Gobernanza Descentralizada (DAO) planificada para la v2.0.
-
----
-
-### v1.2.0 (2026-04-01) 🔒 Seguridad Financiera y Monitoreo
+### v1.1.0 (2026-04-01) 🔒 Seguridad Financiera y Monitoreo
 
 Hito crucial que activa la protección de los fondos y la transparencia regulatoria en la red de prueba.
 
@@ -163,7 +151,7 @@ Hito crucial que activa la protección de los fondos y la transparencia regulato
 
 ---
 
-### v1.0.0 (2025-10-25) ⚙️ Base de la Arquitectura
+### v0.0.0 (2025-10-25) ⚙️ Base de la Arquitectura
 
 Lanzamiento inicial del *framework* y la arquitectura modular que soporta el proyecto.
 
