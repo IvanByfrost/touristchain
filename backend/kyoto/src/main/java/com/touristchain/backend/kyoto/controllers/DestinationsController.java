@@ -1,6 +1,6 @@
 package com.touristchain.backend.kyoto.controllers;
 
-import com.touristchain.backend.kyoto.services.DestinationService;
+import com.touristchain.backend.kyoto.services.DestinationServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +14,7 @@ import java.util.Map;
 public class DestinationsController {
 
     @Autowired
-    private DestinationService destinationService;
+    private DestinationServices destinationServices;
 
     @GetMapping
     public Page<?> getDestinations(

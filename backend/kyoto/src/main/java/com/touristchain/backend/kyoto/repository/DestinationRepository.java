@@ -1,4 +1,4 @@
-package com.touristchain.backend.kyoto.repositories;
+package com.touristchain.backend.kyoto.repository;
 
 import com.touristchain.backend.kyoto.models.Destination;
 import org.springframework.data.jpa.repository.JpaRepository;

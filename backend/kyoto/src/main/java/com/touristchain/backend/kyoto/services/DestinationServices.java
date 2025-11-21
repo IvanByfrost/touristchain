@@ -1,7 +1,8 @@
 package com.touristchain.backend.kyoto.services;
 
 import com.touristchain.backend.kyoto.models.Destination;
-import com.touristchain.backend.kyoto.repositories.DestinationRepository;
+import com.touristchain.backend.kyoto.repository.DestinationRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
