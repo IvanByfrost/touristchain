@@ -3,10 +3,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.touristchain</groupId>
-    <artifactId>touristchain</artifactId>
+    <artifactId>kyoto-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>touristchain</name>
-    <description>TouristChain Java Spring Boot</description>
+    <name>kyoto</name>
+    <description>modulo viajes</description>
     <properties>
         <java.version>17</java.version>
         <spring-boot.version>3.3.4</spring-boot.version>

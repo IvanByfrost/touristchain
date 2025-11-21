@@ -1,4 +1,4 @@
-package main.java.com.touristchain.backend.kyoto.models;
+package com.touristchain.backend.kyoto.models;
 
 import lombok.Data;
 import javax.persistence.*;
