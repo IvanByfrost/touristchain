@@ -1,57 +1,145 @@
 package com.touristchain.backend.kyoto.controllers;
 
-import com.touristchain.backend.kyoto.services.DestinationServices;
+import com.touristchain.backend.kyoto.dto.DestinationRequest;
+import com.touristchain.backend.kyoto.dto.DestinationResponse;
+import com.touristchain.backend.kyoto.services.DestinationService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/kyoto/destinations")
-@CrossOrigin(origins = "*")
 public class DestinationsController {
 
     @Autowired
-    private DestinationServices destinationServices;
+    private DestinationService destinationService;
+
+    // ========== 📋 CONSULTAS ==========
 
     @GetMapping
-    public Page<?> getDestinations(
+    public ResponseEntity<Page<DestinationResponse>> getDestinations(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String country,
             @RequestParam(required = false) String category) {
-        return destinationService.findWithFilters(country, category, page, size);
+
+        Page<DestinationResponse> destinations = destinationService.findWithFilters(
+                country, category, page, size);
+        return ResponseEntity.ok(destinations);
     }
 
     @GetMapping("/{id}")
-    public Object getDestination(@PathVariable Long id) {
-        return destinationService.findById(id);
+    public ResponseEntity<DestinationResponse> getDestination(@PathVariable Long id) {
+        return destinationService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/search")
-    public List<?> search(@RequestParam String query) {
-        return destinationService.search(query);
+    public ResponseEntity<List<DestinationResponse>> search(
+            @RequestParam String query) {
+
+        List<DestinationResponse> destinations = destinationService.search(query);
+        return ResponseEntity.ok(destinations);
     }
 
     @GetMapping("/popular")
-    public List<?> getPopular() {
-        return destinationService.findPopular();
+    public ResponseEntity<List<DestinationResponse>> getPopular(
+            @RequestParam(defaultValue = "10") int limit) {
+
+        List<DestinationResponse> destinations = destinationService.findPopular(limit);
+        return ResponseEntity.ok(destinations);
     }
 
+    @GetMapping("/country/{country}")
+    public ResponseEntity<List<DestinationResponse>> getByCountry(
+            @PathVariable String country) {
+
+        List<DestinationResponse> destinations = destinationService.findByCountry(country);
+        return ResponseEntity.ok(destinations);
+    }
+
+    @GetMapping("/category/{category}")
+    public ResponseEntity<List<DestinationResponse>> getByCategory(
+            @PathVariable String category) {
+
+        List<DestinationResponse> destinations = destinationService.findByCategory(category);
+        return ResponseEntity.ok(destinations);
+    }
+
+    // ========== 📝 MUTACIONES ==========
+
     @PostMapping
-    public Object createDestination(@RequestBody Map<String, Object> destination) {
-        return destinationService.create(destination);
+    public ResponseEntity<DestinationResponse> createDestination(
+            @Valid @RequestBody DestinationRequest request,
+            @RequestHeader("X-Provider-Id") Long providerId) {
+
+        try {
+            DestinationResponse destination = destinationService.create(request, providerId);
+            return ResponseEntity.ok(destination);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PutMapping("/{id}")
-    public Object updateDestination(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
-        return destinationService.update(id, updates);
+    public ResponseEntity<DestinationResponse> updateDestination(
+            @PathVariable Long id,
+            @Valid @RequestBody DestinationRequest request) {
+
+        try {
+            DestinationResponse destination = destinationService.update(id, request);
+            return ResponseEntity.ok(destination);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/{id}")
-    public void deleteDestination(@PathVariable Long id) {
-        destinationService.delete(id);
+    public ResponseEntity<Void> deleteDestination(@PathVariable Long id) {
+        try {
+            destinationService.delete(id);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<DestinationResponse> activateDestination(@PathVariable Long id) {
+        try {
+            DestinationResponse destination = destinationService.activate(id);
+            return ResponseEntity.ok(destination);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PatchMapping("/{id}/deactivate")
+    public ResponseEntity<DestinationResponse> deactivateDestination(@PathVariable Long id) {
+        try {
+            DestinationResponse destination = destinationService.deactivate(id);
+            return ResponseEntity.ok(destination);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // ========== 📊 ESTADÍSTICAS ==========
+
+    @GetMapping("/stats")
+    public ResponseEntity<?> getStats() {
+        long total = destinationService.countAll();
+        long active = destinationService.countActive();
+
+        return ResponseEntity.ok(new Object() {
+            public final long totalDestinations = total;
+            public final long activeDestinations = active;
+            public final long inactiveDestinations = total - active;
+        });
     }
 }
