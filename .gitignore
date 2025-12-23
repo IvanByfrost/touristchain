@@ -1,1 +1,39 @@
-/vendor/
+### Java / Maven ###
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+### IntelliJ IDEA ###
+.idea/
+*.iml
+
+### VSCode ###
+.vscode/
+.history/
+.qodo/
+.trunk/
+
+
+### Node / Frontend (React + Vite) ###
+node_modules/
+dist/
+build/
+*.log
+.env.local
+.env.development.local
+.env.production.local
+.env.test.local
+
+### OS files ###
+.DS_Store
+Thumbs.db
+
+### Docker ###
+.docker/
+docker/
+docker-compose.override.yml
