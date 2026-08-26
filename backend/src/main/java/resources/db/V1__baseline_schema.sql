@@ -134,3 +134,58 @@ CREATE INDEX idx_administrator_admin_level ON public.administrator(admin_level);
 -- 📝 Comentarios para documentación
 COMMENT ON TABLE public.administrator IS 'Perfiles de administradores, extendiendo la información de users';
 COMMENT ON COLUMN public.administrator.admin_level IS 'Nivel de acceso: SUPERADMIN, MODERATOR, SUPPORT';
+
+-- ======================================================
+-- Tabla: partner
+-- Descripción: Almacena información específica de los proveedores (empresas, agencias, hoteles, etc.)
+-- Relación: 1:1 con users (user_id)
+-- ======================================================
+
+CREATE TABLE public.partner (
+    -- 🔑 Identificador principal (UUID)
+    partner_id UUID NOT NULL DEFAULT gen_random_uuid(),
+    
+    -- 🔗 Relación con el usuario base
+    user_id UUID NOT NULL,
+    
+    -- 📅 Auditoría (estándar en todas las tablas)
+    created_at TIMESTAMP(6) WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP(6) WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    
+    -- 🏢 Datos de la empresa
+    company_name VARCHAR(100) NOT NULL,
+    tax_id VARCHAR(20) UNIQUE,
+    business_type VARCHAR(50),
+    company_description TEXT,
+    website VARCHAR(200),
+    contact_email VARCHAR(100),
+    contact_phone VARCHAR(20),
+    
+    -- 📍 Ubicación (relación con geografía)
+    country_id UUID,  -- Opcional, se validará cuando exista la tabla country
+    
+    -- ✅ Restricciones de integridad
+    CONSTRAINT partner_pkey PRIMARY KEY (partner_id),
+    CONSTRAINT partner_user_id_fkey FOREIGN KEY (user_id) 
+        REFERENCES public.users(user_id) ON DELETE CASCADE,
+    CONSTRAINT partner_country_id_fkey FOREIGN KEY (country_id) 
+        REFERENCES public.country(country_id) ON DELETE SET NULL
+);
+
+-- 📇 Índices para mejorar el rendimiento
+CREATE INDEX idx_partner_user_id ON public.partner(user_id);
+CREATE INDEX idx_partner_company_name ON public.partner(company_name);
+CREATE INDEX idx_partner_tax_id ON public.partner(tax_id);
+CREATE INDEX idx_partner_business_type ON public.partner(business_type);
+CREATE INDEX idx_partner_country_id ON public.partner(country_id);
+
+-- 📝 Comentarios para documentación
+COMMENT ON TABLE public.partner IS 'Perfiles de proveedores, extendiendo la información de users';
+COMMENT ON COLUMN public.partner.company_name IS 'Nombre legal de la empresa o proveedor';
+COMMENT ON COLUMN public.partner.tax_id IS 'Número de identificación tributaria (NIT, RUC, etc.)';
+COMMENT ON COLUMN public.partner.business_type IS 'Tipo de negocio: HOTEL, AGENCY, TRANSPORT, RESTAURANT, etc.';
+COMMENT ON COLUMN public.partner.company_description IS 'Descripción breve de la empresa';
+COMMENT ON COLUMN public.partner.website IS 'Sitio web del proveedor';
+COMMENT ON COLUMN public.partner.contact_email IS 'Email de contacto del proveedor';
+COMMENT ON COLUMN public.partner.contact_phone IS 'Teléfono de contacto del proveedor';
+COMMENT ON COLUMN public.partner.country_id IS 'País de operación del proveedor';
