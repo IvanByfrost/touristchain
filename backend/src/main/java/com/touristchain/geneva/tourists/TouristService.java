@@ -134,7 +134,7 @@ public class TouristService {
     }
 
     public record CreateTouristRequest(
-            UUID userId, // <-- Añadido
+            UUID userId,
             String preferredLanguage,
             String travelPreferences,
             String emergencyContactName,
