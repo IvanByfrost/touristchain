@@ -120,13 +120,10 @@ public class UserService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
-        // Verificar contraseña actual
         String storedHash = new String(user.getPasswordHash());
         if (!passwordEncoder.matches(currentPassword, storedHash)) {
             throw new IllegalArgumentException("Contraseña actual incorrecta");
         }
-
-        // Actualizar hash
         user.setPasswordHash(passwordEncoder.encode(newPassword).getBytes());
         userRepository.save(user);
     }
