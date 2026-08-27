@@ -43,10 +43,10 @@ CREATE TABLE public.users (
 );
 
 -- 📇 Índices para búsquedas rápidas
-CREATE INDEX idx_users_email ON public.heimdall_users(email);
-CREATE INDEX idx_users_credential_number ON public.heimdall_users(credential_number);
-CREATE INDEX idx_users_status_account ON public.heimdall_users(status_account);
-CREATE INDEX idx_users_date_of_birth ON public.heimdall_users(date_of_birth);
+CREATE INDEX idx_users_email ON public.users(email);
+CREATE INDEX idx_users_credential_number ON public.users(credential_number);
+CREATE INDEX idx_users_status_account ON public.users(status_account);
+CREATE INDEX idx_users_date_of_birth ON public.users(date_of_birth);
 
 -- ======================================================
 -- Tabla: tourist
