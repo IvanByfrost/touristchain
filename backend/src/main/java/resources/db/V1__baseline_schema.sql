@@ -189,3 +189,116 @@ COMMENT ON COLUMN public.partner.website IS 'Sitio web del proveedor';
 COMMENT ON COLUMN public.partner.contact_email IS 'Email de contacto del proveedor';
 COMMENT ON COLUMN public.partner.contact_phone IS 'Teléfono de contacto del proveedor';
 COMMENT ON COLUMN public.partner.country_id IS 'País de operación del proveedor';
+
+-- ======================================================
+-- Tabla: review
+-- Descripción: Almacena las valoraciones que los turistas 
+--              hacen sobre proveedores, servicios o paquetes.
+-- Relación: N:1 con tourist, N:1 con partner, N:1 con package (opcional)
+-- ======================================================
+
+CREATE TABLE public.review (
+    -- 🔑 Identificador principal (UUID)
+    review_id UUID NOT NULL DEFAULT gen_random_uuid(),
+    
+    -- 🔗 Relaciones
+    tourist_id UUID NOT NULL,
+    partner_id UUID,                        -- Puede ser NULL si es sobre un paquete
+    package_id UUID,                        -- Puede ser NULL si es sobre un partner
+    booking_id UUID,                        -- Opcional: referencia a la reserva asociada
+    
+    -- ⭐ Valoración
+    rating INTEGER NOT NULL,
+    comment TEXT,
+    
+    -- 📅 Auditoría
+    created_at TIMESTAMP(6) WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP(6) WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    
+    -- ✅ Restricciones
+    CONSTRAINT review_pkey PRIMARY KEY (review_id),
+    CONSTRAINT review_tourist_id_fkey FOREIGN KEY (tourist_id) 
+        REFERENCES public.tourist(tourist_id) ON DELETE CASCADE,
+    CONSTRAINT review_partner_id_fkey FOREIGN KEY (partner_id) 
+        REFERENCES public.partner(partner_id) ON DELETE CASCADE,
+    CONSTRAINT review_package_id_fkey FOREIGN KEY (package_id) 
+        REFERENCES public.package(package_id) ON DELETE CASCADE,
+    CONSTRAINT review_booking_id_fkey FOREIGN KEY (booking_id) 
+        REFERENCES public.booking(booking_id) ON DELETE SET NULL,
+    CONSTRAINT review_rating_check CHECK (rating BETWEEN 1 AND 5),
+    CONSTRAINT review_target_check CHECK (
+        (partner_id IS NOT NULL AND package_id IS NULL) OR
+        (partner_id IS NULL AND package_id IS NOT NULL) OR
+        (partner_id IS NOT NULL AND package_id IS NOT NULL)
+    )
+);
+
+-- 📇 Índices
+CREATE INDEX idx_review_tourist_id ON public.review(tourist_id);
+CREATE INDEX idx_review_partner_id ON public.review(partner_id);
+CREATE INDEX idx_review_package_id ON public.review(package_id);
+CREATE INDEX idx_review_booking_id ON public.review(booking_id);
+CREATE INDEX idx_review_rating ON public.review(rating);
+CREATE INDEX idx_review_created_at ON public.review(created_at);
+
+-- 📝 Comentarios
+COMMENT ON TABLE public.review IS 'Valoraciones de turistas sobre proveedores o paquetes';
+COMMENT ON COLUMN public.review.rating IS 'Puntuación de 1 a 5 estrellas';
+COMMENT ON COLUMN public.review.comment IS 'Comentario opcional del turista';
+
+-- ======================================================
+-- Tabla: reputation_summary
+-- Descripción: Resumen de reputación por actor (turista o partner)
+-- ======================================================
+
+CREATE TABLE public.reputation_summary (
+    -- 🔑 Identificador
+    reputation_summary_id UUID NOT NULL DEFAULT gen_random_uuid(),
+    
+    -- 🎯 Actor
+    target_type VARCHAR(20) NOT NULL,  -- 'TOURIST' o 'PARTNER'
+    target_id UUID NOT NULL,
+    
+    -- 📊 Estadísticas
+    average_rating DECIMAL(3,2) DEFAULT 0,
+    total_reviews INTEGER DEFAULT 0,
+    rating_1_count INTEGER DEFAULT 0,
+    rating_2_count INTEGER DEFAULT 0,
+    rating_3_count INTEGER DEFAULT 0,
+    rating_4_count INTEGER DEFAULT 0,
+    rating_5_count INTEGER DEFAULT 0,
+    
+    -- 📅 Última actualización
+    last_updated TIMESTAMP(6) WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    
+    -- ✅ Restricciones
+    CONSTRAINT reputation_summary_pkey PRIMARY KEY (reputation_summary_id),
+    CONSTRAINT reputation_summary_unique_target UNIQUE (target_type, target_id),
+    CONSTRAINT reputation_summary_target_type_check CHECK (target_type IN ('TOURIST', 'PARTNER'))
+);
+
+-- 📇 Índices
+CREATE INDEX idx_reputation_summary_target ON public.reputation_summary(target_type, target_id);
+CREATE INDEX idx_reputation_summary_avg_rating ON public.reputation_summary(average_rating);
+
+CREATE TABLE public.booking (
+    booking_id UUID NOT NULL DEFAULT gen_random_uuid(),
+    tourist_id UUID NOT NULL,
+    partner_id UUID NOT NULL,
+    package_id UUID,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    total_price DECIMAL(10,2) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    created_at TIMESTAMP(6) WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP(6) WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT booking_pkey PRIMARY KEY (booking_id),
+    CONSTRAINT booking_tourist_id_fkey FOREIGN KEY (tourist_id)
+        REFERENCES public.tourist(tourist_id) ON DELETE CASCADE,
+    CONSTRAINT booking_partner_id_fkey FOREIGN KEY (partner_id)
+        REFERENCES public.partner(partner_id) ON DELETE CASCADE,
+    CONSTRAINT booking_package_id_fkey FOREIGN KEY (package_id)
+        REFERENCES public.package(package_id) ON DELETE SET NULL,
+    CONSTRAINT booking_status_check CHECK (status IN ('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'))
+);
