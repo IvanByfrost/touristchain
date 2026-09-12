@@ -1,0 +1,9 @@
+Coloca aquí las fotos del equipo con estos nombres exactos:
+- cristian.jpg
+- carlos.jpg
+- luci.jpg
+- johan.jpg
+- ivan.jpg
+
+Recomendado: cuadradas 500x500px o más, JPG/WebP, menos de 500KB.
+Si falta alguna, la página usa automáticamente un avatar temporal.

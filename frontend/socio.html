@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TouristChain - Panel del Socio</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="notification-container" id="notification-container"></div>
+
+    <!-- LOGIN SCREEN -->
+    <div class="login-screen" id="login-screen">
+        <div class="login-card">
+            <div class="login-logo">
+                <i class="fas fa-handshake login-logo-icon" aria-hidden="true"></i>
+                <h1 class="login-title">TouristChain Socios</h1>
+                <p class="login-subtitle">Panel de empresas aliadas</p>
+            </div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label class="form-label">Correo de la empresa</label>
+                    <input type="email" class="form-control" id="login-email" placeholder="empresa@ejemplo.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" class="form-control" id="login-password" placeholder="********" required autocomplete="current-password">
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary w-full">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Ingresar al Panel
+                    </button>
+                </div>
+
+                <div class="demo-credentials">
+                    <h4>ℹ️ ¿Cómo obtengo acceso?</h4>
+                    <p style="font-size:.85rem">Tu cuenta de socio la crea el <strong>administrador</strong> con el NIT y los datos de tu empresa. Si ya tienes cuenta, ingresa aquí.</p>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a href="index.html" class="btn btn-outline">
+                        <i class="fas fa-arrow-left"></i>
+                        Volver al Sitio Principal
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SOCIO PANEL -->
+    <div class="admin-container" id="socio-panel">
+        <header class="admin-header" aria-label="Cabecera del socio">
+            <a href="#" class="admin-logo" onclick="showPanel('resumen')">
+                <i class="fas fa-handshake admin-logo-icon"></i>
+                <span class="admin-logo-text">Panel Socio</span>
+            </a>
+
+            <nav class="admin-nav">
+                <a href="#resumen" class="admin-nav-link active" onclick="showPanel('resumen')">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Resumen</span>
+                </a>
+                <a href="#empresa" class="admin-nav-link" onclick="showPanel('empresa')">
+                    <i class="fas fa-building"></i>
+                    <span>Mi Empresa</span>
+                </a>
+                <div class="theme-toggle" id="theme-toggle" title="Cambiar tema"></div>
+                <button type="button" class="btn btn-outline" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Salir
+                </button>
+            </nav>
+        </header>
+
+        <div class="admin-layout">
+            <aside class="sidebar" aria-label="Menú del socio">
+                <div class="user-card">
+                    <div class="user-avatar" id="user-avatar">S</div>
+                    <h3 class="user-name" id="user-display-name">Socio</h3>
+                    <p class="user-email" id="user-display-email">-</p>
+                    <span class="user-badge">Socio · <span id="user-display-nit">NIT -</span></span>
+                </div>
+
+                <ul class="sidebar-nav">
+                    <li class="sidebar-item">
+                        <a class="sidebar-link active" onclick="showPanel('resumen')">
+                            <i class="fas fa-tachometer-alt sidebar-icon"></i>
+                            <span>Resumen</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" onclick="showPanel('empresa')">
+                            <i class="fas fa-building sidebar-icon"></i>
+                            <span>Mi Empresa</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" onclick="showPanel('vitrina')">
+                            <i class="fas fa-store sidebar-icon"></i>
+                            <span>Mi Vitrina</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" onclick="showPanel('reservas')">
+                            <i class="fas fa-calendar-alt sidebar-icon"></i>
+                            <span>Mis Reservas</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" onclick="showPanel('notificaciones')">
+                            <i class="fas fa-bell sidebar-icon"></i>
+                            <span>Notificaciones</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" onclick="showPanel('configuracion')">
+                            <i class="fas fa-cog sidebar-icon"></i>
+                            <span>Configuración</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="mt-4">
+                    <a href="index.html" class="btn btn-outline w-full">
+                        <i class="fas fa-globe"></i>
+                        Ver Sitio Principal
+                    </a>
+                </div>
+            </aside>
+
+            <main class="admin-content" aria-label="Contenido principal">
+                <!-- RESUMEN -->
+                <div class="panel active" id="resumen-panel">
+                    <div class="panel-header">
+                        <h1 class="panel-title">Resumen del Socio</h1>
+                        <p class="panel-subtitle" id="resumen-sub">Bienvenido a tu panel</p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                            <div class="stat-value" id="stat-estado">-</div>
+                            <div class="stat-label">Estado de la cuenta</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-store"></i></div>
+                            <div class="stat-value" id="stat-vitrina">-</div>
+                            <div class="stat-label">Vitrina publicada</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-plane"></i></div>
+                            <div class="stat-value" id="stat-destinos">0</div>
+                            <div class="stat-label">Destinos en plataforma</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+                            <div class="stat-value" id="stat-reservas">0</div>
+                            <div class="stat-label">Mis reservas</div>
+                        </div>
+                    </div>
+
+                    <div class="panel-header mt-4">
+                        <h2 class="panel-title small">Mi empresa</h2>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <tbody id="resumen-empresa"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- MI EMPRESA -->
+                <div class="panel" id="empresa-panel">
+                    <div class="panel-header">
+                        <h1 class="panel-title">Mi Empresa</h1>
+                        <p class="panel-subtitle">Datos básicos de tu empresa. El NIT solo lo puede cambiar el administrador.</p>
+                    </div>
+                    <form id="empresa-form">
+                        <div class="form-group">
+                            <label class="form-label">NIT (solo lectura)</label>
+                            <input type="text" class="form-control" id="emp-nit" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Razón social / Empresa</label>
+                            <input type="text" class="form-control" id="emp-company" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Persona de contacto</label>
+                            <input type="text" class="form-control" id="emp-contact" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" id="emp-phone">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Dirección</label>
+                            <input type="text" class="form-control" id="emp-address">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Ciudad</label>
+                            <input type="text" class="form-control" id="emp-city">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tipo de servicio</label>
+                            <select class="form-control" id="emp-type">
+                                <option value="hotel">Hotel</option>
+                                <option value="renta">Renta de vehículos</option>
+                                <option value="aerolinea">Aerolínea / Transporte</option>
+                                <option value="agencia">Agencia de viajes</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary w-full">
+                                <i class="fas fa-save"></i> Guardar cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- MI VITRINA -->
+                <div class="panel" id="vitrina-panel">
+                    <div class="panel-header">
+                        <h1 class="panel-title">Mi Vitrina</h1>
+                        <p class="panel-subtitle">Así te ven los viajeros en la sección Socios del sitio principal.</p>
+                    </div>
+                    <form id="vitrina-form">
+                        <div class="notification is-info is-light is-size-7">
+                            <i class="fas fa-eye"></i> Así te ven los viajeros en
+                            <a href="index.html#socios" target="_blank" rel="noopener"><strong>el sitio principal → Socios</strong></a>.
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control" id="vit-descripcion" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Sitio web</label>
+                            <input type="url" class="form-control" id="vit-website" placeholder="https://...">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Logo (URL de imagen)</label>
+                            <input type="url" class="form-control" id="vit-logo" placeholder="https://...">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Beneficios (uno por línea)</label>
+                            <textarea class="form-control" id="vit-beneficios" rows="3" placeholder="Descuento 15%&#10;Desayuno incluido"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary w-full">
+                                <i class="fas fa-save"></i> Publicar vitrina
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- MIS RESERVAS -->
+                <div class="panel" id="reservas-panel">
+                    <div class="panel-header">
+                        <h1 class="panel-title">Mis Reservas</h1>
+                        <p class="panel-subtitle">Reservas hechas con tu cuenta de socio.</p>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Detalle</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reservas-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- NOTIFICACIONES -->
+                <div class="panel" id="notificaciones-panel">
+                    <div class="panel-header">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h1 class="panel-title">Notificaciones</h1>
+                                <p class="panel-subtitle">Avisos de la plataforma para tu empresa.</p>
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="markAllRead()">
+                                <i class="fas fa-check-double"></i> Marcar leídas
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Título</th>
+                                    <th>Mensaje</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="notificaciones-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- CONFIGURACIÓN -->
+                <div class="panel" id="configuracion-panel">
+                    <div class="panel-header">
+                        <h1 class="panel-title">Configuración</h1>
+                        <p class="panel-subtitle">Seguridad de tu cuenta.</p>
+                    </div>
+                    <form id="password-form">
+                        <h3 class="panel-title small">Cambiar contraseña</h3>
+                        <div class="form-group">
+                            <label class="form-label">Contraseña actual</label>
+                            <input type="password" class="form-control" id="current-password" required autocomplete="current-password">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nueva contraseña (mín. 8 caracteres)</label>
+                            <input type="password" class="form-control" id="new-password" required autocomplete="new-password">
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary w-full">
+                                <i class="fas fa-key"></i> Cambiar contraseña
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script type="module" src="/src/js/socio.js"></script>
+</body>
+</html>
