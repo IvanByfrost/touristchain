@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TouristChain - Panel de Administración</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- NOTIFICACIONES -->
+    <div class="notification-container" id="notification-container"></div>
+
+    <!-- LOGIN SCREEN -->
+    <div class="login-screen" id="login-screen">
+        <div class="login-card">
+            <div class="login-logo">
+                <i class="fas fa-user-shield login-logo-icon" aria-hidden="true"></i>
+                <h1 class="login-title">TouristChain Admin</h1>
+                <p class="login-subtitle">Panel de administración del sistema</p>
+            </div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label class="form-label">Correo Electrónico</label>
+                    <input type="email" class="form-control" id="login-email" placeholder="admin@touristchain.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" class="form-control" id="login-password" placeholder="********" required autocomplete="current-password">
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary w-full">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Ingresar al Panel
+                    </button>
+                </div>
+
+                <div class="demo-credentials">
+                    <h4>🔐 Credenciales de Prueba</h4>
+                    <code>Email: admin@touristchain.com</code>
+                    <code>Contraseña: admin123</code>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a href="index.html" class="btn btn-outline">
+                        <i class="fas fa-arrow-left"></i>
+                        Volver al Sitio Principal
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div class="admin-container" id="admin-panel">
+        <!-- HEADER -->
+        <header class="admin-header" aria-label="Cabecera de administración">
+            <a href="#" class="admin-logo" onclick="showPanel('dashboard')">
+                <i class="fas fa-user-shield admin-logo-icon"></i>
+                <span class="admin-logo-text">Admin Panel</span>
+            </a>
+
+            <nav class="admin-nav">
+                <a href="#dashboard" class="admin-nav-link active" onclick="showPanel('dashboard')">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#configuracion" class="admin-nav-link" onclick="showPanel('configuracion')">
+                    <i class="fas fa-cog"></i>
+                    <span>Configuración</span>
+                </a>
+
+                <div class="theme-toggle" id="theme-toggle" title="Cambiar tema"></div>
+
+                <button type="button" class="btn btn-danger" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Cerrar Sesión</span>
+                </button>
+            </nav>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <div class="admin-main">
+            <!-- SIDEBAR -->
+            <aside class="admin-sidebar" aria-label="Menú lateral">
+                <div class="user-profile">
+                    <div class="user-avatar" id="user-avatar">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
+                    <h3 class="user-name" id="user-display-name">Administrador</h3>
+                    <p class="user-email" id="user-display-email">admin@touristchain.com</p>
+                    <span class="user-badge">Administrador</span>
+                </div>
+
+                <ul class="sidebar-nav">
+                    <li class="sidebar-item">
+                        <a class="sidebar-link active" onclick="showPanel('dashboard')">
+                            <i class="fas fa-tachometer-alt sidebar-icon"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" onclick="showPanel('usuarios')">
+                            <i class="fas fa-users sidebar-icon"></i>
+                            <span>Usuarios</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" onclick="showPanel('empresas')">
+                            <i class="fas fa-building sidebar-icon"></i>
+                            <span>Empresas</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" onclick="showPanel('socios')">
+                            <i class="fas fa-handshake sidebar-icon"></i>
+                            <span>Socios</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" onclick="showPanel('trabajadores')">
+                            <i class="fas fa-user-tie sidebar-icon"></i>
+                            <span>Trabajadores</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" onclick="showPanel('pagos')">
+                            <i class="fas fa-credit-card sidebar-icon"></i>
+                            <span>Pagos</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" onclick="showPanel('viajes')">
+                            <i class="fas fa-plane sidebar-icon"></i>
+                            <span>Viajes</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" onclick="showPanel('reportes')">
+                            <i class="fas fa-chart-bar sidebar-icon"></i>
+                            <span>Reportes</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" onclick="showPanel('configuracion')">
+                            <i class="fas fa-cog sidebar-icon"></i>
+                            <span>Configuración</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="mt-4">
+                    <button type="button" class="btn btn-primary w-full" onclick="exportAllData()">
+                        <i class="fas fa-file-export"></i>
+                        Exportar Datos
+                    </button>
+                </div>
+            </aside>
+
+            <!-- CONTENT AREA -->
+            <main class="admin-content" aria-label="Contenido principal">
+                <!-- DASHBOARD -->
+                <div class="panel active" id="dashboard-panel">
+                    <div class="panel-header">
+                        <h1 class="panel-title">Dashboard de Administración</h1>
+                        <p class="panel-subtitle">Estadísticas en tiempo real del sistema</p>
+                    </div>
+
+                    <!-- Estadísticas -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-value" id="stat-users">0</div>
+                            <div class="stat-label">Usuarios Totales</div>
+                            <div class="stat-change positive" id="users-change">+0%</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="stat-value" id="stat-income">$0</div>
+                            <div class="stat-label">Ingresos Hoy</div>
+                            <div class="stat-change positive" id="income-change">+0%</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-plane"></i>
+                            </div>
+                            <div class="stat-value" id="stat-trips">0</div>
+                            <div class="stat-label">Viajes Activos</div>
+                            <div class="stat-change positive" id="trips-change">+0%</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-value" id="stat-pending">0</div>
+                            <div class="stat-label">Pendientes</div>
+                            <div class="stat-change negative" id="pending-change">+0%</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-handshake"></i>
+                            </div>
+                            <div class="stat-value" id="stat-socios">0</div>
+                            <div class="stat-label">Socios Activos</div>
+                            <div class="stat-change positive" id="socios-change">+0%</div>
+                        </div>
+                    </div>
+
+                    <!-- Gráficos -->
+                    <div class="charts-container">
+                        <div class="chart-box">
+                            <h3 class="chart-title">Actividad de Usuarios</h3>
+                            <canvas id="users-chart"></canvas>
+                        </div>
+
+                        <div class="chart-box">
+                            <h3 class="chart-title">Ingresos Mensuales</h3>
+                            <canvas id="income-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Actividad Reciente -->
+                    <div class="mt-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <h2 class="panel-title small">Actividad Reciente</h2>
+                            <button type="button" class="btn btn-outline btn-sm" onclick="refreshActivity()">
+                                <i class="fas fa-sync-alt"></i>
+                                Actualizar
+                            </button>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Usuario</th>
+                                        <th>Acción</th>
+                                        <th>Detalles</th>
+                                        <th>IP</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-activity">
+                                    <!-- Actividad se cargará aquí -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- USUARIOS -->
+                <div class="panel" id="usuarios-panel">
+                    <div class="panel-header">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h1 class="panel-title">Gestión de Usuarios</h1>
+                                <p class="panel-subtitle">Administra todos los usuarios del sistema</p>
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="openUserForm()">
+                                <i class="fas fa-plus"></i>
+                                Nuevo Usuario
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filtros -->
+                    <div class="filters-bar">
+                        <div class="filter-group">
+                            <input type="text" class="filter-input" placeholder="Buscar usuario..." id="search-users">
+                        </div>
+                        <div class="filter-group">
+                            <select class="filter-input" id="filter-role">
+                                <option value="">Todos los roles</option>
+                                <option value="admin">Administrador</option>
+                                <option value="user">Usuario</option>
+                                <option value="socio">Socio</option>
+                                <option value="empresa">Empresa</option>
+                                <option value="trabajador">Trabajador</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <select class="filter-input" id="filter-status">
+                                <option value="">Todos los estados</option>
+                                <option value="activo">Activo</option>
+                                <option value="inactivo">Inactivo</option>
+                                <option value="pendiente">Pendiente</option>
+                                <option value="bloqueado">Bloqueado</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="filterUsers()">
+                            <i class="fas fa-filter"></i>
+                            Filtrar
+                        </button>
+                        <div class="action-buttons">
+                            <button type="button" class="btn btn-success" onclick="exportUsers('excel')" aria-label="Exportar a Excel">
+                                <i class="fas fa-file-excel" aria-hidden="true"></i>
+                            </button>
+                            <button type="button" class="btn btn-danger" onclick="exportUsers('pdf')" aria-label="Exportar a PDF">
+                                <i class="fas fa-file-pdf" aria-hidden="true"></i>
+                            </button>
+                            <button type="button" class="btn btn-warning" onclick="exportUsers('csv')" aria-label="Exportar a CSV">
+                                <i class="fas fa-file-csv" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Usuarios -->
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
+                                    <th>Registro</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table">
+                                <!-- Usuarios se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Paginación -->
+                    <div class="pagination" id="users-pagination"></div>
+                </div>
+
+                <!-- EMPRESAS -->
+                <div class="panel" id="empresas-panel">
+                    <div class="panel-header">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h1 class="panel-title">Gestión de Empresas</h1>
+                                <p class="panel-subtitle">Administra las empresas asociadas</p>
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="openCompanyForm()">
+                                <i class="fas fa-plus"></i>
+                                Nueva Empresa
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Empresas -->
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>RUC</th>
+                                    <th>Nombre</th>
+                                    <th>Contacto</th>
+                                    <th>Email</th>
+                                    <th>Teléfono</th>
+                                    <th>Estado</th>
+                                    <th>Trabajadores</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="companies-table">
+                                <!-- Empresas se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SOCIOS -->
+                <div class="panel" id="socios-panel">
+                    <div class="panel-header">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h1 class="panel-title">Gestión de Socios</h1>
+                                <p class="panel-subtitle">Crea cuentas de empresas aliadas con NIT y datos básicos. El socio ingresa con su email y contraseña.</p>
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="openSocioForm()">
+                                <i class="fas fa-plus"></i>
+                                Nuevo Socio
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="filters-bar">
+                        <div class="filter-group">
+                            <input type="text" class="filter-input" placeholder="Buscar socio (empresa, NIT, email)..." id="search-socios">
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="loadSocios()">
+                            <i class="fas fa-filter"></i>
+                            Filtrar
+                        </button>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>NIT</th>
+                                    <th>Empresa</th>
+                                    <th>Contacto</th>
+                                    <th>Email</th>
+                                    <th>Teléfono</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="socios-table">
+                                <!-- Socios se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- MODAL SOCIO -->
+                <div class="modal" id="socio-modal">
+                    <div class="modal-background" onclick="closeModal('socio-modal')"></div>
+                    <div class="modal-card">
+                        <header class="modal-card-head">
+                            <p class="modal-card-title" id="socio-modal-title">Nuevo Socio</p>
+                            <button type="button" class="delete" onclick="closeModal('socio-modal')"></button>
+                        </header>
+                        <section class="modal-card-body">
+                            <form id="socio-form">
+                                <input type="hidden" id="socio-id">
+                                <div class="form-group">
+                                    <label class="form-label">Empresa / Razón social *</label>
+                                    <input type="text" class="form-control" id="socio-company" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">NIT *</label>
+                                    <input type="text" class="form-control" id="socio-nit" placeholder="900123456-1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Persona de contacto *</label>
+                                    <input type="text" class="form-control" id="socio-contact" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Email (usuario de ingreso) *</label>
+                                    <input type="email" class="form-control" id="socio-email" required>
+                                </div>
+                                <div class="form-group" id="socio-password-group">
+                                    <label class="form-label">Contraseña (mín. 8 caracteres) *</label>
+                                    <input type="password" class="form-control" id="socio-password" autocomplete="new-password">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Teléfono</label>
+                                    <input type="tel" class="form-control" id="socio-phone">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Dirección</label>
+                                    <input type="text" class="form-control" id="socio-address">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Ciudad</label>
+                                    <input type="text" class="form-control" id="socio-city">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Tipo de servicio</label>
+                                    <select class="form-control" id="socio-type">
+                                        <option value="hotel">Hotel</option>
+                                        <option value="renta">Renta de vehículos</option>
+                                        <option value="aerolinea">Aerolínea / Transporte</option>
+                                        <option value="agencia">Agencia de viajes</option>
+                                        <option value="otro">Otro</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Estado</label>
+                                    <select class="form-control" id="socio-status">
+                                        <option value="activo">Activo</option>
+                                        <option value="inactivo">Inactivo</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary w-full">
+                                        <i class="fas fa-save"></i> Guardar Socio
+                                    </button>
+                                </div>
+                            </form>
+                        </section>
+                    </div>
+                </div>
+
+                <!-- TRABAJADORES -->
+                <div class="panel" id="trabajadores-panel">
+                    <div class="panel-header">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h1 class="panel-title">Gestión de Trabajadores</h1>
+                                <p class="panel-subtitle">Administra los trabajadores por empresa</p>
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="openWorkerForm()">
+                                <i class="fas fa-plus"></i>
+                                Nuevo Trabajador
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Trabajadores -->
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Empresa</th>
+                                    <th>Puesto</th>
+                                    <th>Salario</th>
+                                    <th>Contrato</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="workers-table">
+                                <!-- Trabajadores se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- PAGOS -->
+                <div class="panel" id="pagos-panel">
+                    <div class="panel-header">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h1 class="panel-title">Gestión de Pagos</h1>
+                                <p class="panel-subtitle">Historial completo de transacciones</p>
+                            </div>
+                            <div class="stats-grid compact">
+                                <div class="stat-card compact">
+                                    <div class="stat-value">$<span id="today-income">0</span></div>
+                                    <div class="stat-label">Hoy</div>
+                                </div>
+                                <div class="stat-card compact">
+                                    <div class="stat-value" id="total-transactions">0</div>
+                                    <div class="stat-label">Transacciones</div>
+                                </div>
+                                <div class="stat-card compact">
+                                    <div class="stat-value" id="pending-payments">0</div>
+                                    <div class="stat-label">Pendientes</div>
+                                </div>
+                                <div class="stat-card compact">
+                                    <div class="stat-value" id="failed-transactions">0</div>
+                                    <div class="stat-label">Fallidas</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Pagos -->
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Usuario</th>
+                                    <th>Monto</th>
+                                    <th>Método</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                    <th>Referencia</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payments-table">
+                                <!-- Pagos se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- VIAJES -->
+                <div class="panel" id="viajes-panel">
+                    <div class="panel-header">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h1 class="panel-title">Gestión de Viajes</h1>
+                                <p class="panel-subtitle">Administra los paquetes turísticos</p>
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="openTravelForm()">
+                                <i class="fas fa-plus"></i>
+                                Nuevo Viaje
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Viajes -->
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Destino</th>
+                                    <th>Descripción</th>
+                                    <th>Fechas</th>
+                                    <th>Precio</th>
+                                    <th>Capacidad</th>
+                                    <th>Disponible</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="travels-table">
+                                <!-- Viajes se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- REPORTES -->
+                <div class="panel" id="reportes-panel">
+                    <div class="panel-header">
+                        <h1 class="panel-title">Reportes y Análisis</h1>
+                        <p class="panel-subtitle">Genera reportes personalizados del sistema</p>
+                    </div>
+
+                    <!-- Filtros de Reportes -->
+                    <div class="filters-bar">
+                        <div class="filter-group">
+                            <label class="form-label">Fecha Inicio:</label>
+                            <input type="date" class="filter-input" id="report-start">
+                        </div>
+                        <div class="filter-group">
+                            <label class="form-label">Fecha Fin:</label>
+                            <input type="date" class="filter-input" id="report-end">
+                        </div>
+                        <div class="filter-group">
+                            <label class="form-label">Tipo de Reporte:</label>
+                            <select class="filter-input" id="report-type">
+                                <option value="ventas">Reporte de Ventas</option>
+                                <option value="usuarios">Nuevos Usuarios</option>
+                                <option value="viajes">Viajes más Vendidos</option>
+                                <option value="empresas">Empresas Activas</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="generateReportData()">
+                            <i class="fas fa-chart-bar"></i>
+                            Generar Reporte
+                        </button>
+                    </div>
+
+                    <!-- Resultados del Reporte -->
+                    <div id="report-results" class="mt-4"></div>
+                </div>
+
+                <!-- CONFIGURACIÓN -->
+                <div class="panel" id="configuracion-panel">
+                    <div class="panel-header">
+                        <h1 class="panel-title">Configuración del Sistema</h1>
+                        <p class="panel-subtitle">Configura los parámetros generales del sistema</p>
+                    </div>
+
+                    <div class="tabs mb-4">
+                        <ul>
+                            <li class="is-active" data-tab="general"><a>General</a></li>
+                            <li data-tab="pagos"><a>Pagos</a></li>
+                            <li data-tab="api"><a>API</a></li>
+                            <li data-tab="notificaciones"><a>Notificaciones</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Configuración General -->
+                    <div id="general-tab" class="tab-content">
+                        <form id="general-settings">
+                            <div class="form-group">
+                                <label class="form-label">Nombre del Sistema</label>
+                                <input type="text" class="form-control" id="system-name" value="TouristChain">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Email de Contacto</label>
+                                <input type="email" class="form-control" id="contact-email" value="contacto@touristchain.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Tiempo de Sesión (minutos)</label>
+                                <input type="number" class="form-control" id="session-time" value="30">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Idioma</label>
+                                <select class="form-control" id="system-language">
+                                    <option value="es">Español</option>
+                                    <option value="en">English</option>
+                                    <option value="fr">Français</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                                Guardar Configuración
+                    </button>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- MODALES -->
+
+    <!-- Modal Usuario -->
+    <div class="modal-overlay" id="user-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="user-modal-title">Nuevo Usuario</h2>
+                <button type="button" class="modal-close" onclick="closeModal('user-modal')" aria-label="Cerrar">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <form id="user-form">
+                <input type="hidden" id="user-id">
+                <div class="form-group">
+                    <label class="form-label">Nombre Completo *</label>
+                    <input type="text" class="form-control" id="user-name" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email *</label>
+                    <input type="email" class="form-control" id="user-email" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Contraseña *</label>
+                    <input type="password" class="form-control" id="user-password" required autocomplete="new-password">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Rol *</label>
+                    <select class="form-control" id="user-role" required>
+                        <option value="user">Usuario</option>
+                        <option value="admin">Administrador</option>
+                        <option value="empresa">Empresa</option>
+                        <option value="trabajador">Trabajador</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Estado *</label>
+                    <select class="form-control" id="user-status" required>
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="bloqueado">Bloqueado</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Teléfono</label>
+                    <input type="tel" class="form-control" id="user-phone">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Dirección</label>
+                    <textarea class="form-control" id="user-address" rows="2"></textarea>
+                </div>
+
+                <div class="flex justify-between mt-4">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('user-modal')">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Guardar Usuario
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Empresa -->
+    <div class="modal-overlay" id="company-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="company-modal-title">Nueva Empresa</h2>
+                <button type="button" class="modal-close" onclick="closeModal('company-modal')" aria-label="Cerrar">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <form id="company-form">
+                <input type="hidden" id="company-id">
+                <div class="form-group">
+                    <label class="form-label">RUC *</label>
+                    <input type="text" class="form-control" id="company-ruc" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Nombre de la Empresa *</label>
+                    <input type="text" class="form-control" id="company-name" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Persona de Contacto *</label>
+                    <input type="text" class="form-control" id="company-contact" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email *</label>
+                    <input type="email" class="form-control" id="company-email" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Teléfono *</label>
+                    <input type="tel" class="form-control" id="company-phone" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Dirección</label>
+                    <textarea class="form-control" id="company-address" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Estado *</label>
+                    <select class="form-control" id="company-status" required>
+                        <option value="activa">Activa</option>
+                        <option value="inactiva">Inactiva</option>
+                        <option value="pendiente">Pendiente</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-between mt-4">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('company-modal')">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Guardar Empresa
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Trabajador -->
+    <div class="modal-overlay" id="worker-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="worker-modal-title">Nuevo Trabajador</h2>
+                <button type="button" class="modal-close" onclick="closeModal('worker-modal')" aria-label="Cerrar">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <form id="worker-form">
+                <input type="hidden" id="worker-id">
+                <div class="form-group">
+                    <label class="form-label">Nombre Completo *</label>
+                    <input type="text" class="form-control" id="worker-name" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Empresa *</label>
+                    <select class="form-control" id="worker-company" required>
+                        <option value="">Seleccionar empresa...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Puesto *</label>
+                    <input type="text" class="form-control" id="worker-position" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Salario ($) *</label>
+                    <input type="number" class="form-control" id="worker-salary" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Fecha de Contrato *</label>
+                    <input type="date" class="form-control" id="worker-contract-date" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Estado Laboral *</label>
+                    <select class="form-control" id="worker-status" required>
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                        <option value="vacaciones">Vacaciones</option>
+                        <option value="suspendido">Suspendido</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="worker-email">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Teléfono</label>
+                    <input type="tel" class="form-control" id="worker-phone">
+                </div>
+
+                <div class="flex justify-between mt-4">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('worker-modal')">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Guardar Trabajador
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Viaje -->
+    <div class="modal-overlay" id="travel-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="travel-modal-title">Nuevo Viaje</h2>
+                <button type="button" class="modal-close" onclick="closeModal('travel-modal')" aria-label="Cerrar">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <form id="travel-form">
+                <input type="hidden" id="travel-id">
+                <div class="form-group">
+                    <label class="form-label">Destino *</label>
+                    <input type="text" class="form-control" id="travel-destination" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Descripción *</label>
+                    <textarea class="form-control" id="travel-description" rows="3" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Fechas *</label>
+                    <div class="flex gap-3">
+                        <input type="date" class="form-control" id="travel-start-date" required>
+                        <input type="date" class="form-control" id="travel-end-date" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Precio ($) *</label>
+                    <input type="number" class="form-control" id="travel-price" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Capacidad *</label>
+                    <input type="number" class="form-control" id="travel-capacity" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Disponible *</label>
+                    <input type="number" class="form-control" id="travel-available" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Estado *</label>
+                    <select class="form-control" id="travel-status" required>
+                        <option value="disponible">Disponible</option>
+                        <option value="reservado">Reservado</option>
+                        <option value="completado">Completado</option>
+                        <option value="cancelado">Cancelado</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Imagen URL</label>
+                    <input type="url" class="form-control" id="travel-image">
+                </div>
+
+                <div class="flex justify-between mt-4">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('travel-modal')">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Guardar Viaje
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="/src/js/admin.js"></script>
+</body>
+</html>

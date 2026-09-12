@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TouristChain - El Mejor Turismo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="tc-header" aria-label="Cabecera principal">
+        <a href="#inicio" class="tc-logo">
+            <i class="fas fa-plane-departure"></i>
+            <span>TouristChain</span>
+        </a>
+
+        <button class="tc-mobile-toggle" id="mobile-menu-toggle" aria-label="Menú">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <nav class="tc-nav" id="main-nav">
+            <a href="#inicio" class="tc-nav-link active"><i class="fas fa-home"></i> Inicio</a>
+            <a href="#viajes" class="tc-nav-link"><i class="fas fa-plane"></i> Viajes</a>
+            <a href="#hoteles" class="tc-nav-link"><i class="fas fa-hotel"></i> Hoteles</a>
+            <a href="#renta" class="tc-nav-link"><i class="fas fa-car"></i> Renta</a>
+            <a href="#socios" class="tc-nav-link"><i class="fas fa-handshake"></i> Socios</a>
+            <a href="#nosotros" class="tc-nav-link"><i class="fas fa-users"></i> Nosotros</a>
+            <a href="#contacto" class="tc-nav-link"><i class="fas fa-envelope"></i> Contacto</a>
+
+            <div class="cuenta-dropdown">
+                <a href="#cuenta" class="tc-nav-link cuenta-btn" id="cuenta-btn"><i class="fas fa-user-circle"></i> <span id="cuenta-btn-text">Mi Cuenta</span></a>
+                <div class="cuenta-dropdown-content">
+                    <div id="cuenta-menu-guest">
+                        <a href="#login" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Ingresar</a>
+                        <a href="#registro" class="dropdown-item"><i class="fas fa-user-plus"></i> Registro</a>
+                    </div>
+                    <div id="cuenta-menu-user" class="tc-hidden">
+                        <a href="#dashboard" class="dropdown-item"><i class="fas fa-id-card"></i> Mi Perfil</a>
+                        <a href="#dashboard" class="dropdown-item" id="cuenta-mis-reservas"><i class="fas fa-calendar-alt"></i> Mis Reservas</a>
+                        <button type="button" class="dropdown-item dropdown-logout" id="cuenta-logout-btn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <a href="#forgot-password" class="dropdown-item"><i class="fas fa-key"></i> Olvidé Contraseña</a>
+                </div>
+            </div>
+
+            <button type="button" class="tc-theme-toggle" id="theme-toggle" title="Cambiar tema">
+                <i class="fas fa-moon"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- NOTIFICACIONES -->
+    <div class="tc-notification-bell" id="notification-bell">
+        <i class="fas fa-bell"></i>
+        <span class="tc-notification-count" id="notification-count">0</span>
+    </div>
+    <div class="tc-notification-panel" id="notification-panel">
+        <div class="tc-notification-header">
+            <h4>Notificaciones</h4>
+            <button id="mark-all-read"><i class="fas fa-check-double"></i></button>
+        </div>
+        <div class="tc-notification-list" id="notification-list"></div>
+    </div>
+
+    <!-- VISTA INICIO -->
+    <section id="inicio" class="view active" aria-label="Inicio">
+        <div class="tc-hero">
+            <h1 class="logo">TouristChain</h1>
+            <p class="tc-hero-subtitle">El Turismo Futurista</p>
+
+            <div class="airplane-animation">
+                <img src="/assets/avion.png" alt="Avión" class="airplane-img">
+            </div>
+
+            <p class="tc-hero-text">
+                TouristChain revoluciona la industria del turismo mediante tecnología blockchain,
+                ofreciendo transparencia, seguridad y experiencias personalizadas para viajeros
+                de todo el mundo.
+            </p>
+
+            <div class="tc-hero-actions">
+                <button class="button is-cta is-large" id="start-journey-btn">
+                    <i class="fas fa-rocket"></i> ¡EMPEZAR EL VIAJE!
+                </button>
+                <button class="button is-outline is-large" id="calc-budget-hero-btn">
+                    <i class="fas fa-calculator"></i> Calcular Presupuesto
+                </button>
+            </div>
+
+            <div class="tc-hero-stats">
+                <div class="tc-hero-stat"><strong id="hero-destinations">6</strong><span>Destinos</span></div>
+                <div class="tc-hero-stat"><strong id="hero-hotels">8</strong><span>Hoteles</span></div>
+                <div class="tc-hero-stat"><strong id="hero-cars">3</strong><span>Carros 3D</span></div>
+            </div>
+        </div>
+
+        <div class="main-container">
+            <div class="tc-section-header">
+                <h2 class="tc-section-title"><i class="fas fa-bolt"></i> Nuestras Características</h2>
+            </div>
+            <div class="tc-features">
+                <div class="tc-feature">
+                    <div class="tc-feature-icon"><i class="fas fa-shield-alt"></i></div>
+                    <h4>Seguridad Blockchain</h4>
+                    <p>Transacciones seguras y transparentes con tecnología descentralizada.</p>
+                </div>
+                <div class="tc-feature">
+                    <div class="tc-feature-icon"><i class="fas fa-globe-americas"></i></div>
+                    <h4>Destinos Globales</h4>
+                    <p>Acceso a experiencias únicas en todo el mundo.</p>
+                </div>
+                <div class="tc-feature">
+                    <div class="tc-feature-icon"><i class="fas fa-crown"></i></div>
+                    <h4>Experiencias VIP</h4>
+                    <p>Beneficios exclusivos solo para miembros TouristChain.</p>
+                </div>
+                <div class="tc-feature">
+                    <div class="tc-feature-icon"><i class="fas fa-qrcode"></i></div>
+                    <h4>Pagos con QR</h4>
+                    <p>Paga fácilmente escaneando un código desde tu celular.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VISTA VIAJES -->
+    <section id="viajes" class="view" aria-label="Viajes">
+        <div class="main-container">
+            <div class="tc-section-header">
+                <h2 class="tc-section-title"><i class="fas fa-plane"></i> Destinos</h2>
+            </div>
+
+            <div class="tc-search-bar">
+                <div class="field has-addons" style="flex: 1;">
+                    <div class="control is-expanded">
+                        <input class="input" type="text" id="trip-search" placeholder="Buscar destino...">
+                    </div>
+                    <div class="control">
+                        <button class="button is-cta" id="trip-search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+                <div class="tc-filters">
+                    <div class="select">
+                        <select id="trip-price-filter">
+                            <option value="">Precio</option>
+                            <option value="0-1000">Hasta $1,000</option>
+                            <option value="1000-2000">$1,000 - $2,000</option>
+                            <option value="2000-99999">Más de $2,000</option>
+                        </select>
+                    </div>
+                    <div class="select">
+                        <select id="trip-tag-filter">
+                            <option value="">Tipo</option>
+                            <option value="playa">Playa</option>
+                            <option value="cultura">Cultura</option>
+                            <option value="aventura">Aventura</option>
+                            <option value="ciudad">Ciudad</option>
+                            <option value="relax">Relax</option>
+                        </select>
+                    </div>
+                    <button class="button is-light" id="trip-clear-filters"><i class="fas fa-undo"></i> Limpiar</button>
+                </div>
+            </div>
+
+            <div class="carousel-container" id="viajes-carousel">
+                <div class="carousel-track" id="viajes-carousel-track"></div>
+                <button type="button" class="carousel-arrow prev" data-carousel="viajes"><i class="fas fa-chevron-left"></i></button>
+                <button type="button" class="carousel-arrow next" data-carousel="viajes"><i class="fas fa-chevron-right"></i></button>
+                <div class="carousel-nav" id="viajes-carousel-nav"></div>
+            </div>
+
+            <div class="tc-section-header">
+                <h3 class="tc-section-title"><i class="fas fa-th-large"></i> Todos los Destinos</h3>
+            </div>
+            <div class="columns is-multiline" id="viajes-grid"></div>
+
+            <div class="tc-section-header">
+                <h3 class="tc-section-title"><i class="fas fa-map-marked-alt"></i> Mapa de Colombia</h3>
+            </div>
+            <p class="has-text-centered tc-text-white mb-3" style="opacity:.85">Explora nuestros destinos destacados en Colombia y el resto del mundo.</p>
+            <div class="map-legend">
+                <div class="map-legend-item"><i class="fas fa-map-marker-alt" style="color: #ffd60a;"></i> Colombia</div>
+                <div class="map-legend-item"><i class="fas fa-plane" style="color: #4a6fff;"></i> Destinos</div>
+                <div class="map-legend-item"><i class="fas fa-hotel" style="color: #ff3860;"></i> Hoteles</div>
+            </div>
+            <div id="destinations-map"></div>
+
+            <div class="tc-section-header">
+                <h3 class="tc-section-title"><i class="fas fa-box-open"></i> Paquetes de Viaje</h3>
+            </div>
+            <div class="package-comparison">
+                <div class="package-card">
+                    <div class="package-name">Básico</div>
+                    <div class="package-price">$799</div>
+                    <ul class="package-features">
+                        <li><i class="fas fa-check"></i> Vuelo ida y vuelta</li>
+                        <li><i class="fas fa-check"></i> Hotel 3 estrellas</li>
+                        <li><i class="fas fa-check"></i> Desayuno incluido</li>
+                        <li><i class="fas fa-times"></i> Excursiones</li>
+                    </ul>
+                    <button type="button" class="button is-cta is-fullwidth" data-type="viaje" data-package="basico">Seleccionar</button>
+                </div>
+                <div class="package-card popular">
+                    <div class="package-name">Medio</div>
+                    <div class="package-price">$1,299</div>
+                    <ul class="package-features">
+                        <li><i class="fas fa-check"></i> Vuelo ida y vuelta</li>
+                        <li><i class="fas fa-check"></i> Hotel 4 estrellas</li>
+                        <li><i class="fas fa-check"></i> Todo incluido</li>
+                        <li><i class="fas fa-check"></i> 2 excursiones</li>
+                    </ul>
+                    <button type="button" class="button is-cta is-fullwidth" data-type="viaje" data-package="medio">Seleccionar</button>
+                </div>
+                <div class="package-card">
+                    <div class="package-name">Black</div>
+                    <div class="package-price">$2,499</div>
+                    <ul class="package-features">
+                        <li><i class="fas fa-check"></i> Primera clase</li>
+                        <li><i class="fas fa-check"></i> Hotel 5 estrellas</li>
+                        <li><i class="fas fa-check"></i> Todo incluido premium</li>
+                        <li><i class="fas fa-check"></i> Todas las excursiones</li>
+                    </ul>
+                    <button type="button" class="button is-cta is-fullwidth" data-type="viaje" data-package="black">Seleccionar</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VISTA HOTELES -->
+    <section id="hoteles" class="view" aria-label="Hoteles">
+        <div class="main-container">
+            <div class="tc-section-header">
+                <h2 class="tc-section-title"><i class="fas fa-hotel"></i> Hoteles Asociados</h2>
+            </div>
+            <div class="tc-search-bar">
+                <div class="field has-addons" style="flex: 1;">
+                    <div class="control is-expanded">
+                        <input class="input" type="text" id="hotel-search" placeholder="Buscar hotel o ciudad...">
+                    </div>
+                    <div class="control">
+                        <button class="button is-cta" id="hotel-search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+                <div class="tc-filters">
+                    <div class="select">
+                        <select id="hotel-stars-filter">
+                            <option value="">Estrellas</option>
+                            <option value="3">3 estrellas</option>
+                            <option value="4">4 estrellas</option>
+                            <option value="5">5 estrellas</option>
+                        </select>
+                    </div>
+                    <div class="select">
+                        <select id="hotel-city-filter">
+                            <option value="">Ciudad</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="columns is-multiline" id="hotels-grid"></div>
+        </div>
+    </section>
+
+    <!-- VISTA RENTA -->
+    <section id="renta" class="view" aria-label="Renta de Carros">
+        <div class="main-container">
+            <div class="tc-section-header">
+                <h2 class="tc-section-title"><i class="fas fa-car"></i> Renta de Carros 3D</h2>
+            </div>
+            <p class="has-text-centered tc-text-white mb-4">Haz clic en "Ver en 3D" para explorar el vehículo desde todos los ángulos.</p>
+
+            <div class="tc-search-bar">
+                <div class="tc-filters">
+                    <div class="select">
+                        <select id="car-category-filter">
+                            <option value="">Categoría</option>
+                            <option value="basico">Básico</option>
+                            <option value="medio">Medio</option>
+                            <option value="black">Black</option>
+                        </select>
+                    </div>
+                    <div class="select">
+                        <select id="car-sort">
+                            <option value="">Ordenar</option>
+                            <option value="price-asc">Precio menor</option>
+                            <option value="price-desc">Precio mayor</option>
+                        </select>
+                    </div>
+                    <button class="button is-light" id="car-clear-filters"><i class="fas fa-undo"></i> Limpiar</button>
+                </div>
+            </div>
+
+            <div class="columns is-multiline" id="cars-grid"></div>
+
+            <div class="tc-info-grid">
+                <div class="tc-info-card">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <h5>Lugares de Recogida</h5>
+                    <ul>
+                        <li>Aeropuerto Internacional</li>
+                        <li>Centro de la ciudad</li>
+                        <li>Estación de tren</li>
+                        <li>Hoteles asociados</li>
+                    </ul>
+                </div>
+                <div class="tc-info-card">
+                    <i class="fas fa-clock"></i>
+                    <h5>Horarios</h5>
+                    <ul>
+                        <li>Recogida: 8:00 AM - 10:00 PM</li>
+                        <li>Devolución: 24 horas</li>
+                        <li>Servicio de emergencia: 24/7</li>
+                    </ul>
+                </div>
+                <div class="tc-info-card">
+                    <i class="fas fa-file-contract"></i>
+                    <h5>Requisitos</h5>
+                    <ul>
+                        <li>Licencia de conducir válida</li>
+                        <li>Tarjeta de crédito</li>
+                        <li>Edad mínima: 21 años</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VISTA SOCIOS -->
+    <section id="socios" class="view" aria-label="Socios">
+        <div class="main-container">
+            <div class="tc-section-header">
+                <h2 class="tc-section-title"><i class="fas fa-handshake"></i> Socios y Aliados</h2>
+            </div>
+            <div class="tc-partner-hero">
+                <p class="tc-text-white">Trabajamos con las mejores empresas del sector para ofrecerte precios exclusivos y experiencias VIP.</p>
+            </div>
+            <div class="columns is-multiline" id="partners-grid"></div>
+        </div>
+    </section>
+
+    <!-- VISTA NOSOTROS -->
+    <section id="nosotros" class="view" aria-label="Nosotros">
+        <div class="main-container">
+            <div class="tc-section-header">
+                <h2 class="tc-section-title"><i class="fas fa-users"></i> Sobre Nosotros</h2>
+            </div>
+            <div class="columns">
+                <div class="column is-6">
+                    <div class="glass-card">
+                        <h3 class="tc-text-accent"><i class="fas fa-bullseye"></i> Nuestra Misión</h3>
+                        <p>Revolucionar la industria del turismo mediante blockchain, ofreciendo transparencia total y experiencias personalizadas.</p>
+                    </div>
+                </div>
+                <div class="column is-6">
+                    <div class="glass-card">
+                        <h3 class="tc-text-accent"><i class="fas fa-eye"></i> Nuestra Visión</h3>
+                        <p>Ser la plataforma líder de turismo descentralizado, conectando viajeros y proveedores sin intermediarios.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="tc-section-header">
+                <h3 class="tc-section-title"><i class="fas fa-user-astronaut"></i> Nuestro Equipo</h3>
+            </div>
+            <div class="team-carousel-container">
+                <div class="team-carousel-track" id="team-carousel-track"></div>
+                <button type="button" class="carousel-arrow prev team-prev"><i class="fas fa-chevron-left"></i></button>
+                <button type="button" class="carousel-arrow next team-next"><i class="fas fa-chevron-right"></i></button>
+                <div class="carousel-nav" id="team-carousel-nav"></div>
+            </div>
+            <p class="has-text-centered is-size-7 mt-3 tc-text-white" style="opacity:.8">Para poner fotos reales crea <code>public/assets/team/</code> con <code>cristian.jpg, carlos.jpg, luci.jpg, johan.jpg, ivan.jpg</code> (cuadradas 500px+).</p>
+            <div class="tc-section-header">
+                <h3 class="tc-section-title"><i class="fas fa-gem"></i> Nuestros Valores</h3>
+            </div>
+            <div class="tc-features">
+                <div class="tc-feature"><div class="tc-feature-icon"><i class="fas fa-handshake"></i></div><h4>Transparencia</h4><p>Precios claros y reservas trazables.</p></div>
+                <div class="tc-feature"><div class="tc-feature-icon"><i class="fas fa-leaf"></i></div><h4>Sostenibilidad</h4><p>Viajes que cuidan los destinos.</p></div>
+                <div class="tc-feature"><div class="tc-feature-icon"><i class="fas fa-heart"></i></div><h4>Cliente primero</h4><p>Soporte humano 24/7 en tu idioma.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VISTA CONTACTO -->
+    <section id="contacto" class="view" aria-label="Contacto">
+        <div class="main-container">
+            <div class="tc-section-header">
+                <h2 class="tc-section-title"><i class="fas fa-envelope"></i> Contáctanos</h2>
+            </div>
+            <div class="columns">
+                <div class="column is-6">
+                    <div class="glass-card">
+                        <h3 class="tc-text-accent mb-4"><i class="fas fa-paper-plane"></i> Envíanos un mensaje</h3>
+                        <form id="contact-form">
+                            <div class="field">
+                                <label class="label">Nombre completo</label>
+                                <input class="input" type="text" id="contact-name" placeholder="Tu nombre">
+                                <p class="error-message" id="name-error">Ingresa tu nombre</p>
+                            </div>
+                            <div class="field">
+                                <label class="label">Correo electrónico</label>
+                                <input class="input" type="email" id="contact-email" placeholder="ejemplo@gmail.com">
+                                <p class="error-message" id="email-error">Email inválido</p>
+                            </div>
+                            <div class="field">
+                                <label class="label">Asunto</label>
+                                <input class="input" type="text" id="contact-subject" placeholder="Asunto">
+                                <p class="error-message" id="subject-error">Ingresa un asunto</p>
+                            </div>
+                            <div class="field">
+                                <label class="label">Mensaje</label>
+                                <textarea class="input" rows="4" id="contact-message" placeholder="Tu mensaje..."></textarea>
+                                <p class="error-message" id="message-error">Ingresa un mensaje</p>
+                            </div>
+                            <button type="submit" class="button is-cta is-fullwidth"><i class="fas fa-paper-plane"></i> Enviar Mensaje</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="column is-6">
+                    <div class="glass-card">
+                        <h3 class="tc-text-accent mb-4"><i class="fas fa-address-card"></i> Información</h3>
+                        <div class="contact-info">
+                            <div class="contact-item"><i class="fas fa-map-marker-alt"></i><h5>Dirección</h5><p>Av. del Turismo 123<br>Barcelona, España</p></div>
+                            <div class="contact-item"><i class="fas fa-phone"></i><h5>Teléfono</h5><p>+34 123 456 789</p></div>
+                            <div class="contact-item"><i class="fas fa-envelope"></i><h5>Email</h5><p>info@touristchain.com</p></div>
+                            <div class="contact-item"><i class="fas fa-clock"></i><h5>Horario</h5><p>Lun - Vie: 9:00 - 18:00</p></div>
+                        </div>
+                        <div class="tc-social-links">
+                            <a href="https://facebook.com" target="_blank" rel="noopener"><i class="fab fa-facebook"></i></a>
+                            <a href="https://instagram.com" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>
+                            <a href="https://twitter.com" target="_blank" rel="noopener"><i class="fab fa-twitter"></i></a>
+                            <a href="https://linkedin.com" target="_blank" rel="noopener"><i class="fab fa-linkedin"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VISTA LOGIN -->
+    <section id="login" class="view" aria-label="Login">
+        <div class="form-container">
+            <div class="glass-card tc-auth-card">
+                <div class="tc-auth-icon"><i class="fas fa-plane"></i></div>
+                <h2 class="title is-3 has-text-centered tc-text-white">Iniciar Sesión</h2>
+                <form id="login-form">
+                    <div class="field">
+                        <label class="label">Correo electrónico</label>
+                        <div class="control has-icons-left">
+                            <input class="input" type="email" id="login-email" placeholder="ejemplo@gmail.com">
+                            <span class="icon is-small is-left"><i class="fas fa-envelope"></i></span>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Contraseña</label>
+                        <div class="control has-icons-left has-icons-right">
+                            <input class="input" type="password" id="login-password" placeholder="********">
+                            <span class="icon is-small is-left"><i class="fas fa-lock"></i></span>
+                            <span class="icon is-small is-right toggle-password" data-target="login-password"><i class="fas fa-eye"></i></span>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="checkbox tc-text-white"><input type="checkbox" id="remember-me"> Recordar mi sesión</label>
+                    </div>
+                    <button type="submit" class="button is-cta is-fullwidth"><i class="fas fa-sign-in-alt"></i> Ingresar</button>
+                </form>
+                <div class="notification is-info is-light mt-3 is-size-7">
+                    <i class="fas fa-info-circle"></i> <strong>Viajero</strong> → tu perfil · <strong>Socio</strong> (cuenta creada por el admin) → panel del socio · <strong>Administrador</strong> → panel de administración.
+                </div>
+                <p class="has-text-centered mt-4 tc-text-white"><a href="#forgot-password" class="register-link">¿Olvidaste tu contraseña?</a></p>
+                <p class="has-text-centered mt-2 tc-text-white">¿No tienes cuenta? <a href="#registro" class="register-link">Regístrate</a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- VISTA REGISTRO -->
+    <section id="registro" class="view" aria-label="Registro">
+        <div class="form-container">
+            <div class="glass-card tc-auth-card">
+                <div class="tc-auth-icon"><i class="fas fa-user-astronaut"></i></div>
+                <h2 class="title is-3 has-text-centered tc-text-white">Crear Cuenta</h2>
+                <form id="register-form">
+                    <div class="field">
+                        <label class="label">Nombre completo</label>
+                        <div class="control has-icons-left">
+                            <input class="input" type="text" id="register-name" placeholder="Tu nombre">
+                            <span class="icon is-small is-left"><i class="fas fa-user"></i></span>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Correo electrónico</label>
+                        <div class="control has-icons-left">
+                            <input class="input" type="email" id="register-email" placeholder="ejemplo@gmail.com">
+                            <span class="icon is-small is-left"><i class="fas fa-envelope"></i></span>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Teléfono</label>
+                        <div class="control has-icons-left">
+                            <input class="input" type="tel" id="register-phone" placeholder="+34 123 456 789">
+                            <span class="icon is-small is-left"><i class="fas fa-phone"></i></span>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Contraseña</label>
+                        <div class="control has-icons-left has-icons-right">
+                            <input class="input" type="password" id="register-password" placeholder="Mínimo 8 caracteres">
+                            <span class="icon is-small is-left"><i class="fas fa-lock"></i></span>
+                            <span class="icon is-small is-right toggle-password" data-target="register-password"><i class="fas fa-eye"></i></span>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Confirmar contraseña</label>
+                        <div class="control has-icons-left">
+                            <input class="input" type="password" id="register-confirm" placeholder="Repite tu contraseña">
+                            <span class="icon is-small is-left"><i class="fas fa-lock"></i></span>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="checkbox tc-text-white"><input type="checkbox" id="register-terms"> Acepto los <a href="#terms" class="register-link">términos y condiciones</a></label>
+                    </div>
+                    <button type="submit" class="button is-cta is-fullwidth"><i class="fas fa-user-plus"></i> Crear Cuenta</button>
+                </form>
+                <p class="has-text-centered mt-4 tc-text-white">¿Ya tienes cuenta? <a href="#login" class="register-link">Inicia sesión</a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- VISTA FORGOT PASSWORD -->
+    <section id="forgot-password" class="view" aria-label="Recuperar contraseña">
+        <div class="form-container">
+            <div class="glass-card tc-auth-card">
+                <div class="tc-auth-icon"><i class="fas fa-key"></i></div>
+                <h2 class="title is-3 has-text-centered tc-text-white">Recuperar Contraseña</h2>
+                <form id="forgot-password-form">
+                    <div class="field">
+                        <label class="label">Correo electrónico</label>
+                        <div class="control has-icons-left">
+                            <input class="input" type="email" id="forgot-email" placeholder="ejemplo@gmail.com" required>
+                            <span class="icon is-small is-left"><i class="fas fa-envelope"></i></span>
+                        </div>
+                    </div>
+                    <button type="submit" class="button is-cta is-fullwidth" id="forgot-send-btn"><i class="fas fa-paper-plane"></i> Enviar código</button>
+                </form>
+                <div id="forgot-demo-code" class="notification is-warning is-light mt-3 tc-hidden">
+                    <i class="fas fa-flask"></i> <strong>Demo:</strong> tu código es <strong id="forgot-demo-code-value">-</strong>. En producción llegaría a tu correo.
+                </div>
+                <form id="reset-password-form" class="tc-hidden mt-4">
+                    <div class="field">
+                        <label class="label">Código de 6 dígitos</label>
+                        <input class="input" type="text" id="reset-code" placeholder="123456" maxlength="6" inputmode="numeric" required>
+                    </div>
+                    <div class="field">
+                        <label class="label">Nueva contraseña (mín. 8 caracteres)</label>
+                        <input class="input" type="password" id="reset-password" required autocomplete="new-password">
+                    </div>
+                    <button type="submit" class="button is-success is-fullwidth"><i class="fas fa-key"></i> Restablecer contraseña</button>
+                </form>
+                <p class="has-text-centered mt-4"><a href="#login" class="register-link">Volver al login</a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- VISTA TÉRMINOS Y PRIVACIDAD -->
+    <section id="terms" class="view" aria-label="Términos y privacidad">
+        <div class="main-container">
+            <div class="glass-card">
+                <h2 class="tc-section-title"><i class="fas fa-file-contract"></i> Términos y Condiciones</h2>
+                <p class="is-size-7 mb-4" style="opacity:.75">Última actualización: enero de 2026 · TouristChain S.A.S. · Colombia</p>
+                <div class="terms-container">
+                    <div class="terms-section"><h4>1. Aceptación</h4><p>Al crear una cuenta o usar TouristChain aceptas estos términos y nuestra Política de Privacidad. Si no estás de acuerdo, no uses el servicio.</p></div>
+                    <div class="terms-section"><h4>2. El servicio</h4><p>TouristChain es una plataforma para descubrir destinos, reservar viajes, hoteles y renta de vehículos, y pagar en línea (tarjeta, QR y Nequi en modo simulado/demostrativo).</p></div>
+                    <div class="terms-section"><h4>3. Cuentas</h4><p>Debes ser mayor de edad, brindar datos veraces y mantener la confidencialidad de tu contraseña. Los roles son: viajero, socio (empresa aliada con NIT) y administrador.</p></div>
+                    <div class="terms-section"><h4>4. Reservas y pagos</h4><p>Todas las reservas están sujetas a disponibilidad y se confirman con el pago. Los pagos mostrados son simulados y no generan cargos reales.</p></div>
+                    <div class="terms-section"><h4>5. Cancelación y reembolsos</h4><p>Puedes cancelar desde tu panel en “Mis Reservas”. Cancelaciones con más de 48 horas de anticipación tienen reembolso completo; el reembolso de pagos confirmados se procesa en 3 a 5 días hábiles.</p></div>
+                    <div class="terms-section"><h4>6. Conducta</h4><p>Está prohibido el uso fraudulento, la suplantación y la publicación de contenido ofensivo en reseñas. Podemos suspender cuentas que incumplan estos términos.</p></div>
+                </div>
+                <h2 class="tc-section-title mt-5"><i class="fas fa-shield-alt"></i> Política de Privacidad (Ley 1581 de 2012)</h2>
+                <div class="terms-container">
+                    <div class="terms-section"><h4>1. Datos que recogemos</h4><p>Nombre, correo, teléfono, ciudad, foto de perfil y datos de reservas y pagos. De los socios: NIT, razón social, datos de contacto y de la empresa. No almacenamos números completos de tarjetas: solo los últimos 4 dígitos como referencia.</p></div>
+                    <div class="terms-section"><h4>2. Para qué los usamos</h4><p>Crear y gestionar tu cuenta, procesar reservas y pagos, mostrar tu historial, enviar notificaciones del servicio y mejorar la plataforma. Nunca vendemos tus datos.</p></div>
+                    <div class="terms-section"><h4>3. Tus derechos (habeas data)</h4><p>Puedes conocer, actualizar, rectificar y eliminar tus datos, y revocar la autorización escribiendo a <strong>privacidad@touristchain.com</strong>. Respondemos en los términos de la Ley 1581 de 2012 y el Decreto 1377 de 2013.</p></div>
+                    <div class="terms-section"><h4>4. Cookies</h4><p>Usamos cookies y almacenamiento local para mantener tu sesión, recordar tu tema y tus favoritos. Puedes aceptarlas o rechazarlas en el aviso de cookies; el servicio básico sigue funcionando.</p></div>
+                    <div class="terms-section"><h4>5. Seguridad y menores</h4><p>Protegemos tus datos con contraseñas cifradas y sesiones con token. El servicio es para mayores de edad; si detectamos una cuenta de un menor, la suspendemos.</p></div>
+                    <div class="terms-section"><h4>6. Contacto</h4><p>Responsable del tratamiento: TouristChain S.A.S., Bogotá D.C., Colombia · <strong>privacidad@touristchain.com</strong> · Respuesta a reclamos hasta en 15 días hábiles.</p></div>
+                </div>
+                <label class="checkbox tc-text-white"><input type="checkbox" id="accept-terms"> He leído y acepto los términos y la política de privacidad</label>
+                <div class="has-text-centered mt-4">
+                    <a href="#registro" class="button is-cta">Volver al Registro</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VISTA DASHBOARD -->
+    <section id="dashboard" class="view" aria-label="Mi Perfil">
+        <div class="main-container">
+            <div class="tc-section-header">
+                <h2 class="tc-section-title"><i class="fas fa-id-card"></i> Mi Perfil</h2>
+            </div>
+
+            <div class="dashboard-container">
+                <div class="dashboard-sidebar">
+                    <div class="tc-profile-card">
+                        <div class="tc-avatar-wrapper">
+                            <img id="user-avatar-display" src="" alt="Avatar" class="avatar-large">
+                            <button id="change-avatar-btn" title="Subir foto"><i class="fas fa-camera"></i></button>
+                            <input type="file" id="avatar-file-input" accept="image/jpeg,image/png,image/webp" class="tc-hidden">
+                        </div>
+                        <h3 id="user-name-display">-</h3>
+                        <p id="user-email-display">-</p>
+                        <div class="tc-avatar-actions">
+                            <button type="button" class="button is-small is-light" id="random-avatar-btn"><i class="fas fa-dice"></i> Aleatorio</button>
+                        </div>
+                        <span class="tc-loyalty-badge"><i class="fas fa-gem"></i> <span id="user-points">0</span> pts</span>
+                    </div>
+
+                    <ul class="dashboard-menu">
+                        <li><a href="#dashboard-overview" class="active"><i class="fas fa-home"></i> Resumen</a></li>
+                        <li><a href="#dashboard-reservations"><i class="fas fa-calendar-alt"></i> Mis Reservas</a></li>
+                        <li><a href="#dashboard-payment"><i class="fas fa-credit-card"></i> Pagos</a></li>
+                        <li><a href="#dashboard-history"><i class="fas fa-history"></i> Historial</a></li>
+                        <li><a href="#dashboard-favorites"><i class="fas fa-heart"></i> Favoritos</a></li>
+                        <li><a href="#dashboard-itineraries"><i class="fas fa-route"></i> Itinerarios</a></li>
+                        <li><a href="#dashboard-budgets"><i class="fas fa-calculator"></i> Presupuestos</a></li>
+                        <li><a href="#dashboard-reviews"><i class="fas fa-star"></i> Mis Reseñas</a></li>
+                        <li><a href="#dashboard-settings"><i class="fas fa-cog"></i> Configuración</a></li>
+                    </ul>
+
+                    <button type="button" class="button is-cta is-fullwidth mt-4" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </button>
+                </div>
+
+                <div class="dashboard-content">
+                    <div id="dashboard-overview" class="dashboard-section active">
+                        <h3 class="tc-section-title"><i class="fas fa-home"></i> Resumen</h3>
+                        <div class="dashboard-stats">
+                            <div class="stat-card"><div class="stat-number" id="stat-reservations">0</div><div class="stat-label">Reservas</div></div>
+                            <div class="stat-card"><div class="stat-number" id="stat-favorites">0</div><div class="stat-label">Favoritos</div></div>
+                            <div class="stat-card"><div class="stat-number">$<span id="stat-total">0</span></div><div class="stat-label">Total Gastado</div></div>
+                            <div class="stat-card"><div class="stat-number" id="stat-trips">0</div><div class="stat-label">Viajes</div></div>
+                        </div>
+                        <div class="glass-card">
+                            <h4 class="tc-text-accent"><i class="fas fa-chart-line"></i> Actividad Reciente</h4>
+                            <div id="recent-activity"><p class="has-text-centered">No hay actividad reciente</p></div>
+                        </div>
+                    </div>
+
+                    <div id="dashboard-reservations" class="dashboard-section">
+                        <h3 class="tc-section-title"><i class="fas fa-calendar-alt"></i> Mis Reservas</h3>
+                        <div id="user-reservations"><p class="has-text-centered">No tienes reservas</p></div>
+                        <button class="button is-cta is-fullwidth mt-3" id="pay-reservations-btn"><i class="fas fa-credit-card"></i> Pagar Reservas</button>
+                        <button class="button is-light is-fullwidth mt-2" id="explore-trips-btn"><i class="fas fa-search"></i> Explorar Viajes</button>
+                    </div>
+
+                    <div id="dashboard-payment" class="dashboard-section">
+                        <h3 class="tc-section-title"><i class="fas fa-credit-card"></i> Pagos</h3>
+                        <p class="mb-3" style="opacity:.85">Paga tus reservas con tarjeta, QR escaneable o Nequi (simulado). Tus tarjetas guardadas están abajo.</p>
+                        <button type="button" class="button is-cta is-fullwidth mb-4" id="pay-from-payments-btn"><i class="fas fa-cash-register"></i> Pagar mis reservas pendientes</button>
+                        <h4 class="tc-text-accent mb-2"><i class="fas fa-wallet"></i> Mis tarjetas guardadas</h4>
+                        <div id="payment-methods-list"></div>
+                        <button type="button" class="button is-cta mt-3" id="add-payment-method-btn"><i class="fas fa-plus"></i> Agregar tarjeta</button>
+                    </div>
+
+                    <div id="dashboard-history" class="dashboard-section">
+                        <h3 class="tc-section-title"><i class="fas fa-history"></i> Historial de pagos</h3>
+                        <div id="activity-history"><p class="has-text-centered">No hay historial</p></div>
+                    </div>
+
+                    <div id="dashboard-favorites" class="dashboard-section">
+                        <h3 class="tc-section-title"><i class="fas fa-heart"></i> Mis Favoritos</h3>
+                        <div id="user-favorites"><p class="has-text-centered">No tienes favoritos</p></div>
+                    </div>
+
+                    <div id="dashboard-itineraries" class="dashboard-section">
+                        <h3 class="tc-section-title"><i class="fas fa-route"></i> Mis Itinerarios</h3>
+                        <form id="itinerary-form" class="glass-card mb-4">
+                            <div class="field">
+                                <label class="label">Nombre del itinerario</label>
+                                <input class="input" type="text" id="itinerary-name" placeholder="Ej: Aventura en Europa" required>
+                            </div>
+                            <div class="field">
+                                <label class="label">Destino</label>
+                                <input class="input" type="text" id="itinerary-destination" placeholder="Ej: París" required>
+                            </div>
+                            <div class="field">
+                                <label class="label">Días (uno por línea)</label>
+                                <textarea class="input" id="itinerary-days" rows="4" placeholder="Día 1: Llegada y check-in&#10;Día 2: Tour por la ciudad" required></textarea>
+                            </div>
+                            <button type="submit" class="button is-cta"><i class="fas fa-plus"></i> Crear Itinerario</button>
+                        </form>
+                        <div id="user-itineraries"><p class="has-text-centered">No tienes itinerarios</p></div>
+                    </div>
+
+                    <div id="dashboard-budgets" class="dashboard-section">
+                        <h3 class="tc-section-title"><i class="fas fa-calculator"></i> Calculadora de Presupuesto</h3>
+                        <form id="budget-form" class="glass-card mb-4">
+                            <div class="columns">
+                                <div class="column is-6"><div class="field"><label class="label">Nombre</label><input class="input" type="text" id="budget-name" placeholder="Mi viaje soñado" required></div></div>
+                                <div class="column is-6"><div class="field"><label class="label">Destino</label><input class="input" type="text" id="budget-destination" placeholder="Destino" required></div></div>
+                            </div>
+                            <div class="columns">
+                                <div class="column is-6"><div class="field"><label class="label">Viajeros</label><input class="input" type="number" id="budget-travelers" value="1" min="1"></div></div>
+                                <div class="column is-6"><div class="field"><label class="label">Días</label><input class="input" type="number" id="budget-days" value="7" min="1"></div></div>
+                            </div>
+                            <div class="columns">
+                                <div class="column is-6"><div class="field"><label class="label">Vuelos</label><input class="input budget-input" type="number" id="budget-flights" value="0" min="0"></div></div>
+                                <div class="column is-6"><div class="field"><label class="label">Hotel</label><input class="input budget-input" type="number" id="budget-hotel" value="0" min="0"></div></div>
+                            </div>
+                            <div class="columns">
+                                <div class="column is-6"><div class="field"><label class="label">Comida</label><input class="input budget-input" type="number" id="budget-food" value="0" min="0"></div></div>
+                                <div class="column is-6"><div class="field"><label class="label">Actividades</label><input class="input budget-input" type="number" id="budget-activities" value="0" min="0"></div></div>
+                            </div>
+                            <div class="field"><label class="label">Transporte</label><input class="input budget-input" type="number" id="budget-transport" value="0" min="0"></div>
+                            <div class="tc-budget-total">Total estimado: $<span id="budget-total-live">0</span></div>
+                            <button type="submit" class="button is-cta"><i class="fas fa-save"></i> Guardar Presupuesto</button>
+                        </form>
+                        <div id="user-budgets"><p class="has-text-centered">No tienes presupuestos guardados</p></div>
+                    </div>
+
+                    <div id="dashboard-reviews" class="dashboard-section">
+                        <h3 class="tc-section-title"><i class="fas fa-star"></i> Mis Reseñas</h3>
+                        <div id="user-reviews"><p class="has-text-centered">No has escrito reseñas</p></div>
+                    </div>
+
+                    <div id="dashboard-settings" class="dashboard-section">
+                        <h3 class="tc-section-title"><i class="fas fa-cog"></i> Configuración</h3>
+                        <form id="settings-form" class="glass-card mb-4">
+                            <div class="columns">
+                                <div class="column is-6"><div class="field"><label class="label">Nombre</label><input class="input" type="text" id="settings-name"></div></div>
+                                <div class="column is-6"><div class="field"><label class="label">Teléfono</label><input class="input" type="tel" id="settings-phone"></div></div>
+                            </div>
+                            <div class="field"><label class="label">Biografía</label><textarea class="input" id="settings-bio" rows="3"></textarea></div>
+                            <div class="field"><label class="label">Ubicación</label><input class="input" type="text" id="settings-location"></div>
+                            <div class="field">
+                                <label class="label">Notificaciones</label>
+                                <label class="checkbox mr-3"><input type="checkbox" id="settings-email-notif"> Email</label>
+                                <label class="checkbox mr-3"><input type="checkbox" id="settings-sms-notif"> SMS</label>
+                                <label class="checkbox"><input type="checkbox" id="settings-push-notif"> Push</label>
+                            </div>
+                            <button type="submit" class="button is-cta"><i class="fas fa-save"></i> Guardar Cambios</button>
+                        </form>
+                        <form id="password-form" class="glass-card">
+                            <h4 class="tc-text-accent mb-3"><i class="fas fa-lock"></i> Cambiar Contraseña</h4>
+                            <div class="field"><label class="label">Contraseña actual</label><input class="input" type="password" id="current-password" required></div>
+                            <div class="field"><label class="label">Nueva contraseña</label><input class="input" type="password" id="new-password" required></div>
+                            <div class="field"><label class="label">Confirmar nueva contraseña</label><input class="input" type="password" id="confirm-new-password" required></div>
+                            <button type="submit" class="button is-cta"><i class="fas fa-key"></i> Cambiar Contraseña</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODAL PAGO -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-card payment-modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title"><i class="fas fa-credit-card"></i> Pasarela de Pago</p>
+                <button type="button" class="delete" id="close-payment-modal"></button>
+            </header>
+            <section class="modal-card-body">
+                <div id="payment-method-step">
+                    <p class="has-text-centered mb-3 is-size-7" style="opacity:.8"><i class="fas fa-flask"></i> Pagos simulados — no se cobra dinero real.</p>
+                    <div class="payment-methods-grid">
+                        <button type="button" class="payment-method-btn" data-method="card"><i class="fas fa-credit-card payment-method-icon"></i><span class="payment-method-name">Tarjeta</span><span class="payment-method-desc">Crédito o débito</span></button>
+                        <button type="button" class="payment-method-btn" data-method="qr"><i class="fas fa-qrcode payment-method-icon"></i><span class="payment-method-name">QR</span><span class="payment-method-desc">Escanea y paga</span></button>
+                        <button type="button" class="payment-method-btn" data-method="nequi"><i class="fas fa-mobile-alt payment-method-icon"></i><span class="payment-method-name">Nequi</span><span class="payment-method-desc">A tu celular</span></button>
+                    </div>
+                    <div class="payment-summary box mt-4">
+                        <h4>Resumen</h4>
+                        <div id="payment-items-list"></div>
+                        <hr class="payment-divider">
+                        <div class="payment-total"><span>Total:</span><strong id="payment-total-amount">$0</strong></div>
+                    </div>
+                </div>
+                <div id="nequi-form-step" class="tc-hidden">
+                    <form id="nequi-payment-form">
+                        <div class="notification is-info is-light is-size-7"><i class="fas fa-mobile-alt"></i> Te enviaremos una notificación push a tu Nequi para aprobar el pago (simulado).</div>
+                        <div class="field"><label class="label">Número Nequi</label><input class="input" type="tel" id="nequi-phone" placeholder="300 123 4567" maxlength="12" required></div>
+                        <button type="submit" class="button is-success is-fullwidth" id="nequi-pay-btn">Enviar y pagar con Nequi</button>
+                        <button type="button" class="button is-light is-fullwidth mt-2 payment-back-btn">Volver</button>
+                    </form>
+                </div>
+                <div id="card-form-step" class="tc-hidden">
+                    <form id="card-payment-form">
+                        <div class="field"><label class="label">Número de tarjeta</label><input class="input" type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19" required></div>
+                        <div class="columns">
+                            <div class="column is-6"><div class="field"><label class="label">Vencimiento</label><input class="input" type="text" id="card-expiry" placeholder="MM/AA" maxlength="5" required></div></div>
+                            <div class="column is-6"><div class="field"><label class="label">CVC</label><input class="input" type="text" id="card-cvc" placeholder="123" maxlength="4" required></div></div>
+                        </div>
+                        <div class="field"><label class="label">Titular</label><input class="input" type="text" id="card-name" placeholder="NOMBRE APELLIDO" required></div>
+                        <button type="submit" class="button is-success is-fullwidth">Pagar con Tarjeta</button>
+                        <button type="button" class="button is-light is-fullwidth mt-2 payment-back-btn">Volver</button>
+                    </form>
+                </div>
+                <div id="qr-form-step" class="tc-hidden tc-text-center">
+                    <h4>Escanea el QR con tu celular para pagar</h4>
+                    <p class="is-size-7 mb-2" style="opacity:.8">Apunta la cámara al código. En este modo demo también puedes pulsar “Ya pagué / simular”.</p>
+                    <div class="qr-real-container"><img id="qr-payment-image" src="" alt="QR"></div>
+                    <p class="is-size-7 has-text-grey mt-2">Ref: <span id="qr-payment-reference">-</span></p>
+                    <div id="qr-status-message" class="notification is-info is-light mt-3">Esperando pago...</div>
+                    <button type="button" class="button is-info is-fullwidth mt-3" id="simulate-qr-scan"><i class="fas fa-mobile-alt"></i> Ya pagué / simular escaneo</button>
+                    <button type="button" class="button is-light is-fullwidth mt-2 payment-back-btn">Volver</button>
+                </div>
+                <div id="ticket-success-step" class="tc-hidden tc-text-center">
+                    <div class="notification is-success light">
+                        <h4>¡Pago Exitoso!</h4>
+                        <p>Tu transacción fue aprobada.</p>
+                    </div>
+                    <div class="box p-4 mt-4 ticket-box" id="printable-ticket">
+                        <h4 class="has-text-primary">TouristChain Ticket</h4>
+                        <p class="is-size-7 mb-2">Reserva: <strong id="ticket-code">TC-00000</strong></p>
+                        <p class="is-size-7 mb-3">Titular: <strong id="ticket-user">-</strong></p>
+                        <div class="qr-real-container-small"><img id="ticket-qr-image" src="" alt="QR" class="qr-real-image-small"></div>
+                        <div class="mt-3 text-left is-size-7">
+                            <p><strong>Método:</strong> <span id="ticket-method">-</span></p>
+                            <p><strong>Destino:</strong> <span id="ticket-destination">-</span></p>
+                            <p><strong>Fecha:</strong> <span id="ticket-date">-</span></p>
+                            <p><strong>Total:</strong> <span id="ticket-total">$0</span></p>
+                        </div>
+                    </div>
+                    <button type="button" class="button is-info is-fullwidth mt-3" id="close-ticket-btn">Finalizar</button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- MODAL RESEÑA -->
+    <div id="review-modal" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head"><p class="modal-card-title"><i class="fas fa-star"></i> Escribir Reseña</p><button class="delete" id="close-review-modal"></button></header>
+            <section class="modal-card-body">
+                <form id="review-form">
+                    <input type="hidden" id="review-item-type">
+                    <input type="hidden" id="review-item-id">
+                    <input type="hidden" id="review-item-name">
+                    <div class="field"><label class="label">Calificación</label><div class="tc-rating-input" id="review-rating"><i class="far fa-star" data-value="1"></i><i class="far fa-star" data-value="2"></i><i class="far fa-star" data-value="3"></i><i class="far fa-star" data-value="4"></i><i class="far fa-star" data-value="5"></i></div></div>
+                    <div class="field"><label class="label">Comentario</label><textarea class="input" id="review-comment" rows="3" required></textarea></div>
+                    <button type="submit" class="button is-cta is-fullwidth"><i class="fas fa-paper-plane"></i> Publicar Reseña</button>
+                </form>
+            </section>
+        </div>
+    </div>
+
+    <!-- MODAL AGREGAR TARJETA -->
+    <div id="add-card-modal" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head"><p class="modal-card-title"><i class="fas fa-credit-card"></i> Agregar Tarjeta</p><button class="delete" id="close-add-card-modal"></button></header>
+            <section class="modal-card-body">
+                <form id="add-card-form">
+                    <div class="field"><label class="label">Número de tarjeta</label><input class="input" type="text" id="new-card-number" placeholder="1234 5678 9012 3456" maxlength="19" required></div>
+                    <div class="columns">
+                        <div class="column is-6"><div class="field"><label class="label">Vencimiento</label><input class="input" type="text" id="new-card-expiry" placeholder="MM/AA" maxlength="5" required></div></div>
+                        <div class="column is-6"><div class="field"><label class="label">CVC</label><input class="input" type="text" id="new-card-cvc" placeholder="123" maxlength="4" required></div></div>
+                    </div>
+                    <div class="field"><label class="label">Nombre en la tarjeta</label><input class="input" type="text" id="new-card-holder" required></div>
+                    <button type="submit" class="button is-cta is-fullwidth"><i class="fas fa-plus"></i> Agregar</button>
+                </form>
+            </section>
+        </div>
+    </div>
+
+    <!-- MODAL VISOR 3D -->
+    <div id="viewer-3d-modal" class="modal viewer-3d-modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title"><i class="fas fa-image"></i> <span id="viewer-3d-title">Vista foto</span></p>
+                <button type="button" class="delete" id="close-viewer-3d"></button>
+            </header>
+            <section class="modal-card-body">
+                <div id="viewer-3d-canvas"></div>
+                <div class="viewer-3d-info" id="viewer-3d-info"></div>
+            </section>
+        </div>
+    </div>
+
+    <!-- CHATBOT -->
+    <div id="ai-chatbot" class="ai-chatbot">
+        <button type="button" class="ai-chatbot-fab" id="ai-chatbot-fab"><i class="fas fa-robot"></i></button>
+        <div class="ai-chatbot-header">
+            <div class="ai-chatbot-avatar"><i class="fas fa-robot"></i></div>
+            <div class="ai-chatbot-info"><strong>Asistente TouristChain</strong><small>IA lista para ayudarte</small></div>
+            <button type="button" class="ai-chatbot-toggle" id="ai-chatbot-toggle"><i class="fas fa-minus"></i></button>
+        </div>
+        <div class="ai-chatbot-body">
+            <div class="ai-chatbot-messages" id="ai-chatbot-messages"></div>
+            <div class="ai-chatbot-suggestions" id="ai-chatbot-suggestions"></div>
+            <form class="ai-chatbot-input" id="ai-chatbot-form">
+                <input type="text" id="ai-chatbot-input" placeholder="Escribe tu pregunta..." autocomplete="off">
+                <button type="submit"><i class="fas fa-paper-plane"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- COOKIES BANNER -->
+    <div id="cookies-banner" class="cookies-banner">
+        <div class="columns is-vcentered">
+            <div class="column is-9">
+                <p><i class="fas fa-cookie-bite"></i> Usamos cookies para mejorar tu experiencia. <a href="#terms" class="register-link">Más información</a></p>
+            </div>
+            <div class="column is-3 has-text-right">
+                <button type="button" class="button is-cta mr-2" id="accept-cookies">Aceptar</button>
+                <button type="button" class="button is-light" id="reject-cookies">Rechazar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="notification-toast" class="notification-toast"></div>
+
+    <footer>
+        <div class="tc-footer-content">
+            <div class="tc-logo"><i class="fas fa-plane-departure"></i><span>TouristChain</span></div>
+            <p>El Turismo Futurista, ahora con exploración 3D.</p>
+            <div class="tc-social-links">
+                <a href="https://facebook.com" target="_blank" rel="noopener"><i class="fab fa-facebook"></i></a>
+                <a href="https://instagram.com" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>
+                <a href="https://twitter.com" target="_blank" rel="noopener"><i class="fab fa-twitter"></i></a>
+            </div>
+            <p class="mt-3 is-size-7"><a href="#terms" class="register-link">Términos y condiciones</a> · <a href="#terms" class="register-link">Política de privacidad</a></p>
+            <small>© 2026 TouristChain — Todos los derechos reservados</small>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="module" src="/src/js/main.js"></script>
+</body>
+</html>
