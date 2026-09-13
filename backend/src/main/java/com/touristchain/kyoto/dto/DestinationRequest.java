@@ -1,4 +1,4 @@
-package com.touristchain.backend.kyoto.dto;
+package com.touristchain.kyoto.dto;
 
 import java.util.List;
 

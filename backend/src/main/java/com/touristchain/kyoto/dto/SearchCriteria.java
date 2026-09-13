@@ -1,9 +1,7 @@
-package com.touristchain.backend.kyoto.dto;
+package com.touristchain.kyoto.dto;
 
 import java.math.BigDecimal;
 import java.util.List;
-
-import com.touristchain.backend.kyoto.models.ServiceType;
 
 public record SearchCriteria(
         String query,

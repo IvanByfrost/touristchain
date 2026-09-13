@@ -1,8 +1,7 @@
-package com.touristchain.backend.kyoto.controllers;
+package com.touristchain.kyoto.destination;
 
-import com.touristchain.backend.kyoto.dto.DestinationRequest;
-import com.touristchain.backend.kyoto.dto.DestinationResponse;
-import com.touristchain.backend.kyoto.services.DestinationService;
+import com.touristchain.kyoto.dto.DestinationRequest;
+import com.touristchain.kyoto.dto.DestinationResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

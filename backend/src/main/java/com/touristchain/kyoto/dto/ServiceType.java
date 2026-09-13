@@ -1,4 +1,4 @@
-package com.touristchain.backend.kyoto.models;
+package com.touristchain.kyoto.dto;
 
 public enum ServiceType {
     HOTEL,

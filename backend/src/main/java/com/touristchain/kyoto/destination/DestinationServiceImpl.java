@@ -1,10 +1,7 @@
-package com.touristchain.backend.kyoto.services.impl;
+package com.touristchain.kyoto.destination;
 
-import com.touristchain.backend.kyoto.dto.DestinationRequest;
-import com.touristchain.backend.kyoto.dto.DestinationResponse;
-import com.touristchain.backend.kyoto.models.entities.Destination;
-import com.touristchain.backend.kyoto.repositories.DestinationRepository;
-import com.touristchain.backend.kyoto.services.DestinationService;
+import com.touristchain.kyoto.dto.DestinationRequest;
+import com.touristchain.kyoto.dto.DestinationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

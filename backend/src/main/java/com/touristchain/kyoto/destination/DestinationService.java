@@ -1,4 +1,4 @@
-package com.touristchain.backend.kyoto.services;
+package com.touristchain.kyoto.destination;
 
 import java.util.List;
 import java.util.Optional;
@@ -6,8 +6,8 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.touristchain.backend.kyoto.dto.DestinationRequest;
-import com.touristchain.backend.kyoto.dto.DestinationResponse;
+import com.touristchain.kyoto.dto.DestinationRequest;
+import com.touristchain.kyoto.dto.DestinationResponse;
 
 public interface DestinationService {
 

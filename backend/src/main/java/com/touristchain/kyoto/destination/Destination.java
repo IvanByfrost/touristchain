@@ -1,4 +1,4 @@
-package com.touristchain.backend.kyoto.models.entities;
+package com.touristchain.kyoto.destination;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
