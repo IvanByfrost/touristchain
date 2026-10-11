@@ -139,6 +139,44 @@ public class UserService {
         userRepository.save(user);
     }
 
+    /** Asignación de contraseña por un administrador (sin pedir la actual). */
+    @Transactional
+    public void resetPassword(UUID userId, String newPassword) {
+        UserEntity user = getUserById(userId);
+        user.setPasswordHash(passwordEncoder.encode(newPassword).getBytes());
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void changeEmail(UUID userId, String newEmail) {
+        UserEntity user = getUserById(userId);
+        String email = normalizeEmail(newEmail);
+        if (email.equals(user.getEmail())) {
+            return;
+        }
+        if (userRepository.existsByEmail(email)) {
+            throw new IllegalStateException("El email ya está registrado");
+        }
+        user.setEmail(email);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void setAccountStatus(UUID userId, AccountStatus status) {
+        UserEntity user = getUserById(userId);
+        user.setStatusAccount(status);
+        if (status == AccountStatus.locked) {
+            // Sin fecha de fin: el bloqueo dura hasta que un administrador lo levante
+            user.setLockedUntil(null);
+            user.setLockReason("Bloqueado por un administrador");
+        } else {
+            user.setFailedAttempts((short) 0);
+            user.setLockedUntil(null);
+            user.setLockReason(null);
+        }
+        userRepository.save(user);
+    }
+
     @Transactional
     public void disableUser(UUID userId) {
         UserEntity user = userRepository.findById(userId)

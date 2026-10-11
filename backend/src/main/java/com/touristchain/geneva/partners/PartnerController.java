@@ -23,6 +23,15 @@ public class PartnerController {
     private final PartnerService partnerService;
 
     /**
+     * Vitrina pública de socios activos.
+     * GET /api/v1/partners
+     */
+    @GetMapping
+    public List<PartnerShowcase> getShowcase() {
+        return partnerService.getActivePartners().stream().map(PartnerShowcase::from).toList();
+    }
+
+    /**
      * Crea un perfil de partner para el usuario autenticado.
      * POST /api/v1/partners
      */

@@ -11,11 +11,17 @@ import java.util.UUID;
 @Repository
 public interface ReviewRepository extends JpaRepository<ReviewEntity, UUID> {
 
-    List<ReviewEntity> findByTouristId(UUID touristId);
+    List<ReviewEntity> findAllByOrderByCreatedAtDesc();
 
-    List<ReviewEntity> findByPartnerId(UUID partnerId);
+    List<ReviewEntity> findByItemTypeOrderByCreatedAtDesc(String itemType);
 
-    List<ReviewEntity> findByPackageId(UUID packageId);
+    List<ReviewEntity> findByItemTypeAndItemRefOrderByCreatedAtDesc(String itemType, String itemRef);
+
+    List<ReviewEntity> findByTouristIdOrderByCreatedAtDesc(UUID touristId);
+
+    List<ReviewEntity> findByPartnerIdOrderByCreatedAtDesc(UUID partnerId);
+
+    List<ReviewEntity> findByPackageIdOrderByCreatedAtDesc(UUID packageId);
 
     @Query("SELECT AVG(r.rating) FROM ReviewEntity r WHERE r.partnerId = :partnerId")
     Double calculateAverageRatingForPartner(@Param("partnerId") UUID partnerId);
@@ -26,5 +32,7 @@ public interface ReviewRepository extends JpaRepository<ReviewEntity, UUID> {
     @Query("SELECT r.rating, COUNT(r) FROM ReviewEntity r WHERE r.partnerId = :partnerId GROUP BY r.rating")
     List<Object[]> countRatingsByValueForPartner(@Param("partnerId") UUID partnerId);
 
-    boolean existsByTouristIdAndPartnerId(UUID touristId, UUID partnerId);
+    boolean existsByTouristIdAndPartnerIdAndItemRefIsNull(UUID touristId, UUID partnerId);
+
+    boolean existsByTouristIdAndItemTypeAndItemRef(UUID touristId, String itemType, String itemRef);
 }

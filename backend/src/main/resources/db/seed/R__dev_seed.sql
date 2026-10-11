@@ -21,6 +21,19 @@ SELECT '00000000-0000-0000-0000-000000000003', 'Caribe Real S.A.S.', '900123456-
        'Operador hotelero en el Caribe colombiano', 'socio@caribereal.com', '+57 300 000 0003'
 WHERE NOT EXISTS (SELECT 1 FROM public.partner WHERE user_id = '00000000-0000-0000-0000-000000000003');
 
+UPDATE public.partner
+SET contact_name = 'María Gómez',
+    city = 'Cartagena',
+    website = 'https://example.com/caribereal',
+    benefits = E'Descuento 15% para viajeros TouristChain\nDesayuno incluido\nUpgrade de habitación sujeto a disponibilidad'
+WHERE user_id = '00000000-0000-0000-0000-000000000003' AND benefits IS NULL;
+
+INSERT INTO public.review (tourist_id, item_type, item_ref, item_name, rating, comment)
+SELECT t.tourist_id, 'viaje', '1', 'París, Francia', 5, 'Experiencia inolvidable, todo muy bien organizado.'
+FROM public.tourist t
+WHERE t.user_id = '00000000-0000-0000-0000-000000000002'
+  AND NOT EXISTS (SELECT 1 FROM public.review r WHERE r.tourist_id = t.tourist_id AND r.item_ref = '1');
+
 INSERT INTO public.destinations (name, description, country, city, category, price_per_day, rating, total_reviews)
 SELECT v.name, v.description, v.country, v.city, v.category, v.price, v.rating, v.reviews
 FROM (VALUES

@@ -1,7 +1,6 @@
 package com.touristchain.geneva.auth;
 
 import com.touristchain.geneva.users.UserEntity;
-import com.touristchain.geneva.users.enums.AccountStatus;
 import com.touristchain.geneva.users.enums.CredentialType;
 import com.touristchain.geneva.users.enums.Gender;
 
@@ -45,7 +44,7 @@ record AuthUser(
                 user.getLastName(),
                 user.getEmail(),
                 role,
-                statusLabel(user.getStatusAccount()),
+                user.getStatusAccount().label(),
                 user.getPhone(),
                 user.getAddress(),
                 user.getAddress(),
@@ -56,16 +55,6 @@ record AuthUser(
                 DEFAULT_PREFERENCES,
                 user.getCreatedAt() == null ? null : user.getCreatedAt().toLocalDate().toString(),
                 null);
-    }
-
-    private static String statusLabel(AccountStatus status) {
-        if (status == AccountStatus.active) {
-            return "activo";
-        }
-        if (status == AccountStatus.pending) {
-            return "pendiente";
-        }
-        return "inactivo";
     }
 }
 

@@ -4,15 +4,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import authRoutes from './routes/auth.js';
-import usersRoutes from './routes/users.js';
 import tripsRoutes from './routes/trips.js';
 import carsRoutes from './routes/cars.js';
 import bookingsRoutes from './routes/bookings.js';
 import paymentsRoutes from './routes/payments.js';
 import companiesRoutes from './routes/companies.js';
-import partnersRoutes from './routes/partners.js';
 import hotelsRoutes from './routes/hotels.js';
-import reviewsRoutes from './routes/reviews.js';
 import itinerariesRoutes from './routes/itineraries.js';
 import budgetsRoutes from './routes/budgets.js';
 import notificationsRoutes from './routes/notifications.js';
@@ -31,14 +28,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/trips', tripsRoutes);
 app.use('/api/cars', carsRoutes);
-app.use('/api/partners', partnersRoutes);
 app.use('/api/hotels', hotelsRoutes);
-app.use('/api/reviews', reviewsRoutes);
 app.post('/api/chat/ask', sendChatMessage);
 app.get('/api/chat/suggestions', getChatSuggestions);
 
 // Rutas protegidas
-app.use('/api/users', usersRoutes);
 app.use('/api/bookings', bookingsRoutes);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api/companies', companiesRoutes);

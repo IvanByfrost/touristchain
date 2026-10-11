@@ -889,8 +889,7 @@ async function loadUserReviews() {
     const container = document.getElementById('user-reviews');
     if (!container) return;
     try {
-        const reviews = await api.getReviews();
-        const mine = reviews.filter(r => r.userId === appState.user.id);
+        const mine = await api.getMyReviews();
         if (mine.length === 0) {
             container.innerHTML = '<p class="has-text-centered">No has escrito reseñas</p><div class="has-text-centered mt-3"><button class="button is-cta" id="review-explore-btn"><i class="fas fa-plane"></i> Explorar y reseñar</button></div>';
             document.getElementById('review-explore-btn')?.addEventListener('click', () => showView('viajes'));
@@ -904,7 +903,7 @@ async function loadUserReviews() {
                 <button class="button is-small is-danger mt-2 delete-review" data-id="${r.id}"><i class="fas fa-trash"></i></button>
             </div>
         `).join('');
-        container.querySelectorAll('.delete-review').forEach(btn => btn.addEventListener('click', async () => { await api.deleteReview(parseInt(btn.dataset.id)); loadUserReviews(); showNotification('Reseña eliminada'); }));
+        container.querySelectorAll('.delete-review').forEach(btn => btn.addEventListener('click', async () => { await api.deleteReview(btn.dataset.id); loadUserReviews(); showNotification('Reseña eliminada'); }));
     } catch (error) { container.innerHTML = '<p class="has-text-centered">Error cargando reseñas</p>'; }
 }
 function openReviewModal(type, id, name) {
@@ -922,7 +921,7 @@ async function submitReview(e) {
     if (rating === 0) { showNotification('Selecciona una calificación', 'error'); return; }
     const review = {
         itemType: document.getElementById('review-item-type').value,
-        itemId: parseInt(document.getElementById('review-item-id').value),
+        itemId: document.getElementById('review-item-id').value,
         itemName: document.getElementById('review-item-name').value,
         rating,
         comment: document.getElementById('review-comment').value

@@ -139,13 +139,13 @@ export const api = {
 
     // Partners (público)
     async getPartners() {
-        const response = await fetch(`${MOCK_API_URL}/partners`);
+        const response = await fetch(`${API_URL}/partners`);
         return handleResponse(response);
     },
 
     // Socios: cuenta creada por el admin (NIT + datos básicos)
     async createPartnerAccount(account) {
-        const response = await fetch(`${MOCK_API_URL}/partners/accounts`, {
+        const response = await fetch(`${API_URL}/partners/accounts`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify(account)
@@ -154,7 +154,7 @@ export const api = {
     },
 
     async updatePartnerAccount(id, account) {
-        const response = await fetch(`${MOCK_API_URL}/partners/accounts/${id}`, {
+        const response = await fetch(`${API_URL}/partners/accounts/${id}`, {
             method: 'PUT',
             headers: getHeaders(),
             body: JSON.stringify(account)
@@ -311,18 +311,23 @@ export const api = {
     // Reviews
     async getReviews(filters = {}) {
         const query = new URLSearchParams(filters).toString();
-        const response = await fetch(`${MOCK_API_URL}/reviews?${query}`);
+        const response = await fetch(`${API_URL}/reviews?${query}`);
         return handleResponse(response);
     },
 
     async getReviewStats(filters = {}) {
         const query = new URLSearchParams(filters).toString();
-        const response = await fetch(`${MOCK_API_URL}/reviews/stats?${query}`);
+        const response = await fetch(`${API_URL}/reviews/stats?${query}`);
+        return handleResponse(response);
+    },
+
+    async getMyReviews() {
+        const response = await fetch(`${API_URL}/reviews/me`, { headers: getHeaders() });
         return handleResponse(response);
     },
 
     async createReview(review) {
-        const response = await fetch(`${MOCK_API_URL}/reviews`, {
+        const response = await fetch(`${API_URL}/reviews`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify(review)
@@ -331,7 +336,7 @@ export const api = {
     },
 
     async deleteReview(id) {
-        const response = await fetch(`${MOCK_API_URL}/reviews/${id}`, {
+        const response = await fetch(`${API_URL}/reviews/${id}`, {
             method: 'DELETE',
             headers: getHeaders()
         });
@@ -449,12 +454,12 @@ export const api = {
 
     // Admin: Users
     async getUsers() {
-        const response = await fetch(`${MOCK_API_URL}/users`, { headers: getHeaders() });
+        const response = await fetch(`${API_URL}/users`, { headers: getHeaders() });
         return handleResponse(response);
     },
 
     async createUser(user) {
-        const response = await fetch(`${MOCK_API_URL}/users`, {
+        const response = await fetch(`${API_URL}/users`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify(user)
@@ -463,7 +468,7 @@ export const api = {
     },
 
     async updateUser(id, user) {
-        const response = await fetch(`${MOCK_API_URL}/users/${id}`, {
+        const response = await fetch(`${API_URL}/users/${id}`, {
             method: 'PUT',
             headers: getHeaders(),
             body: JSON.stringify(user)
@@ -472,7 +477,7 @@ export const api = {
     },
 
     async deleteUser(id) {
-        const response = await fetch(`${MOCK_API_URL}/users/${id}`, {
+        const response = await fetch(`${API_URL}/users/${id}`, {
             method: 'DELETE',
             headers: getHeaders()
         });

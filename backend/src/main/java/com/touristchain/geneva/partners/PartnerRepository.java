@@ -1,5 +1,6 @@
 package com.touristchain.geneva.partners;
 
+import com.touristchain.geneva.users.enums.AccountStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -71,4 +72,11 @@ public interface PartnerRepository extends JpaRepository<PartnerEntity, UUID> {
      */
     @Query("SELECT p.businessType, COUNT(p) FROM PartnerEntity p GROUP BY p.businessType")
     List<Object[]> countPartnersByBusinessType();
+
+    /**
+     * Socios cuya cuenta de usuario tiene el estado indicado (vitrina pública).
+     */
+    @Query("SELECT p FROM PartnerEntity p, UserEntity u WHERE u.userId = p.userId AND u.statusAccount = :status "
+            + "ORDER BY p.companyName ASC")
+    List<PartnerEntity> findByUserStatus(@Param("status") AccountStatus status);
 }
