@@ -91,17 +91,19 @@
         async function loadSavedData() {
             try {
                 // Intentar cargar datos desde el backend
-                const [users, companies, payments, travels] = await Promise.all([
+                const [users, companies, payments, travels, destinations] = await Promise.all([
                     api.getUsers().catch(() => []),
                     api.getCompanies().catch(() => []),
                     api.getPayments().catch(() => []),
-                    api.getTrips().catch(() => [])
+                    api.getTrips().catch(() => []),
+                    api.getDestinations().catch(() => [])
                 ]);
 
                 AdminApp.users = users;
                 AdminApp.companies = companies;
                 AdminApp.payments = payments;
                 AdminApp.travels = travels;
+                AdminApp.destinations = destinations;
 
                 // Los trabajadores y actividad se mantienen en localStorage por ahora
                 const savedData = localStorage.getItem('adminData');
@@ -1453,12 +1455,25 @@
         function openTravelForm(travelId = null) {
             const modal = document.getElementById('travel-modal');
             const title = document.getElementById('travel-modal-title');
-            
+            const destinationSelect = document.getElementById('travel-destination-id');
+
+            destinationSelect.innerHTML = '<option value="">Sin destino del catálogo</option>' +
+                (AdminApp.destinations || []).map(d =>
+                    `<option value="${d.id}">${esc(d.name)} (${esc(d.city)}, ${esc(d.country)})</option>`
+                ).join('');
+            // Al elegir un destino, propone el nombre visible si aún está vacío
+            destinationSelect.onchange = () => {
+                const dest = (AdminApp.destinations || []).find(d => d.id === parseInt(destinationSelect.value));
+                const nameInput = document.getElementById('travel-destination');
+                if (dest && !nameInput.value.trim()) nameInput.value = `${dest.city}, ${dest.country}`;
+            };
+
             if (travelId) {
                 const travel = AdminApp.travels.find(t => t.id === travelId);
                 if (travel) {
                     title.textContent = 'Editar Viaje';
                     document.getElementById('travel-id').value = travel.id;
+                    destinationSelect.value = travel.destinationId ?? '';
                     document.getElementById('travel-destination').value = travel.destination;
                     document.getElementById('travel-description').value = travel.description;
                     document.getElementById('travel-start-date').value = travel.startDate;
@@ -1484,8 +1499,10 @@
             e.preventDefault();
 
             const travelId = parseInt(document.getElementById('travel-id').value);
+            const destinationId = parseInt(document.getElementById('travel-destination-id').value);
             const travelData = {
                 destination: document.getElementById('travel-destination').value,
+                destinationId: Number.isNaN(destinationId) ? null : destinationId,
                 description: document.getElementById('travel-description').value,
                 startDate: document.getElementById('travel-start-date').value,
                 endDate: document.getElementById('travel-end-date').value,

@@ -191,6 +191,14 @@ export const api = {
         return this.getPartnerMe();
     },
 
+    // Destinations (solo activos; el backend pagina, aquí se piden todos de una vez)
+    async getDestinations(params = {}) {
+        const query = new URLSearchParams({ size: 100, ...params }).toString();
+        const response = await fetch(`${API_URL}/kyoto/destinations?${query}`);
+        const page = await handleResponse(response);
+        return page.content;
+    },
+
     // Trips
     async getTrips(params = {}) {
         const query = new URLSearchParams(params).toString();

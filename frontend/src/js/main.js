@@ -8,6 +8,7 @@ import '../scss/main.scss';
 const appState = {
     currentSlide: { viajes: 0, renta: 0, team: 0 },
     trips: [],
+    destinations: [],
     cars: [],
     hotels: [],
     favorites: JSON.parse(localStorage.getItem('touristchain-favorites')) || [],
@@ -217,6 +218,7 @@ function prevSlide(type) {
 // VIAJES
 // ============================
 async function loadTrips() { appState.trips = await api.getTrips().catch(() => []); }
+async function loadDestinations() { appState.destinations = await api.getDestinations().catch(() => []); }
 function getFilteredTrips() {
     const search = document.getElementById('trip-search')?.value.toLowerCase() || '';
     const price = document.getElementById('trip-price-filter')?.value || '';
@@ -332,15 +334,12 @@ async function initHotels() {
 // ============================
 // MAPA DE COLOMBIA
 // ============================
-// Destinos destacados de Colombia (centro del mapa)
-const colombiaSpots = [
-    { name: 'Cartagena de Indias', city: 'Bolívar', lat: 10.391, lng: -75.479, price: 850, desc: 'Ciudad amurallada, playas y atardeceres en el Caribe.' },
-    { name: 'Santa Marta + Tayrona', city: 'Magdalena', lat: 11.241, lng: -74.199, price: 780, desc: 'Sierra Nevada, playas del Tayrona y Ciudad Perdida.' },
-    { name: 'San Andrés y Providencia', city: 'Archipiélago', lat: 12.585, lng: -81.708, price: 920, desc: 'Mar de los 7 colores, buceo y relax caribeño.' },
-    { name: 'Medellín', city: 'Antioquia', lat: 6.244, lng: -75.581, price: 640, desc: 'Ciudad de la eterna primavera, cultura y metrocable.' },
-    { name: 'Eje Cafetero', city: 'Quindío', lat: 4.535, lng: -75.673, price: 590, desc: 'Fincas cafeteras, Cocora y termales en la montaña.' },
-    { name: 'Bogotá D.C.', city: 'Cundinamarca', lat: 4.711, lng: -74.072, price: 520, desc: 'Monserrate, museos y gastronomía en la capital.' }
-];
+function destinationPopup(dest) {
+    const trips = appState.trips.filter(t => t.destinationId === dest.id).length;
+    const tripsLine = trips ? `<br>✈️ ${trips} ${trips === 1 ? 'viaje disponible' : 'viajes disponibles'}` : '';
+    return `<b>📍 ${esc(dest.name)}</b><br>${esc(dest.city)}, ${esc(dest.country)}<br>${esc(dest.description || '')}` +
+        `<br><strong>Desde $${dest.pricePerDay.toLocaleString()} / día</strong>${tripsLine}`;
+}
 
 function initMap() {
     const mapEl = document.getElementById('destinations-map');
@@ -354,13 +353,14 @@ function initMap() {
         attribution: '&copy; OpenStreetMap &copy; CARTO', subdomains: 'abcd', maxZoom: 19
     }).addTo(appState.map);
 
-    const colombiaIcon = L.divIcon({ html: '<i class="fas fa-map-marker-alt" style="color:#ffd60a;font-size:1.4rem;"></i>', iconSize: [22, 22], className: 'map-icon' });
+    const destinationIcon = L.divIcon({ html: '<i class="fas fa-map-marker-alt" style="color:#ffd60a;font-size:1.4rem;"></i>', iconSize: [22, 22], className: 'map-icon' });
     const planeIcon = L.divIcon({ html: '<i class="fas fa-plane" style="color:#4a6fff;font-size:1.2rem;"></i>', iconSize: [20, 20], className: 'map-icon' });
     const hotelIcon = L.divIcon({ html: '<i class="fas fa-hotel" style="color:#ff3860;font-size:1.2rem;"></i>', iconSize: [20, 20], className: 'map-icon' });
 
-    colombiaSpots.forEach(spot => {
-        const marker = L.marker([spot.lat, spot.lng], { icon: colombiaIcon }).addTo(appState.map);
-        marker.bindPopup(`<b>🇨🇴 ${spot.name}</b><br>${spot.city}<br>${spot.desc}<br><strong>Desde $${spot.price.toLocaleString()}</strong>`);
+    appState.destinations.forEach(dest => {
+        if (!dest.coordinates) return;
+        const marker = L.marker([dest.coordinates.lat, dest.coordinates.lng], { icon: destinationIcon }).addTo(appState.map);
+        marker.bindPopup(destinationPopup(dest));
         appState.mapMarkers.push(marker);
     });
 
@@ -1355,6 +1355,7 @@ function bindTripButtons() {
 async function initViajes() {
     if (appState.trips.length === 0) await loadTrips();
     if (appState.hotels.length === 0) await loadHotels();
+    if (appState.destinations.length === 0) await loadDestinations();
     const destacados = appState.trips.filter(t => t.status === 'disponible').slice(0, 5);
     initCarousel('viajes', destacados, renderCarouselSlide, 'viajes-carousel-track', 'viajes-carousel-nav');
     renderTripsGrid();
@@ -1425,7 +1426,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('car-sort')?.addEventListener('change', initRenta);
     document.getElementById('car-clear-filters')?.addEventListener('click', () => { document.getElementById('car-category-filter').value = ''; document.getElementById('car-sort').value = ''; initRenta(); });
 
-    await Promise.all([loadTrips(), loadCars(), loadHotels()]);
+    await Promise.all([loadTrips(), loadCars(), loadHotels(), loadDestinations()]);
     initForms();
     initPaymentModal();
     initChatbot();
@@ -1433,7 +1434,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateFavoritesDisplay();
     updateReservationsDisplay();
 
-    document.getElementById('hero-destinations').textContent = appState.trips.length;
+    document.getElementById('hero-destinations').textContent = appState.destinations.length;
     document.getElementById('hero-hotels').textContent = appState.hotels.length;
     document.getElementById('hero-cars').textContent = appState.cars.length;
 
