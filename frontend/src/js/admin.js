@@ -519,7 +519,9 @@
                     expires: Date.now() + (AdminApp.settings.sessionTime * 60 * 1000)
                 };
                 localStorage.setItem('adminSession', JSON.stringify(session));
-                
+
+                // Los datos se cargaron al abrir la página, antes de tener token
+                await loadSavedData();
                 showAdminPanel();
             } catch (error) {
                 showNotification(error.message || 'Credenciales incorrectas', 'error');
@@ -750,6 +752,12 @@
             showNotification('Actividad actualizada', 'success');
         }
 
+        function esc(value) {
+            return String(value ?? '').replace(/[&<>"']/g, c => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[c]);
+        }
+
         // ============ GESTIÓN DE USUARIOS (CRUD COMPLETO) ============
         function loadUsers(page = 1) {
             const searchTerm = document.getElementById('search-users')?.value.toLowerCase() || '';
@@ -779,24 +787,24 @@
             const container = document.getElementById('users-table');
             container.innerHTML = paginatedUsers.map(user => `
                 <tr>
-                    <td>${user.id}</td>
+                    <td><small>${esc(String(user.id).slice(0, 8))}</small></td>
                     <td>
-                        <strong>${user.name}</strong><br>
-                        <small class="text-muted">${user.email}</small>
+                        <strong>${esc(user.name)}</strong><br>
+                        <small class="text-muted">${esc(user.email)}</small>
                     </td>
-                    <td>${user.email}</td>
+                    <td>${esc(user.email)}</td>
                     <td><span class="badge badge-${user.role}">${getRoleName(user.role)}</span></td>
                     <td><span class="badge badge-${user.status}">${getStatusName(user.status)}</span></td>
-                    <td>${user.createdAt}</td>
+                    <td>${esc(user.createdAt || '-')}</td>
                     <td>
                         <div class="action-buttons">
-                            <button class="action-btn edit" onclick="editUser(${user.id})" title="Editar">
+                            <button class="action-btn edit" onclick="editUser('${user.id}')" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="action-btn delete" onclick="deleteUser(${user.id})" title="Eliminar">
+                            <button class="action-btn delete" onclick="deleteUser('${user.id}')" title="Eliminar">
                                 <i class="fas fa-trash"></i>
                             </button>
-                            <button class="action-btn view" onclick="viewUser(${user.id})" title="Ver detalles">
+                            <button class="action-btn view" onclick="viewUser('${user.id}')" title="Ver detalles">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
@@ -819,6 +827,11 @@
             if (userId) {
                 // Editar usuario existente
                 const user = AdminApp.users.find(u => u.id === userId);
+                if (user && user.role === 'socio') {
+                    // Los datos del socio (NIT, empresa) se editan en su propio formulario
+                    openSocioForm(userId);
+                    return;
+                }
                 if (user) {
                     title.textContent = 'Editar Usuario';
                     document.getElementById('user-id').value = user.id;
@@ -845,15 +858,14 @@
         async function saveUser(e) {
             e.preventDefault();
 
-            const userId = parseInt(document.getElementById('user-id').value);
+            const userId = document.getElementById('user-id').value;
             const userData = {
                 name: document.getElementById('user-name').value,
                 email: document.getElementById('user-email').value,
                 role: document.getElementById('user-role').value,
                 status: document.getElementById('user-status').value,
                 phone: document.getElementById('user-phone').value,
-                address: document.getElementById('user-address').value,
-                lastLogin: new Date().toISOString().split('T')[0]
+                address: document.getElementById('user-address').value
             };
 
             const password = document.getElementById('user-password').value;
@@ -866,9 +878,6 @@
                     await api.updateUser(userId, userData);
                     showNotification('✅ Usuario actualizado correctamente', 'success');
                 } else {
-                    if (!userData.password) {
-                        userData.password = 'password123';
-                    }
                     await api.createUser(userData);
                     showNotification('✅ Usuario creado correctamente', 'success');
                 }
@@ -912,7 +921,7 @@
                       `Teléfono: ${user.phone || 'No especificado'}\n` +
                       `Dirección: ${user.address || 'No especificada'}\n` +
                       `Registro: ${user.createdAt}\n` +
-                      `Último acceso: ${user.lastLogin}`);
+                      `Último acceso: ${user.lastLogin || 'Sin registro'}`);
             }
         }
 
@@ -937,24 +946,24 @@
                 const p = s.partnerProfile || {};
                 return `
                 <tr>
-                    <td><strong>${p.nit || '-'}</strong></td>
+                    <td><strong>${esc(p.nit || '-')}</strong></td>
                     <td>
-                        <strong>${p.companyName || s.name}</strong><br>
-                        <small class="text-muted">${p.type || 'hotel'} · ${p.city || ''}</small>
+                        <strong>${esc(p.companyName || s.name)}</strong><br>
+                        <small class="text-muted">${esc(p.type || 'hotel')} · ${esc(p.city || '')}</small>
                     </td>
-                    <td>${p.contactName || '-'}</td>
-                    <td>${s.email}</td>
-                    <td>${p.phone || s.phone || '-'}</td>
+                    <td>${esc(p.contactName || '-')}</td>
+                    <td>${esc(s.email)}</td>
+                    <td>${esc(p.phone || s.phone || '-')}</td>
                     <td><span class="badge badge-${s.status}">${getStatusName(s.status)}</span></td>
                     <td>
                         <div class="action-buttons">
-                            <button class="action-btn edit" onclick="editSocio(${s.id})" title="Editar NIT y datos">
+                            <button class="action-btn edit" onclick="editSocio('${s.id}')" title="Editar NIT y datos">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="action-btn view" onclick="toggleSocioStatus(${s.id})" title="Activar/Desactivar">
+                            <button class="action-btn view" onclick="toggleSocioStatus('${s.id}')" title="Activar/Desactivar">
                                 <i class="fas fa-power-off"></i>
                             </button>
-                            <button class="action-btn delete" onclick="deleteSocio(${s.id})" title="Eliminar">
+                            <button class="action-btn delete" onclick="deleteSocio('${s.id}')" title="Eliminar">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -1006,9 +1015,7 @@
 
         async function saveSocio(e) {
             e.preventDefault();
-            const socioId = document.getElementById('socio-id').value
-                ? parseInt(document.getElementById('socio-id').value)
-                : null;
+            const socioId = document.getElementById('socio-id').value || null;
             try {
                 if (socioId) {
                     await api.updatePartnerAccount(socioId, {

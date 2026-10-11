@@ -7,6 +7,7 @@ import com.touristchain.geneva.tourists.TouristEntity;
 import com.touristchain.geneva.tourists.TouristRepository;
 import com.touristchain.geneva.tourists.TouristService;
 import com.touristchain.geneva.tourists.TouristService.CreateTouristRequest;
+import com.touristchain.geneva.users.PersonName;
 import com.touristchain.geneva.users.UserEntity;
 import com.touristchain.geneva.users.UserService;
 import com.touristchain.geneva.users.UserService.UserProfileUpdateRequest;
@@ -21,9 +22,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthService {
 
-    static final String ROLE_ADMIN = "admin";
-    static final String ROLE_PARTNER = "socio";
-    static final String ROLE_TOURIST = "user";
+    public static final String ROLE_ADMIN = "admin";
+    public static final String ROLE_PARTNER = "socio";
+    public static final String ROLE_TOURIST = "user";
 
     private static final int MIN_PASSWORD_LENGTH = 8;
 
@@ -50,7 +51,7 @@ public class AuthService {
         if (request.password().length() < MIN_PASSWORD_LENGTH) {
             throw new IllegalArgumentException("La contraseña debe tener al menos 8 caracteres");
         }
-        Name name = Name.resolve(request.name(), request.firstName(), request.lastName());
+        PersonName name = PersonName.resolve(request.name(), request.firstName(), request.lastName());
         if (name.first() == null) {
             throw new IllegalArgumentException("El nombre es requerido");
         }
@@ -75,7 +76,7 @@ public class AuthService {
 
     @Transactional
     public AuthUser updateProfile(UUID userId, ProfileUpdateRequest request) {
-        Name name = Name.resolve(request.name(), request.firstName(), request.lastName());
+        PersonName name = PersonName.resolve(request.name(), request.firstName(), request.lastName());
         userService.updateProfile(userId, new UserProfileUpdateRequest(
                 name.first(), null, name.last(), null, request.phone(),
                 request.address() != null ? request.address() : request.location()));
@@ -120,18 +121,5 @@ public class AuthService {
 
     private static String blankToNull(String value) {
         return isBlank(value) ? null : value.trim();
-    }
-
-    record Name(String first, String last) {
-        static Name resolve(String fullName, String firstName, String lastName) {
-            if (!isBlank(firstName)) {
-                return new Name(firstName.trim(), blankToNull(lastName));
-            }
-            if (isBlank(fullName)) {
-                return new Name(null, null);
-            }
-            String[] parts = fullName.trim().split("\\s+", 2);
-            return new Name(parts[0], parts.length > 1 ? parts[1] : null);
-        }
     }
 }

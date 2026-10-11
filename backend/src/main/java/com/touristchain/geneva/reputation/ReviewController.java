@@ -1,16 +1,15 @@
 package com.touristchain.geneva.reputation;
 
 import com.touristchain.geneva.reputation.ReviewService.*;
-import com.touristchain.geneva.users.UserEntity;
-import jakarta.validation.Valid;
+import com.touristchain.geneva.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -20,79 +19,54 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @PostMapping
-    public ResponseEntity<ReviewEntity> createReview(@Valid @RequestBody CreateReviewRequest request) {
-        // El touristId lo obtenemos del token y lo inyectamos en el request
-        UUID touristId = getCurrentTouristId();
-        CreateReviewRequest requestWithTourist = new CreateReviewRequest(
-                touristId,
-                request.partnerId(),
-                request.packageId(),
-                request.bookingId(),
-                request.rating(),
-                request.comment());
-        ReviewEntity created = reviewService.createReview(requestWithTourist);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    /** GET /api/v1/reviews?itemType=&itemId= (público) */
+    @GetMapping
+    public List<ReviewView> getReviews(@RequestParam(required = false) String itemType,
+            @RequestParam(required = false) String itemId) {
+        return reviewService.getReviews(itemType, itemId);
     }
 
-    @GetMapping("/{reviewId}")
-    public ResponseEntity<ReviewEntity> getReviewById(@PathVariable UUID reviewId) {
-        ReviewEntity review = reviewService.getReviewById(reviewId);
-        return ResponseEntity.ok(review);
-    }
-
-    @GetMapping("/partner/{partnerId}")
-    public ResponseEntity<List<ReviewEntity>> getReviewsByPartner(@PathVariable UUID partnerId) {
-        List<ReviewEntity> reviews = reviewService.getReviewsByPartner(partnerId);
-        return ResponseEntity.ok(reviews);
-    }
-
-    @GetMapping("/package/{packageId}")
-    public ResponseEntity<List<ReviewEntity>> getReviewsByPackage(@PathVariable UUID packageId) {
-        List<ReviewEntity> reviews = reviewService.getReviewsByPackage(packageId);
-        return ResponseEntity.ok(reviews);
+    /** GET /api/v1/reviews/stats?itemType=&itemId= (público) */
+    @GetMapping("/stats")
+    public ReviewStats getStats(@RequestParam(required = false) String itemType,
+            @RequestParam(required = false) String itemId) {
+        return reviewService.getStats(itemType, itemId);
     }
 
     @GetMapping("/me")
-    public ResponseEntity<List<ReviewEntity>> getMyReviews() {
-        UUID touristId = getCurrentTouristId();
-        List<ReviewEntity> reviews = reviewService.getReviewsByTourist(touristId);
-        return ResponseEntity.ok(reviews);
+    public List<ReviewView> getMyReviews(@AuthenticationPrincipal UserPrincipal principal) {
+        return reviewService.getReviewsByUser(principal.getUserId());
+    }
+
+    @GetMapping("/partner/{partnerId}")
+    public List<ReviewView> getReviewsByPartner(@PathVariable UUID partnerId) {
+        return reviewService.getReviewsByPartner(partnerId);
+    }
+
+    @GetMapping("/package/{packageId}")
+    public List<ReviewView> getReviewsByPackage(@PathVariable UUID packageId) {
+        return reviewService.getReviewsByPackage(packageId);
+    }
+
+    @PostMapping
+    public ResponseEntity<ReviewView> createReview(@AuthenticationPrincipal UserPrincipal principal,
+            @RequestBody CreateReviewRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(reviewService.createReview(principal.getUserId(), request));
     }
 
     @PutMapping("/{reviewId}")
-    public ResponseEntity<ReviewEntity> updateReview(
-            @PathVariable UUID reviewId,
-            @Valid @RequestBody UpdateReviewRequest request) {
-        UUID currentUserId = getCurrentUserId();
-        ReviewEntity updated = reviewService.updateReview(reviewId, currentUserId, request);
-        return ResponseEntity.ok(updated);
+    public ReviewView updateReview(@AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable UUID reviewId, @RequestBody UpdateReviewRequest request) {
+        return reviewService.updateReview(reviewId, principal.getUserId(), request);
     }
 
     @DeleteMapping("/{reviewId}")
-    public ResponseEntity<Void> deleteReview(@PathVariable UUID reviewId) {
-        UUID currentUserId = getCurrentUserId();
-        reviewService.deleteReview(reviewId, currentUserId);
-        return ResponseEntity.noContent().build();
-    }
-
-    // ========== HELPERS ==========
-
-    private UUID getCurrentUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new IllegalStateException("Usuario no autenticado");
-        }
-        Object principal = authentication.getPrincipal();
-        if (principal instanceof UserEntity userEntity) {
-            return userEntity.getUserId();
-        }
-        throw new IllegalStateException("No se pudo obtener el userId del token");
-    }
-
-    private UUID getCurrentTouristId() {
-        // En una implementación real, obtendrías el touristId asociado al userId
-        // Por ahora, asumimos que el userId es el mismo que touristId
-        return getCurrentUserId();
+    public Map<String, String> deleteReview(@AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable UUID reviewId) {
+        boolean isAdmin = principal.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
+        reviewService.deleteReview(reviewId, principal.getUserId(), isAdmin);
+        return Map.of("message", "Reseña eliminada");
     }
 }

@@ -1,12 +1,15 @@
 package com.touristchain.common;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.Map;
 
@@ -34,9 +37,25 @@ public class ApiExceptionHandler {
         return error(HttpStatus.BAD_REQUEST, "Solicitud inválida: revisa el formato de los datos");
     }
 
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, String>> badParameter(MethodArgumentTypeMismatchException e) {
+        return error(HttpStatus.BAD_REQUEST, "Parámetro inválido: " + e.getName());
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Map<String, String>> notFound(NoResourceFoundException e) {
+        return error(HttpStatus.NOT_FOUND, "Recurso no encontrado");
+    }
+
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<Map<String, String>> conflict(IllegalStateException e) {
         return error(HttpStatus.CONFLICT, e.getMessage());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, String>> integrity(DataIntegrityViolationException e) {
+        log.warn("Restricción de base de datos: {}", e.getMostSpecificCause().getMessage());
+        return error(HttpStatus.CONFLICT, "Los datos ya existen o no cumplen el formato permitido");
     }
 
     @ExceptionHandler(Exception.class)

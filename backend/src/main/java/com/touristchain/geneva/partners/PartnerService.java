@@ -2,6 +2,7 @@ package com.touristchain.geneva.partners;
 
 import com.touristchain.geneva.users.UserEntity;
 import com.touristchain.geneva.users.UserRepository;
+import com.touristchain.geneva.users.enums.AccountStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -137,6 +138,14 @@ public class PartnerService {
     @Transactional(readOnly = true)
     public List<PartnerEntity> getAllPartners() {
         return partnerRepository.findAllOrderByCompanyName();
+    }
+
+    /**
+     * Vitrina pública: solo socios con la cuenta activa.
+     */
+    @Transactional(readOnly = true)
+    public List<PartnerEntity> getActivePartners() {
+        return partnerRepository.findByUserStatus(AccountStatus.active);
     }
 
     /**

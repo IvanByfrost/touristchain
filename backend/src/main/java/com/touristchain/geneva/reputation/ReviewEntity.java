@@ -33,6 +33,15 @@ public class ReviewEntity {
     @Column(name = "booking_id", columnDefinition = "uuid")
     private UUID bookingId;
 
+    @Column(name = "item_type", length = 20)
+    private String itemType;
+
+    @Column(name = "item_ref", length = 64)
+    private String itemRef;
+
+    @Column(name = "item_name", length = 150)
+    private String itemName;
+
     @Column(name = "rating", nullable = false)
     private Integer rating;
 
