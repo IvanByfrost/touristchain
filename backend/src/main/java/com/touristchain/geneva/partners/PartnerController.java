@@ -74,7 +74,7 @@ public class PartnerController {
             @Valid @RequestBody UpdatePartnerRequest request) {
         UUID userId = getCurrentUserId();
         PartnerEntity partner = partnerService.getPartnerByUserId(userId);
-        PartnerEntity updated = partnerService.updatePartnerProfile(partner.getPartnerId(), request);
+        PartnerEntity updated = partnerService.updatePartnerProfile(partner.getPartnerId(), request.withoutTaxId());
         return ResponseEntity.ok(updated);
     }
 

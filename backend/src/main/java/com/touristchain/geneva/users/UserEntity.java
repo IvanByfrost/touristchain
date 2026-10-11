@@ -1,6 +1,7 @@
 package com.touristchain.geneva.users;
 
 import com.touristchain.geneva.users.enums.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,35 +30,36 @@ public class UserEntity {
     @Column(name = "second_name", length = 50)
     private String secondName;
 
-    @Column(name = "last_name", nullable = false, length = 60)
+    @Column(name = "last_name", length = 60)
     private String lastName;
 
     @Column(name = "second_last_name", length = 60)
     private String secondLastName;
 
-    @Column(name = "date_of_birth", nullable = false)
+    @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "gender", nullable = false, length = 20)
+    @Column(name = "gender", length = 20)
     private Gender gender;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "credential_type", nullable = false, length = 20)
+    @Column(name = "credential_type", length = 20)
     private CredentialType credentialType;
 
-    @Column(name = "credential_number", nullable = false, length = 64, unique = true)
+    @Column(name = "credential_number", length = 64, unique = true)
     private String credentialNumber;
 
     @Column(name = "email", nullable = false, length = 255, unique = true)
     private String email;
 
-    @Column(name = "phone", nullable = false, length = 20)
+    @Column(name = "phone", length = 20)
     private String phone;
 
     @Column(name = "address", length = 100)
     private String address;
 
+    @JsonIgnore
     @Column(name = "password_hash", nullable = false, columnDefinition = "bytea")
     private byte[] passwordHash;
 
@@ -83,4 +85,15 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status_profile", length = 20)
     private ProfileStatus statusProfile;
+
+    @Column(name = "created_at", insertable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", insertable = false)
+    private LocalDateTime updatedAt;
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

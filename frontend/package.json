@@ -6,8 +6,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "server": "node backend/server.js",
-    "server:dev": "nodemon backend/server.js",
+    "server": "node --env-file-if-exists=.env backend/server.js",
+    "server:dev": "nodemon --exec \"node --env-file-if-exists=.env\" backend/server.js",
     "start": "npm run build && npm run server"
   },
   "devDependencies": {

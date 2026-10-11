@@ -1,10 +1,11 @@
 import jwt from 'jsonwebtoken';
 import { readDb } from '../utils/db.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'touristchain-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET;
 
-if (!process.env.JWT_SECRET) {
-  console.warn('⚠️  JWT_SECRET no definido: usando clave temporal. Define JWT_SECRET en producción.');
+if (!JWT_SECRET || JWT_SECRET.length < 32) {
+  console.error('❌ JWT_SECRET no definido o con menos de 32 caracteres. Copia .env.example a .env y usa el mismo valor que el backend Java.');
+  process.exit(1);
 }
 
 export function generateToken(user) {

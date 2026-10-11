@@ -38,7 +38,7 @@ public class Destination {
     @Column(nullable = false)
     private String category; // BEACH, MOUNTAIN, CITY, etc.
 
-    @Column(name = "price_per_day", precision = 10, scale = 2)
+    @Column(name = "price_per_day")
     private Double pricePerDay;
 
     @Column(nullable = false)
@@ -54,7 +54,7 @@ public class Destination {
     @Column(name = "tag")
     private List<String> tags = new ArrayList<>();
 
-    @Column(precision = 3, scale = 2)
+    @Column(name = "rating")
     private Double rating = 0.0;
 
     @Column(name = "total_reviews")

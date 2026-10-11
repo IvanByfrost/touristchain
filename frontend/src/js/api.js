@@ -1,5 +1,5 @@
-// Capa de comunicación con el backend TouristChain
-const API_URL = 'http://localhost:3001/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
+const MOCK_API_URL = import.meta.env.VITE_MOCK_API_URL || 'http://localhost:3001/api';
 
 function getToken() {
     return localStorage.getItem('touristchain-token');
@@ -24,8 +24,38 @@ async function handleResponse(response) {
     return response.json();
 }
 
+function toPartnerView(user, partner) {
+    const partnerProfile = {
+        companyName: partner.companyName,
+        nit: partner.taxId,
+        contactName: partner.contactName,
+        phone: partner.contactPhone,
+        address: partner.address,
+        city: partner.city,
+        type: partner.businessType
+    };
+    const hasShowcase = partner.companyDescription || partner.website || partner.logoUrl || partner.benefits;
+    return {
+        user: {
+            ...user,
+            name: partner.companyName || user.name,
+            phone: partner.contactPhone || user.phone,
+            location: partner.city || user.location,
+            partnerProfile
+        },
+        showcase: hasShowcase ? {
+            name: partner.companyName,
+            type: partner.businessType,
+            description: partner.companyDescription,
+            website: partner.website,
+            logo: partner.logoUrl,
+            benefits: partner.benefits ? partner.benefits.split('\n').filter(Boolean) : []
+        } : null
+    };
+}
+
 export const api = {
-    baseUrl: API_URL,
+    baseUrl: MOCK_API_URL,
     // Auth
     async login(email, password) {
         const response = await fetch(`${API_URL}/auth/login`, {
@@ -99,33 +129,23 @@ export const api = {
         return handleResponse(response);
     },
 
-    async forgotPassword(email) {
-        const response = await fetch(`${API_URL}/auth/forgot`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-        });
-        return handleResponse(response);
+    async forgotPassword() {
+        throw new Error('La recuperación de contraseña aún no está disponible. Contacta al administrador.');
     },
 
-    async resetPassword(email, code, newPassword) {
-        const response = await fetch(`${API_URL}/auth/reset`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, code, newPassword })
-        });
-        return handleResponse(response);
+    async resetPassword() {
+        throw new Error('La recuperación de contraseña aún no está disponible. Contacta al administrador.');
     },
 
     // Partners (público)
     async getPartners() {
-        const response = await fetch(`${API_URL}/partners`);
+        const response = await fetch(`${MOCK_API_URL}/partners`);
         return handleResponse(response);
     },
 
     // Socios: cuenta creada por el admin (NIT + datos básicos)
     async createPartnerAccount(account) {
-        const response = await fetch(`${API_URL}/partners/accounts`, {
+        const response = await fetch(`${MOCK_API_URL}/partners/accounts`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify(account)
@@ -134,7 +154,7 @@ export const api = {
     },
 
     async updatePartnerAccount(id, account) {
-        const response = await fetch(`${API_URL}/partners/accounts/${id}`, {
+        const response = await fetch(`${MOCK_API_URL}/partners/accounts/${id}`, {
             method: 'PUT',
             headers: getHeaders(),
             body: JSON.stringify(account)
@@ -143,33 +163,48 @@ export const api = {
     },
 
     async getPartnerMe() {
-        const response = await fetch(`${API_URL}/partners/me`, { headers: getHeaders() });
-        return handleResponse(response);
+        const [user, partner] = await Promise.all([
+            fetch(`${API_URL}/auth/me`, { headers: getHeaders() }).then(handleResponse),
+            fetch(`${API_URL}/partners/me`, { headers: getHeaders() }).then(handleResponse)
+        ]);
+        return toPartnerView(user, partner);
     },
 
     async updatePartnerMe(profile) {
         const response = await fetch(`${API_URL}/partners/me`, {
             method: 'PUT',
             headers: getHeaders(),
-            body: JSON.stringify(profile)
+            body: JSON.stringify({
+                companyName: profile.companyName,
+                contactName: profile.contactName,
+                contactPhone: profile.phone,
+                address: profile.address,
+                city: profile.city,
+                businessType: profile.type,
+                companyDescription: profile.description,
+                website: profile.website,
+                logoUrl: profile.logo,
+                benefits: Array.isArray(profile.benefits) ? profile.benefits.join('\n') : profile.benefits
+            })
         });
-        return handleResponse(response);
+        await handleResponse(response);
+        return this.getPartnerMe();
     },
 
     // Trips
     async getTrips(params = {}) {
         const query = new URLSearchParams(params).toString();
-        const response = await fetch(`${API_URL}/trips?${query}`);
+        const response = await fetch(`${MOCK_API_URL}/trips?${query}`);
         return handleResponse(response);
     },
 
     async getTrip(id) {
-        const response = await fetch(`${API_URL}/trips/${id}`);
+        const response = await fetch(`${MOCK_API_URL}/trips/${id}`);
         return handleResponse(response);
     },
 
     async createTrip(trip) {
-        const response = await fetch(`${API_URL}/trips`, {
+        const response = await fetch(`${MOCK_API_URL}/trips`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify(trip)
@@ -178,7 +213,7 @@ export const api = {
     },
 
     async updateTrip(id, trip) {
-        const response = await fetch(`${API_URL}/trips/${id}`, {
+        const response = await fetch(`${MOCK_API_URL}/trips/${id}`, {
             method: 'PUT',
             headers: getHeaders(),
             body: JSON.stringify(trip)
@@ -187,7 +222,7 @@ export const api = {
     },
 
     async deleteTrip(id) {
-        const response = await fetch(`${API_URL}/trips/${id}`, {
+        const response = await fetch(`${MOCK_API_URL}/trips/${id}`, {
             method: 'DELETE',
             headers: getHeaders()
         });
@@ -196,30 +231,30 @@ export const api = {
 
     // Cars
     async getCars() {
-        const response = await fetch(`${API_URL}/cars`);
+        const response = await fetch(`${MOCK_API_URL}/cars`);
         return handleResponse(response);
     },
 
     // Hotels
     async getHotels(params = {}) {
         const query = new URLSearchParams(params).toString();
-        const response = await fetch(`${API_URL}/hotels?${query}`);
+        const response = await fetch(`${MOCK_API_URL}/hotels?${query}`);
         return handleResponse(response);
     },
 
     async getHotel(id) {
-        const response = await fetch(`${API_URL}/hotels/${id}`);
+        const response = await fetch(`${MOCK_API_URL}/hotels/${id}`);
         return handleResponse(response);
     },
 
     // Bookings
     async getBookings() {
-        const response = await fetch(`${API_URL}/bookings`, { headers: getHeaders() });
+        const response = await fetch(`${MOCK_API_URL}/bookings`, { headers: getHeaders() });
         return handleResponse(response);
     },
 
     async createBooking(booking) {
-        const response = await fetch(`${API_URL}/bookings`, {
+        const response = await fetch(`${MOCK_API_URL}/bookings`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify(booking)
@@ -228,7 +263,7 @@ export const api = {
     },
 
     async updateBooking(id, booking) {
-        const response = await fetch(`${API_URL}/bookings/${id}`, {
+        const response = await fetch(`${MOCK_API_URL}/bookings/${id}`, {
             method: 'PUT',
             headers: getHeaders(),
             body: JSON.stringify(booking)
@@ -237,7 +272,7 @@ export const api = {
     },
 
     async deleteBooking(id) {
-        const response = await fetch(`${API_URL}/bookings/${id}`, {
+        const response = await fetch(`${MOCK_API_URL}/bookings/${id}`, {
             method: 'DELETE',
             headers: getHeaders()
         });
@@ -246,12 +281,12 @@ export const api = {
 
     // Payments
     async getPayments() {
-        const response = await fetch(`${API_URL}/payments`, { headers: getHeaders() });
+        const response = await fetch(`${MOCK_API_URL}/payments`, { headers: getHeaders() });
         return handleResponse(response);
     },
 
     async createPayment(payment) {
-        const response = await fetch(`${API_URL}/payments`, {
+        const response = await fetch(`${MOCK_API_URL}/payments`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify(payment)
@@ -260,7 +295,7 @@ export const api = {
     },
 
     async createQrPayment({ amount, description, reservationIds }) {
-        const response = await fetch(`${API_URL}/payments/qr`, {
+        const response = await fetch(`${MOCK_API_URL}/payments/qr`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify({ amount, description, reservationIds })
@@ -269,25 +304,25 @@ export const api = {
     },
 
     async checkPaymentStatus(paymentId) {
-        const response = await fetch(`${API_URL}/payments/${paymentId}/status`, { headers: getHeaders() });
+        const response = await fetch(`${MOCK_API_URL}/payments/${paymentId}/status`, { headers: getHeaders() });
         return handleResponse(response);
     },
 
     // Reviews
     async getReviews(filters = {}) {
         const query = new URLSearchParams(filters).toString();
-        const response = await fetch(`${API_URL}/reviews?${query}`);
+        const response = await fetch(`${MOCK_API_URL}/reviews?${query}`);
         return handleResponse(response);
     },
 
     async getReviewStats(filters = {}) {
         const query = new URLSearchParams(filters).toString();
-        const response = await fetch(`${API_URL}/reviews/stats?${query}`);
+        const response = await fetch(`${MOCK_API_URL}/reviews/stats?${query}`);
         return handleResponse(response);
     },
 
     async createReview(review) {
-        const response = await fetch(`${API_URL}/reviews`, {
+        const response = await fetch(`${MOCK_API_URL}/reviews`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify(review)
@@ -296,7 +331,7 @@ export const api = {
     },
 
     async deleteReview(id) {
-        const response = await fetch(`${API_URL}/reviews/${id}`, {
+        const response = await fetch(`${MOCK_API_URL}/reviews/${id}`, {
             method: 'DELETE',
             headers: getHeaders()
         });
@@ -305,12 +340,12 @@ export const api = {
 
     // Itineraries
     async getItineraries() {
-        const response = await fetch(`${API_URL}/itineraries`, { headers: getHeaders() });
+        const response = await fetch(`${MOCK_API_URL}/itineraries`, { headers: getHeaders() });
         return handleResponse(response);
     },
 
     async createItinerary(itinerary) {
-        const response = await fetch(`${API_URL}/itineraries`, {
+        const response = await fetch(`${MOCK_API_URL}/itineraries`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify(itinerary)
@@ -319,7 +354,7 @@ export const api = {
     },
 
     async updateItinerary(id, itinerary) {
-        const response = await fetch(`${API_URL}/itineraries/${id}`, {
+        const response = await fetch(`${MOCK_API_URL}/itineraries/${id}`, {
             method: 'PUT',
             headers: getHeaders(),
             body: JSON.stringify(itinerary)
@@ -328,7 +363,7 @@ export const api = {
     },
 
     async deleteItinerary(id) {
-        const response = await fetch(`${API_URL}/itineraries/${id}`, {
+        const response = await fetch(`${MOCK_API_URL}/itineraries/${id}`, {
             method: 'DELETE',
             headers: getHeaders()
         });
@@ -337,12 +372,12 @@ export const api = {
 
     // Budgets
     async getBudgets() {
-        const response = await fetch(`${API_URL}/budgets`, { headers: getHeaders() });
+        const response = await fetch(`${MOCK_API_URL}/budgets`, { headers: getHeaders() });
         return handleResponse(response);
     },
 
     async createBudget(budget) {
-        const response = await fetch(`${API_URL}/budgets`, {
+        const response = await fetch(`${MOCK_API_URL}/budgets`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify(budget)
@@ -351,7 +386,7 @@ export const api = {
     },
 
     async deleteBudget(id) {
-        const response = await fetch(`${API_URL}/budgets/${id}`, {
+        const response = await fetch(`${MOCK_API_URL}/budgets/${id}`, {
             method: 'DELETE',
             headers: getHeaders()
         });
@@ -360,12 +395,12 @@ export const api = {
 
     // Notifications
     async getNotifications() {
-        const response = await fetch(`${API_URL}/notifications`, { headers: getHeaders() });
+        const response = await fetch(`${MOCK_API_URL}/notifications`, { headers: getHeaders() });
         return handleResponse(response);
     },
 
     async createNotification({ title, message, type = 'info' }) {
-        const response = await fetch(`${API_URL}/notifications`, {
+        const response = await fetch(`${MOCK_API_URL}/notifications`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify({ title, message, type })
@@ -374,7 +409,7 @@ export const api = {
     },
 
     async markNotificationRead(id) {
-        const response = await fetch(`${API_URL}/notifications/${id}/read`, {
+        const response = await fetch(`${MOCK_API_URL}/notifications/${id}/read`, {
             method: 'PATCH',
             headers: getHeaders()
         });
@@ -382,7 +417,7 @@ export const api = {
     },
 
     async markAllNotificationsRead() {
-        const response = await fetch(`${API_URL}/notifications/read-all`, {
+        const response = await fetch(`${MOCK_API_URL}/notifications/read-all`, {
             method: 'PATCH',
             headers: getHeaders()
         });
@@ -390,7 +425,7 @@ export const api = {
     },
 
     async deleteNotification(id) {
-        const response = await fetch(`${API_URL}/notifications/${id}`, {
+        const response = await fetch(`${MOCK_API_URL}/notifications/${id}`, {
             method: 'DELETE',
             headers: getHeaders()
         });
@@ -399,7 +434,7 @@ export const api = {
 
     // Chat IA
     async sendChatMessage(message, context = {}) {
-        const response = await fetch(`${API_URL}/chat/ask`, {
+        const response = await fetch(`${MOCK_API_URL}/chat/ask`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message, context })
@@ -408,18 +443,18 @@ export const api = {
     },
 
     async getChatSuggestions() {
-        const response = await fetch(`${API_URL}/chat/suggestions`);
+        const response = await fetch(`${MOCK_API_URL}/chat/suggestions`);
         return handleResponse(response);
     },
 
     // Admin: Users
     async getUsers() {
-        const response = await fetch(`${API_URL}/users`, { headers: getHeaders() });
+        const response = await fetch(`${MOCK_API_URL}/users`, { headers: getHeaders() });
         return handleResponse(response);
     },
 
     async createUser(user) {
-        const response = await fetch(`${API_URL}/users`, {
+        const response = await fetch(`${MOCK_API_URL}/users`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify(user)
@@ -428,7 +463,7 @@ export const api = {
     },
 
     async updateUser(id, user) {
-        const response = await fetch(`${API_URL}/users/${id}`, {
+        const response = await fetch(`${MOCK_API_URL}/users/${id}`, {
             method: 'PUT',
             headers: getHeaders(),
             body: JSON.stringify(user)
@@ -437,7 +472,7 @@ export const api = {
     },
 
     async deleteUser(id) {
-        const response = await fetch(`${API_URL}/users/${id}`, {
+        const response = await fetch(`${MOCK_API_URL}/users/${id}`, {
             method: 'DELETE',
             headers: getHeaders()
         });
@@ -446,12 +481,12 @@ export const api = {
 
     // Admin: Companies
     async getCompanies() {
-        const response = await fetch(`${API_URL}/companies`, { headers: getHeaders() });
+        const response = await fetch(`${MOCK_API_URL}/companies`, { headers: getHeaders() });
         return handleResponse(response);
     },
 
     async createCompany(company) {
-        const response = await fetch(`${API_URL}/companies`, {
+        const response = await fetch(`${MOCK_API_URL}/companies`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify(company)
@@ -460,7 +495,7 @@ export const api = {
     },
 
     async updateCompany(id, company) {
-        const response = await fetch(`${API_URL}/companies/${id}`, {
+        const response = await fetch(`${MOCK_API_URL}/companies/${id}`, {
             method: 'PUT',
             headers: getHeaders(),
             body: JSON.stringify(company)
@@ -469,7 +504,7 @@ export const api = {
     },
 
     async deleteCompany(id) {
-        const response = await fetch(`${API_URL}/companies/${id}`, {
+        const response = await fetch(`${MOCK_API_URL}/companies/${id}`, {
             method: 'DELETE',
             headers: getHeaders()
         });

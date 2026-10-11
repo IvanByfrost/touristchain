@@ -1,6 +1,8 @@
 package com.touristchain.geneva.tourists;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,6 +31,7 @@ public class TouristEntity {
     @Column(name = "loyalty_points")
     private Integer loyaltyPoints;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "travel_preferences", columnDefinition = "jsonb")
     private String travelPreferences; // JSON string
 
