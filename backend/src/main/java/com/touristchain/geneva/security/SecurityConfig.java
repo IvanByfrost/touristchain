@@ -24,7 +24,9 @@ import java.util.Map;
 @Configuration
 public class SecurityConfig {
 
-    private static final String DESTINATIONS = "/api/v1/kyoto/destinations/**";
+    private static final String[] PUBLIC_CATALOG = {
+            "/api/v1/kyoto/destinations/**", "/api/v1/kyoto/hotels/**", "/api/v1/kyoto/cars/**"
+    };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtService jwtService, ObjectMapper objectMapper)
@@ -39,8 +41,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login", "/api/v1/auth/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/health").permitAll()
-                        .requestMatchers(HttpMethod.GET, DESTINATIONS).permitAll()
-                        .requestMatchers(DESTINATIONS).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, PUBLIC_CATALOG).permitAll()
+                        .requestMatchers(PUBLIC_CATALOG).hasRole("ADMIN")
+                        .requestMatchers("/api/v1/kyoto/companies/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/reviews", "/api/v1/reviews/stats",
                                 "/api/v1/reviews/partner/**", "/api/v1/reviews/package/**")
                         .permitAll()
