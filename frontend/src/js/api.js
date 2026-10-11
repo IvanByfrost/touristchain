@@ -231,19 +231,19 @@ export const api = {
 
     // Cars
     async getCars() {
-        const response = await fetch(`${MOCK_API_URL}/cars`);
+        const response = await fetch(`${API_URL}/kyoto/cars`);
         return handleResponse(response);
     },
 
     // Hotels
     async getHotels(params = {}) {
         const query = new URLSearchParams(params).toString();
-        const response = await fetch(`${MOCK_API_URL}/hotels?${query}`);
+        const response = await fetch(`${API_URL}/kyoto/hotels?${query}`);
         return handleResponse(response);
     },
 
     async getHotel(id) {
-        const response = await fetch(`${MOCK_API_URL}/hotels/${id}`);
+        const response = await fetch(`${API_URL}/kyoto/hotels/${id}`);
         return handleResponse(response);
     },
 
@@ -486,12 +486,12 @@ export const api = {
 
     // Admin: Companies
     async getCompanies() {
-        const response = await fetch(`${MOCK_API_URL}/companies`, { headers: getHeaders() });
+        const response = await fetch(`${API_URL}/kyoto/companies`, { headers: getHeaders() });
         return handleResponse(response);
     },
 
     async createCompany(company) {
-        const response = await fetch(`${MOCK_API_URL}/companies`, {
+        const response = await fetch(`${API_URL}/kyoto/companies`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify(company)
@@ -500,7 +500,7 @@ export const api = {
     },
 
     async updateCompany(id, company) {
-        const response = await fetch(`${MOCK_API_URL}/companies/${id}`, {
+        const response = await fetch(`${API_URL}/kyoto/companies/${id}`, {
             method: 'PUT',
             headers: getHeaders(),
             body: JSON.stringify(company)
@@ -509,7 +509,7 @@ export const api = {
     },
 
     async deleteCompany(id) {
-        const response = await fetch(`${MOCK_API_URL}/companies/${id}`, {
+        const response = await fetch(`${API_URL}/kyoto/companies/${id}`, {
             method: 'DELETE',
             headers: getHeaders()
         });

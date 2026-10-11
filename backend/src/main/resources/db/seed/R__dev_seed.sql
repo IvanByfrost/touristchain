@@ -71,3 +71,47 @@ FROM (VALUES
 ) AS v(name, tag)
 JOIN public.destinations d ON d.name = v.name
 WHERE NOT EXISTS (SELECT 1 FROM public.destination_tags t WHERE t.destination_id = d.id AND t.tag = v.tag);
+
+INSERT INTO public.hotel (name, city, stars, price, image, description, amenities, latitude, longitude)
+SELECT v.name, v.city, v.stars, v.price, v.image, v.description, v.amenities, v.lat, v.lng
+FROM (VALUES
+    (1, 'Marriott Champs-Élysées', 'París, Francia', 5, 280, 'https://images.unsplash.com/photo-1566073771259-6a8506099945',
+     'Hotel de lujo con vista a la Torre Eiffel y servicio premium.', ARRAY['WiFi', 'Spa', 'Piscina', 'Gimnasio', 'Restaurante'], 48.8738, 2.295),
+    (2, 'Hotel Artis', 'Roma, Italia', 4, 150, 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa',
+     'Hotel boutique cerca del Coliseo con encanto italiano.', ARRAY['WiFi', 'Desayuno', 'Terraza', 'Aire acondicionado'], 41.89, 12.49),
+    (3, 'Park Hyatt Tokyo', 'Tokio, Japón', 5, 450, 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb',
+     'Hotel icónico con vistas panorámicas de Tokio y monte Fuji.', ARRAY['WiFi', 'Spa', 'Piscina', 'Gimnasio', 'Bar'], 35.685, 139.69),
+    (4, 'The Westin Cancún', 'Cancún, México', 4, 220, 'https://images.unsplash.com/photo-1571896349842-33c89424de2d',
+     'Resort frente al mar con playa privada y actividades acuáticas.', ARRAY['WiFi', 'Playa', 'Piscina', 'Restaurante', 'Bar'], 21.14, -86.77),
+    (5, 'The Plaza New York', 'Nueva York, USA', 5, 520, 'https://images.unsplash.com/photo-1564501049412-61c2a3083791',
+     'Hotel histórico en Fifth Avenue, símbolo de lujo neoyorquino.', ARRAY['WiFi', 'Spa', 'Gimnasio', 'Restaurante', 'Concierge'], 40.7647, -73.9748),
+    (6, 'Ayana Resort Bali', 'Bali, Indonesia', 5, 350, 'https://images.unsplash.com/photo-1537996194471-e657df975ab4',
+     'Resort de lujo con villas privadas y vistas al océano Índico.', ARRAY['WiFi', 'Spa', 'Piscina infinita', 'Playa', 'Restaurante'], -8.79, 115.21),
+    (7, 'JW Marriott Bogotá', 'Bogotá, Colombia', 5, 180, 'https://images.unsplash.com/photo-1618773928121-c32242e63f39',
+     'Hotel moderno en el corazón financiero de Bogotá.', ARRAY['WiFi', 'Spa', 'Gimnasio', 'Restaurante', 'Bar'], 4.68, -74.05),
+    (8, 'Hotel Barcelona Center', 'Barcelona, España', 4, 160, 'https://images.unsplash.com/photo-1563911302283-d2bc129e7c1f',
+     'Elegante hotel cerca de Paseo de Gracia y La Sagrada Familia.', ARRAY['WiFi', 'Terraza', 'Desayuno', 'Gimnasio'], 41.39, 2.16)
+) AS v(ord, name, city, stars, price, image, description, amenities, lat, lng)
+WHERE NOT EXISTS (SELECT 1 FROM public.hotel h WHERE h.name = v.name)
+ORDER BY v.ord;
+
+INSERT INTO public.rental_car (name, type, category, price, image, features, rating, total_reviews)
+SELECT v.name, v.type, v.category, v.price, v.image, v.features, v.rating, v.reviews
+FROM (VALUES
+    (1, 'Toyota Yaris', 'Compacto', 'basico', 35, 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2',
+     ARRAY['5 personas', 'Automático', 'Aire acondicionado', 'Bluetooth'], 4.5, 8),
+    (2, 'Honda CR-V', 'SUV', 'medio', 65, 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341',
+     ARRAY['7 personas', 'Automático', 'GPS', 'WiFi', 'Cámara trasera'], 4.7, 12),
+    (3, 'BMW X5', 'Premium', 'black', 120, 'https://images.unsplash.com/photo-1555212697-194d092e3b8f',
+     ARRAY['5 personas', 'Automático', 'Pantalla táctil', 'Asientos de cuero', 'Sistema premium'], 4.9, 6)
+) AS v(ord, name, type, category, price, image, features, rating, reviews)
+WHERE NOT EXISTS (SELECT 1 FROM public.rental_car c WHERE c.name = v.name)
+ORDER BY v.ord;
+
+INSERT INTO public.company (ruc, name, contact, email, phone, address, status, workers)
+VALUES
+    ('12345678901', 'Viajes del Sol S.A.', 'Roberto Gómez', 'info@viajessol.com', '+34 900 123 456',
+     'Av. del Turismo 123, Barcelona', 'activa', 5),
+    ('98765432109', 'Aventuras Extremas S.L.', 'Laura Méndez', 'contacto@aventuras.com', '+34 900 654 321',
+     'Calle Aventura 45, Madrid', 'activa', 8)
+ON CONFLICT (ruc) DO NOTHING;
