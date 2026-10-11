@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -254,8 +255,8 @@ public class DestinationServiceImpl implements DestinationService {
                 destination.getCategory(),
                 destination.getPricePerDay(),
                 destination.getCurrency(),
-                destination.getImages(),
-                destination.getTags(),
+                new ArrayList<>(destination.getImages()),
+                new ArrayList<>(destination.getTags()),
                 destination.getRating(),
                 destination.getTotalReviews(),
                 destination.getContractAddress(),

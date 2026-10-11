@@ -2,7 +2,6 @@ package com.touristchain.geneva.users;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,26 +15,6 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
-
-    /**
-     * Registro de nuevo usuario.
-     * POST /api/v1/users/register
-     */
-    @PostMapping("/register")
-    public ResponseEntity<UserEntity> register(@Valid @RequestBody UserRegistrationRequest request) {
-        UserEntity created = userService.registerUser(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
-    }
-
-    /**
-     * Inicio de sesión.
-     * POST /api/v1/users/login
-     */
-    @PostMapping("/login")
-    public ResponseEntity<UserEntity> login(@Valid @RequestBody LoginRequest request) {
-        UserEntity loggedIn = userService.login(request.email(), request.password());
-        return ResponseEntity.ok(loggedIn);
-    }
 
     /**
      * Obtener usuario por ID.

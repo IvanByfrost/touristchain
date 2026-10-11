@@ -37,3 +37,7 @@ Thumbs.db
 .docker/
 docker/
 docker-compose.override.yml
+
+### Env ###
+.env
+!.env.example

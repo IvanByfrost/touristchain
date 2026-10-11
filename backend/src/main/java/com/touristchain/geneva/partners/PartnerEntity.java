@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -46,6 +47,27 @@ public class PartnerEntity {
 
     @Column(name = "country_id", columnDefinition = "uuid")
     private UUID countryId;
+
+    @Column(name = "contact_name", length = 100)
+    private String contactName;
+
+    @Column(name = "address", length = 150)
+    private String address;
+
+    @Column(name = "city", length = 100)
+    private String city;
+
+    @Column(name = "logo_url", length = 500)
+    private String logoUrl;
+
+    @Column(name = "benefits", columnDefinition = "text")
+    private String benefits;
+
+    @Column(name = "created_at", insertable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", insertable = false, updatable = false)
+    private LocalDateTime updatedAt;
 
     @PrePersist
     public void prePersist() {

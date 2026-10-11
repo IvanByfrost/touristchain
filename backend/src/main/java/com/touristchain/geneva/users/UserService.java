@@ -5,6 +5,7 @@ import com.touristchain.geneva.users.enums.CredentialType;
 import com.touristchain.geneva.users.enums.Gender;
 import com.touristchain.geneva.users.enums.ProfileStatus;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.UUID;
 
 @Service
@@ -24,11 +26,13 @@ public class UserService {
     @Transactional
     public UserEntity registerUser(UserRegistrationRequest request) {
         // Validar que email y credentialNumber no existan
-        if (userRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Email ya registrado");
+        String email = normalizeEmail(request.email());
+        if (userRepository.existsByEmail(email)) {
+            throw new IllegalStateException("El email ya está registrado");
         }
-        if (userRepository.existsByCredentialNumber(request.credentialNumber())) {
-            throw new IllegalArgumentException("Número de identificación ya registrado");
+        if (request.credentialNumber() != null
+                && userRepository.existsByCredentialNumber(request.credentialNumber())) {
+            throw new IllegalStateException("Número de identificación ya registrado");
         }
 
         UserEntity user = new UserEntity();
@@ -41,7 +45,7 @@ public class UserService {
         user.setGender(request.gender());
         user.setCredentialType(request.credentialType());
         user.setCredentialNumber(request.credentialNumber());
-        user.setEmail(request.email());
+        user.setEmail(email);
         user.setPhone(request.phone());
         user.setAddress(request.address());
         user.setPasswordHash(passwordEncoder.encode(request.password()).getBytes());
@@ -53,8 +57,14 @@ public class UserService {
 
     @Transactional
     public UserEntity login(String email, String rawPassword) {
-        UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        UserEntity user = userRepository.findByEmail(normalizeEmail(email))
+                .orElseThrow(() -> new BadCredentialsException("Credenciales inválidas"));
+
+        if (user.getStatusAccount() == AccountStatus.locked && user.getLockedUntil() != null
+                && user.getLockedUntil().isBefore(LocalDateTime.now())) {
+            user.setStatusAccount(AccountStatus.active);
+            user.setFailedAttempts((short) 0);
+        }
 
         // Verificar estado de la cuenta
         if (user.getStatusAccount() == AccountStatus.locked) {
@@ -67,14 +77,15 @@ public class UserService {
         // Verificar contraseña
         String storedHash = new String(user.getPasswordHash());
         if (!passwordEncoder.matches(rawPassword, storedHash)) {
-            user.setFailedAttempts((short) (user.getFailedAttempts() + 1));
+            short attempts = user.getFailedAttempts() == null ? 0 : user.getFailedAttempts();
+            user.setFailedAttempts((short) (attempts + 1));
             if (user.getFailedAttempts() >= 5) {
                 user.setStatusAccount(AccountStatus.locked);
                 user.setLockedUntil(LocalDateTime.now().plusMinutes(30));
                 user.setLockReason("Demasiados intentos fallidos");
             }
             userRepository.save(user);
-            throw new IllegalArgumentException("Credenciales inválidas");
+            throw new BadCredentialsException("Credenciales inválidas");
         }
 
         // Resetear intentos fallidos
@@ -139,6 +150,10 @@ public class UserService {
     public UserEntity getUserById(UUID userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+    }
+
+    private static String normalizeEmail(String email) {
+        return email == null ? null : email.trim().toLowerCase(Locale.ROOT);
     }
 
     public record UserRegistrationRequest(

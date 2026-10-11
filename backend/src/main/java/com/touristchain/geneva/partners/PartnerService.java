@@ -112,6 +112,21 @@ public class PartnerService {
         if (request.countryId() != null) {
             partner.setCountryId(request.countryId());
         }
+        if (request.contactName() != null) {
+            partner.setContactName(request.contactName());
+        }
+        if (request.address() != null) {
+            partner.setAddress(request.address());
+        }
+        if (request.city() != null) {
+            partner.setCity(request.city());
+        }
+        if (request.logoUrl() != null) {
+            partner.setLogoUrl(request.logoUrl());
+        }
+        if (request.benefits() != null) {
+            partner.setBenefits(request.benefits());
+        }
 
         return partnerRepository.save(partner);
     }
@@ -218,6 +233,16 @@ public class PartnerService {
             String website,
             String contactEmail,
             String contactPhone,
-            UUID countryId) {
+            UUID countryId,
+            String contactName,
+            String address,
+            String city,
+            String logoUrl,
+            String benefits) {
+
+        public UpdatePartnerRequest withoutTaxId() {
+            return new UpdatePartnerRequest(companyName, null, businessType, companyDescription, website,
+                    contactEmail, contactPhone, countryId, contactName, address, city, logoUrl, benefits);
+        }
     }
 }

@@ -9,19 +9,19 @@ CREATE TABLE public.users (
     -- Datos personales
     first_name VARCHAR(50) NOT NULL,
     second_name VARCHAR(50),
-    last_name VARCHAR(60) NOT NULL,
+    last_name VARCHAR(60),
     second_last_name VARCHAR(60),
-    date_of_birth DATE NOT NULL,
-    gender VARCHAR(20) NOT NULL,
+    date_of_birth DATE,
+    gender VARCHAR(20),
     blood_type VARCHAR(10),
     
     -- Identificación
-    credential_type VARCHAR(20) NOT NULL,
-    credential_number VARCHAR(64) NOT NULL UNIQUE, -- Único a nivel global
+    credential_type VARCHAR(20),
+    credential_number VARCHAR(64) UNIQUE, -- Único a nivel global (opcional hasta completar perfil)
     
     -- Contacto
     email VARCHAR(255) NOT NULL UNIQUE,
-    phone VARCHAR(20) NOT NULL,
+    phone VARCHAR(20),
     address VARCHAR(100),
     
     -- 🔐 Seguridad y autenticación
@@ -29,6 +29,9 @@ CREATE TABLE public.users (
     failed_attempts SMALLINT DEFAULT 0,
     locked_until TIMESTAMP(6) WITHOUT TIME ZONE,
     lock_reason VARCHAR(500),
+
+    primary_language VARCHAR(10),
+    requires_sign_language BOOLEAN DEFAULT FALSE,
         
     -- Estado de la cuenta y perfil
     status_account VARCHAR(20) NOT NULL DEFAULT 'pending',
@@ -43,10 +46,10 @@ CREATE TABLE public.users (
 );
 
 -- 📇 Índices para búsquedas rápidas
-CREATE INDEX idx_users_email ON public.heimdall_users(email);
-CREATE INDEX idx_users_credential_number ON public.heimdall_users(credential_number);
-CREATE INDEX idx_users_status_account ON public.heimdall_users(status_account);
-CREATE INDEX idx_users_date_of_birth ON public.heimdall_users(date_of_birth);
+CREATE INDEX idx_users_email ON public.users(email);
+CREATE INDEX idx_users_credential_number ON public.users(credential_number);
+CREATE INDEX idx_users_status_account ON public.users(status_account);
+CREATE INDEX idx_users_date_of_birth ON public.users(date_of_birth);
 
 -- ======================================================
 -- Tabla: tourist
@@ -162,14 +165,12 @@ CREATE TABLE public.partner (
     contact_phone VARCHAR(20),
     
     -- 📍 Ubicación (relación con geografía)
-    country_id UUID,  -- Opcional, se validará cuando exista la tabla country
+    country_id UUID,  -- Opcional; FK pendiente hasta que exista la tabla country
     
     -- ✅ Restricciones de integridad
     CONSTRAINT partner_pkey PRIMARY KEY (partner_id),
     CONSTRAINT partner_user_id_fkey FOREIGN KEY (user_id) 
-        REFERENCES public.users(user_id) ON DELETE CASCADE,
-    CONSTRAINT partner_country_id_fkey FOREIGN KEY (country_id) 
-        REFERENCES public.country(country_id) ON DELETE SET NULL
+        REFERENCES public.users(user_id) ON DELETE CASCADE
 );
 
 -- 📇 Índices para mejorar el rendimiento
@@ -189,6 +190,26 @@ COMMENT ON COLUMN public.partner.website IS 'Sitio web del proveedor';
 COMMENT ON COLUMN public.partner.contact_email IS 'Email de contacto del proveedor';
 COMMENT ON COLUMN public.partner.contact_phone IS 'Teléfono de contacto del proveedor';
 COMMENT ON COLUMN public.partner.country_id IS 'País de operación del proveedor';
+
+CREATE TABLE public.booking (
+    booking_id UUID NOT NULL DEFAULT gen_random_uuid(),
+    tourist_id UUID NOT NULL,
+    partner_id UUID NOT NULL,
+    package_id UUID,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    total_price DECIMAL(10,2) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    created_at TIMESTAMP(6) WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP(6) WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT booking_pkey PRIMARY KEY (booking_id),
+    CONSTRAINT booking_tourist_id_fkey FOREIGN KEY (tourist_id)
+        REFERENCES public.tourist(tourist_id) ON DELETE CASCADE,
+    CONSTRAINT booking_partner_id_fkey FOREIGN KEY (partner_id)
+        REFERENCES public.partner(partner_id) ON DELETE CASCADE,
+    CONSTRAINT booking_status_check CHECK (status IN ('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'))
+);
 
 -- ======================================================
 -- Tabla: review
@@ -221,8 +242,6 @@ CREATE TABLE public.review (
         REFERENCES public.tourist(tourist_id) ON DELETE CASCADE,
     CONSTRAINT review_partner_id_fkey FOREIGN KEY (partner_id) 
         REFERENCES public.partner(partner_id) ON DELETE CASCADE,
-    CONSTRAINT review_package_id_fkey FOREIGN KEY (package_id) 
-        REFERENCES public.package(package_id) ON DELETE CASCADE,
     CONSTRAINT review_booking_id_fkey FOREIGN KEY (booking_id) 
         REFERENCES public.booking(booking_id) ON DELETE SET NULL,
     CONSTRAINT review_rating_check CHECK (rating BETWEEN 1 AND 5),
@@ -281,24 +300,3 @@ CREATE TABLE public.reputation_summary (
 CREATE INDEX idx_reputation_summary_target ON public.reputation_summary(target_type, target_id);
 CREATE INDEX idx_reputation_summary_avg_rating ON public.reputation_summary(average_rating);
 
-CREATE TABLE public.booking (
-    booking_id UUID NOT NULL DEFAULT gen_random_uuid(),
-    tourist_id UUID NOT NULL,
-    partner_id UUID NOT NULL,
-    package_id UUID,
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
-    total_price DECIMAL(10,2) NOT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
-    created_at TIMESTAMP(6) WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP(6) WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT booking_pkey PRIMARY KEY (booking_id),
-    CONSTRAINT booking_tourist_id_fkey FOREIGN KEY (tourist_id)
-        REFERENCES public.tourist(tourist_id) ON DELETE CASCADE,
-    CONSTRAINT booking_partner_id_fkey FOREIGN KEY (partner_id)
-        REFERENCES public.partner(partner_id) ON DELETE CASCADE,
-    CONSTRAINT booking_package_id_fkey FOREIGN KEY (package_id)
-        REFERENCES public.package(package_id) ON DELETE SET NULL,
-    CONSTRAINT booking_status_check CHECK (status IN ('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'))
-);
