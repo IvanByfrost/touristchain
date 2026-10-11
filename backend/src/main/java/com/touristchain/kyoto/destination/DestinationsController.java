@@ -3,142 +3,111 @@ package com.touristchain.kyoto.destination;
 import com.touristchain.kyoto.dto.DestinationRequest;
 import com.touristchain.kyoto.dto.DestinationResponse;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
+/**
+ * Destinos: lectura pública (solo activos), escritura solo administradores (ver SecurityConfig).
+ * Un administrador autenticado puede ver también los inactivos.
+ */
 @RestController
 @RequestMapping("/api/v1/kyoto/destinations")
+@RequiredArgsConstructor
 public class DestinationsController {
 
-    @Autowired
-    private DestinationService destinationService;
+    private final DestinationService destinationService;
 
     // ========== 📋 CONSULTAS ==========
 
     @GetMapping
-    public ResponseEntity<Page<DestinationResponse>> getDestinations(
+    public Page<DestinationResponse> getDestinations(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String country,
-            @RequestParam(required = false) String category) {
-
-        Page<DestinationResponse> destinations = destinationService.findWithFilters(
-                country, category, page, size);
-        return ResponseEntity.ok(destinations);
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String category,
+            @RequestParam(defaultValue = "false") boolean includeInactive) {
+        return destinationService.findWithFilters(country, city, category,
+                includeInactive && isAdmin(), page, size);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DestinationResponse> getDestination(@PathVariable Long id) {
-        return destinationService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public DestinationResponse getDestination(@PathVariable Long id) {
+        return destinationService.findById(id, isAdmin());
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<DestinationResponse>> search(
-            @RequestParam String query) {
-
-        List<DestinationResponse> destinations = destinationService.search(query);
-        return ResponseEntity.ok(destinations);
+    public List<DestinationResponse> search(@RequestParam String query) {
+        return destinationService.search(query);
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<List<DestinationResponse>> getPopular(
-            @RequestParam(defaultValue = "10") int limit) {
-
-        List<DestinationResponse> destinations = destinationService.findPopular(limit);
-        return ResponseEntity.ok(destinations);
+    public List<DestinationResponse> getPopular(@RequestParam(defaultValue = "10") int limit) {
+        return destinationService.findPopular(limit);
     }
 
     @GetMapping("/country/{country}")
-    public ResponseEntity<List<DestinationResponse>> getByCountry(
-            @PathVariable String country) {
-
-        List<DestinationResponse> destinations = destinationService.findByCountry(country);
-        return ResponseEntity.ok(destinations);
+    public List<DestinationResponse> getByCountry(@PathVariable String country) {
+        return destinationService.findAll(country, null);
     }
 
     @GetMapping("/category/{category}")
-    public ResponseEntity<List<DestinationResponse>> getByCategory(
-            @PathVariable String category) {
-
-        List<DestinationResponse> destinations = destinationService.findByCategory(category);
-        return ResponseEntity.ok(destinations);
+    public List<DestinationResponse> getByCategory(@PathVariable String category) {
+        return destinationService.findAll(null, category);
     }
 
     // ========== 📝 MUTACIONES ==========
 
     @PostMapping
-    public ResponseEntity<DestinationResponse> createDestination(
-            @Valid @RequestBody DestinationRequest request,
-            @RequestHeader("X-Provider-Id") Long providerId) {
-
-        try {
-            DestinationResponse destination = destinationService.create(request, providerId);
-            return ResponseEntity.ok(destination);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<DestinationResponse> createDestination(@Valid @RequestBody DestinationRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(destinationService.create(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DestinationResponse> updateDestination(
-            @PathVariable Long id,
-            @Valid @RequestBody DestinationRequest request) {
-
-        try {
-            DestinationResponse destination = destinationService.update(id, request);
-            return ResponseEntity.ok(destination);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public DestinationResponse updateDestination(@PathVariable Long id,
+                                                 @Valid @RequestBody DestinationRequest request) {
+        return destinationService.update(id, request);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDestination(@PathVariable Long id) {
-        try {
-            destinationService.delete(id);
-            return ResponseEntity.ok().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public Map<String, String> deleteDestination(@PathVariable Long id) {
+        destinationService.delete(id);
+        return Map.of("message", "Destino eliminado");
     }
 
     @PatchMapping("/{id}/activate")
-    public ResponseEntity<DestinationResponse> activateDestination(@PathVariable Long id) {
-        try {
-            DestinationResponse destination = destinationService.activate(id);
-            return ResponseEntity.ok(destination);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public DestinationResponse activateDestination(@PathVariable Long id) {
+        return destinationService.setActive(id, true);
     }
 
     @PatchMapping("/{id}/deactivate")
-    public ResponseEntity<DestinationResponse> deactivateDestination(@PathVariable Long id) {
-        try {
-            DestinationResponse destination = destinationService.deactivate(id);
-            return ResponseEntity.ok(destination);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public DestinationResponse deactivateDestination(@PathVariable Long id) {
+        return destinationService.setActive(id, false);
     }
 
     // ========== 📊 ESTADÍSTICAS ==========
 
     @GetMapping("/stats")
-    public ResponseEntity<?> getStats() {
+    public Map<String, Long> getStats() {
         long total = destinationService.countAll();
         long active = destinationService.countActive();
+        return Map.of(
+                "totalDestinations", total,
+                "activeDestinations", active,
+                "inactiveDestinations", total - active);
+    }
 
-        return ResponseEntity.ok(new Object() {
-            public final long totalDestinations = total;
-            public final long activeDestinations = active;
-            public final long inactiveDestinations = total - active;
-        });
+    private static boolean isAdmin() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth != null && auth.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
     }
 }

@@ -194,17 +194,17 @@ export const api = {
     // Trips
     async getTrips(params = {}) {
         const query = new URLSearchParams(params).toString();
-        const response = await fetch(`${MOCK_API_URL}/trips?${query}`);
+        const response = await fetch(`${API_URL}/kyoto/trips?${query}`);
         return handleResponse(response);
     },
 
     async getTrip(id) {
-        const response = await fetch(`${MOCK_API_URL}/trips/${id}`);
+        const response = await fetch(`${API_URL}/kyoto/trips/${id}`);
         return handleResponse(response);
     },
 
     async createTrip(trip) {
-        const response = await fetch(`${MOCK_API_URL}/trips`, {
+        const response = await fetch(`${API_URL}/kyoto/trips`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify(trip)
@@ -213,7 +213,7 @@ export const api = {
     },
 
     async updateTrip(id, trip) {
-        const response = await fetch(`${MOCK_API_URL}/trips/${id}`, {
+        const response = await fetch(`${API_URL}/kyoto/trips/${id}`, {
             method: 'PUT',
             headers: getHeaders(),
             body: JSON.stringify(trip)
@@ -222,7 +222,7 @@ export const api = {
     },
 
     async deleteTrip(id) {
-        const response = await fetch(`${MOCK_API_URL}/trips/${id}`, {
+        const response = await fetch(`${API_URL}/kyoto/trips/${id}`, {
             method: 'DELETE',
             headers: getHeaders()
         });

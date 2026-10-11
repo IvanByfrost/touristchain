@@ -115,3 +115,61 @@ VALUES
     ('98765432109', 'Aventuras Extremas S.L.', 'Laura Méndez', 'contacto@aventuras.com', '+34 900 654 321',
      'Calle Aventura 45, Madrid', 'activa', 8)
 ON CONFLICT (ruc) DO NOTHING;
+
+INSERT INTO public.trip (destination, description, start_date, end_date, price, capacity, available, status, image,
+                         rating, total_reviews, tags, latitude, longitude)
+SELECT v.destination, v.description, v.start_date::date, v.end_date::date, v.price, v.capacity, v.available, v.status,
+       v.image, v.rating, v.reviews, v.tags, v.lat, v.lng
+FROM (VALUES
+    (1, 'París, Francia', 'Tour por la ciudad del amor con visita a la Torre Eiffel, Louvre y paseo en barco por el Sena',
+     '2024-12-15', '2024-12-22', 1200, 20, 15, 'disponible', 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34',
+     4.8, 12, ARRAY['romántico', 'cultura', 'europa'], 48.8566, 2.3522),
+    (2, 'Roma, Italia', 'Historia y cultura en la Ciudad Eterna con visitas al Coliseo, Vaticano y Fontana di Trevi',
+     '2024-12-20', '2024-12-27', 1100, 15, 8, 'disponible', 'https://images.unsplash.com/photo-1552832230-c0197dd311b5',
+     4.7, 9, ARRAY['historia', 'cultura', 'gastronomía'], 41.9028, 12.4964),
+    (3, 'Tokio, Japón', 'Aventura tecnológica y cultural en la capital japonesa',
+     '2025-01-10', '2025-01-20', 2200, 12, 4, 'reservado', 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf',
+     4.9, 15, ARRAY['tecnología', 'cultura', 'asia'], 35.6762, 139.6503),
+    (4, 'Cancún, México', '5 días en resorts todo incluido con playas de arena blanca y mar caribe',
+     '2025-02-15', '2025-02-20', 1200, 25, 18, 'disponible', 'https://images.unsplash.com/photo-1511895426328-dc8714191300',
+     4.6, 22, ARRAY['playa', 'relax', 'caribe'], 21.1619, -86.8515),
+    (5, 'Nueva York, USA', 'Descubre la ciudad que nunca duerme - Broadway, museos y más',
+     '2025-03-01', '2025-03-05', 1500, 18, 10, 'disponible', 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9',
+     4.7, 18, ARRAY['ciudad', 'compras', 'norteamérica'], 40.7128, -74.006),
+    (6, 'Bali, Indonesia', 'Relax y cultura en las paradisíacas islas de Indonesia',
+     '2025-03-10', '2025-03-17', 1400, 14, 7, 'disponible', 'https://images.unsplash.com/photo-1537996194471-e657df975ab4',
+     4.8, 11, ARRAY['playa', 'naturaleza', 'asia'], -8.4095, 115.1889)
+) AS v(ord, destination, description, start_date, end_date, price, capacity, available, status, image,
+       rating, reviews, tags, lat, lng)
+WHERE NOT EXISTS (SELECT 1 FROM public.trip t WHERE t.destination = v.destination)
+ORDER BY v.ord;
+
+-- Destinos destacados de Colombia (antes fijos en el mapa del frontend) y Nueva York, que tiene viaje
+INSERT INTO public.destinations (name, description, country, city, category, price_per_day, rating, total_reviews)
+SELECT v.name, v.description, v.country, v.city, v.category, v.price, v.rating, v.reviews
+FROM (VALUES
+    ('Santa Marta y Tayrona', 'Sierra Nevada, playas del Tayrona y Ciudad Perdida', 'Colombia', 'Santa Marta', 'BEACH', 110.0, 4.7, 14),
+    ('San Andrés y Providencia', 'Mar de los siete colores, buceo y relax caribeño', 'Colombia', 'San Andrés', 'BEACH', 130.0, 4.8, 16),
+    ('Medellín', 'Ciudad de la eterna primavera, cultura y metrocable', 'Colombia', 'Medellín', 'CITY', 90.0, 4.6, 10),
+    ('Eje Cafetero', 'Fincas cafeteras, valle de Cocora y termales en la montaña', 'Colombia', 'Salento', 'MOUNTAIN', 85.0, 4.8, 9),
+    ('Bogotá', 'Monserrate, museos y gastronomía en la capital', 'Colombia', 'Bogotá', 'CITY', 75.0, 4.5, 13),
+    ('Nueva York', 'Broadway, museos y compras en la ciudad que nunca duerme', 'Estados Unidos', 'Nueva York', 'CITY', 260.0, 4.7, 18)
+) AS v(name, description, country, city, category, price, rating, reviews)
+WHERE NOT EXISTS (SELECT 1 FROM public.destinations d WHERE d.name = v.name);
+
+UPDATE public.destinations d
+SET latitude = v.lat, longitude = v.lng
+FROM (VALUES
+    ('París', 48.8566, 2.3522), ('Roma', 41.9028, 12.4964), ('Tokio', 35.6762, 139.6503),
+    ('Cancún', 21.1619, -86.8515), ('Cartagena', 10.391, -75.479), ('Bali', -8.4095, 115.1889),
+    ('Santa Marta y Tayrona', 11.241, -74.199), ('San Andrés y Providencia', 12.585, -81.708),
+    ('Medellín', 6.244, -75.581), ('Eje Cafetero', 4.535, -75.673), ('Bogotá', 4.711, -74.072),
+    ('Nueva York', 40.7128, -74.006)
+) AS v(name, lat, lng)
+WHERE d.name = v.name AND d.latitude IS NULL;
+
+-- Cada viaje semilla pertenece al destino de su ciudad ("París, Francia" -> "París")
+UPDATE public.trip t
+SET destination_id = d.id
+FROM public.destinations d
+WHERE t.destination_id IS NULL AND d.name = split_part(t.destination, ',', 1);

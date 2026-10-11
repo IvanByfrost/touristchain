@@ -25,7 +25,8 @@ import java.util.Map;
 public class SecurityConfig {
 
     private static final String[] PUBLIC_CATALOG = {
-            "/api/v1/kyoto/destinations/**", "/api/v1/kyoto/hotels/**", "/api/v1/kyoto/cars/**"
+            "/api/v1/kyoto/destinations/**", "/api/v1/kyoto/hotels/**", "/api/v1/kyoto/cars/**",
+            "/api/v1/kyoto/trips/**"
     };
 
     @Bean

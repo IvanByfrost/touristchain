@@ -3,6 +3,8 @@ package com.touristchain.kyoto.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.touristchain.kyoto.dto.DestinationRequest.Coordinates;
+
 public record DestinationResponse(
                 Long id,
                 String name,
@@ -14,6 +16,7 @@ public record DestinationResponse(
                 String currency,
                 List<String> images,
                 List<String> tags,
+                Coordinates coordinates,
                 Double rating,
                 Integer totalReviews,
                 String contractAddress,

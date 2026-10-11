@@ -4,7 +4,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import authRoutes from './routes/auth.js';
-import tripsRoutes from './routes/trips.js';
 import bookingsRoutes from './routes/bookings.js';
 import paymentsRoutes from './routes/payments.js';
 import itinerariesRoutes from './routes/itineraries.js';
@@ -23,7 +22,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // Rutas públicas
 app.use('/api/auth', authRoutes);
-app.use('/api/trips', tripsRoutes);
 app.post('/api/chat/ask', sendChatMessage);
 app.get('/api/chat/suggestions', getChatSuggestions);
 
