@@ -69,6 +69,10 @@ public class Destination {
     @Column(nullable = false)
     private Boolean active = true;
 
+    private Double latitude;
+
+    private Double longitude;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -209,6 +213,22 @@ public class Destination {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 
     public LocalDateTime getCreatedAt() {

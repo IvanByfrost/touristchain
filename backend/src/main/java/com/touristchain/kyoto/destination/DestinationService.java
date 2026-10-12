@@ -1,53 +1,168 @@
 package com.touristchain.kyoto.destination;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
+import com.touristchain.common.NotFoundException;
 import com.touristchain.kyoto.dto.DestinationRequest;
+import com.touristchain.kyoto.dto.DestinationRequest.Coordinates;
 import com.touristchain.kyoto.dto.DestinationResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-public interface DestinationService {
+import java.util.ArrayList;
+import java.util.List;
 
-    // Consultas básicas
-    List<DestinationResponse> findAll();
+@Service
+@RequiredArgsConstructor
+public class DestinationService {
 
-    Page<DestinationResponse> findAll(Pageable pageable);
+    private final DestinationRepository destinationRepository;
 
-    Optional<DestinationResponse> findById(Long id);
+    /** Los destinos inactivos solo se incluyen si {@code includeInactive} (lo decide el controlador). */
+    @Transactional(readOnly = true)
+    public Page<DestinationResponse> findWithFilters(String country, String city, String category,
+                                                     boolean includeInactive, int page, int size) {
+        Pageable pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), 100), Sort.by("id"));
+        return destinationRepository.findWithFilters(
+                        trimToEmpty(country), trimToEmpty(city), trimToEmpty(category), includeInactive, pageable)
+                .map(DestinationService::toResponse);
+    }
 
-    // Búsquedas y filtros
-    Page<DestinationResponse> findWithFilters(String country, String category, int page, int size);
+    @Transactional(readOnly = true)
+    public List<DestinationResponse> findAll(String country, String category) {
+        return destinationRepository.findWithFilters(
+                        trimToEmpty(country), "", trimToEmpty(category), false, Pageable.unpaged(Sort.by("id")))
+                .map(DestinationService::toResponse)
+                .getContent();
+    }
 
-    List<DestinationResponse> findByCountry(String country);
+    @Transactional(readOnly = true)
+    public DestinationResponse findById(Long id, boolean includeInactive) {
+        Destination destination = find(id);
+        if (!includeInactive && !destination.getActive()) {
+            throw new NotFoundException("Destino no encontrado");
+        }
+        return toResponse(destination);
+    }
 
-    List<DestinationResponse> findByCategory(String category);
+    @Transactional(readOnly = true)
+    public List<DestinationResponse> search(String query) {
+        return destinationRepository.searchActive(query.trim()).stream().map(DestinationService::toResponse).toList();
+    }
 
-    List<DestinationResponse> search(String query);
+    @Transactional(readOnly = true)
+    public List<DestinationResponse> findPopular(int limit) {
+        return destinationRepository.findByActiveTrueOrderByRatingDescTotalReviewsDesc(
+                        PageRequest.of(0, Math.min(Math.max(limit, 1), 100)))
+                .map(DestinationService::toResponse)
+                .getContent();
+    }
 
-    List<DestinationResponse> findPopular(int limit);
+    @Transactional
+    public DestinationResponse create(DestinationRequest request) {
+        Destination destination = new Destination();
+        apply(destination, request);
+        return toResponse(destinationRepository.save(destination));
+    }
 
-    List<DestinationResponse> findByPriceRange(Double minPrice, Double maxPrice);
+    @Transactional
+    public DestinationResponse update(Long id, DestinationRequest request) {
+        Destination destination = find(id);
+        apply(destination, request);
+        return toResponse(destinationRepository.saveAndFlush(destination));
+    }
 
-    // Mutaciones
-    DestinationResponse create(DestinationRequest request, Long providerId);
+    /** Los viajes que apuntaban a este destino quedan sin destino (ON DELETE SET NULL). */
+    @Transactional
+    public void delete(Long id) {
+        destinationRepository.delete(find(id));
+    }
 
-    DestinationResponse update(Long id, DestinationRequest request);
+    @Transactional
+    public DestinationResponse setActive(Long id, boolean active) {
+        Destination destination = find(id);
+        destination.setActive(active);
+        return toResponse(destinationRepository.saveAndFlush(destination));
+    }
 
-    DestinationResponse save(DestinationRequest request);
+    /** Para el módulo de viajes: el destino debe existir y estar activo. */
+    @Transactional(readOnly = true)
+    public void requireActive(Long id) {
+        Destination destination = destinationRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("El destino seleccionado no existe"));
+        if (!destination.getActive()) {
+            throw new IllegalArgumentException("El destino está desactivado");
+        }
+    }
 
-    void delete(Long id);
+    @Transactional(readOnly = true)
+    public long countAll() {
+        return destinationRepository.count();
+    }
 
-    DestinationResponse activate(Long id);
+    @Transactional(readOnly = true)
+    public long countActive() {
+        return destinationRepository.countByActiveTrue();
+    }
 
-    DestinationResponse deactivate(Long id);
+    private Destination find(Long id) {
+        return destinationRepository.findById(id).orElseThrow(() -> new NotFoundException("Destino no encontrado"));
+    }
 
-    List<DestinationResponse> searchByName(String name);
+    private static void apply(Destination destination, DestinationRequest request) {
+        destination.setName(request.name().trim());
+        destination.setDescription(request.description());
+        destination.setCountry(request.country().trim());
+        destination.setCity(request.city().trim());
+        destination.setCategory(request.category().trim().toUpperCase());
+        destination.setPricePerDay(request.pricePerDay());
+        destination.setCurrency(request.currency());
+        if (request.images() != null) {
+            destination.setImages(new ArrayList<>(request.images()));
+        }
+        if (request.tags() != null) {
+            destination.setTags(new ArrayList<>(request.tags()));
+        }
+        if (request.coordinates() != null) {
+            destination.setLatitude(request.coordinates().lat());
+            destination.setLongitude(request.coordinates().lng());
+        }
+        if (request.providerWallet() != null) {
+            destination.setProviderWallet(request.providerWallet());
+        }
+        if (request.contractAddress() != null) {
+            destination.setContractAddress(request.contractAddress());
+        }
+    }
 
-    // Estadísticas
-    long countAll();
+    private static DestinationResponse toResponse(Destination destination) {
+        Coordinates coordinates = destination.getLatitude() == null || destination.getLongitude() == null ? null
+                : new Coordinates(destination.getLatitude(), destination.getLongitude());
+        return new DestinationResponse(
+                destination.getId(),
+                destination.getName(),
+                destination.getDescription(),
+                destination.getCountry(),
+                destination.getCity(),
+                destination.getCategory(),
+                destination.getPricePerDay(),
+                destination.getCurrency(),
+                new ArrayList<>(destination.getImages()),
+                new ArrayList<>(destination.getTags()),
+                coordinates,
+                destination.getRating(),
+                destination.getTotalReviews(),
+                destination.getContractAddress(),
+                destination.getProviderWallet(),
+                destination.getActive(),
+                destination.getCreatedAt(),
+                destination.getUpdatedAt());
+    }
 
-    long countActive();
+    private static String trimToEmpty(String value) {
+        return value == null ? "" : value.trim();
+    }
 }

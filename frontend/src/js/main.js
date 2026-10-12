@@ -8,10 +8,11 @@ import '../scss/main.scss';
 const appState = {
     currentSlide: { viajes: 0, renta: 0, team: 0 },
     trips: [],
+    destinations: [],
     cars: [],
     hotels: [],
     favorites: JSON.parse(localStorage.getItem('touristchain-favorites')) || [],
-    reservations: JSON.parse(localStorage.getItem('touristchain-reservations')) || [],
+    reservations: [], // reservas del usuario en el backend (ver loadReservations)
     paymentMethods: JSON.parse(localStorage.getItem('touristchain-payment-methods')) || [],
     user: api.getUser() || {
         name: 'Invitado',
@@ -73,6 +74,7 @@ function updateAuthUI() {
 
 function logout() {
     api.logout();
+    appState.reservations = [];
     appState.user = { name: 'Invitado', email: '', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Guest', loyaltyPoints: 0 };
     updateAuthUI();
     showNotification('Sesión cerrada');
@@ -217,6 +219,7 @@ function prevSlide(type) {
 // VIAJES
 // ============================
 async function loadTrips() { appState.trips = await api.getTrips().catch(() => []); }
+async function loadDestinations() { appState.destinations = await api.getDestinations().catch(() => []); }
 function getFilteredTrips() {
     const search = document.getElementById('trip-search')?.value.toLowerCase() || '';
     const price = document.getElementById('trip-price-filter')?.value || '';
@@ -332,15 +335,12 @@ async function initHotels() {
 // ============================
 // MAPA DE COLOMBIA
 // ============================
-// Destinos destacados de Colombia (centro del mapa)
-const colombiaSpots = [
-    { name: 'Cartagena de Indias', city: 'Bolívar', lat: 10.391, lng: -75.479, price: 850, desc: 'Ciudad amurallada, playas y atardeceres en el Caribe.' },
-    { name: 'Santa Marta + Tayrona', city: 'Magdalena', lat: 11.241, lng: -74.199, price: 780, desc: 'Sierra Nevada, playas del Tayrona y Ciudad Perdida.' },
-    { name: 'San Andrés y Providencia', city: 'Archipiélago', lat: 12.585, lng: -81.708, price: 920, desc: 'Mar de los 7 colores, buceo y relax caribeño.' },
-    { name: 'Medellín', city: 'Antioquia', lat: 6.244, lng: -75.581, price: 640, desc: 'Ciudad de la eterna primavera, cultura y metrocable.' },
-    { name: 'Eje Cafetero', city: 'Quindío', lat: 4.535, lng: -75.673, price: 590, desc: 'Fincas cafeteras, Cocora y termales en la montaña.' },
-    { name: 'Bogotá D.C.', city: 'Cundinamarca', lat: 4.711, lng: -74.072, price: 520, desc: 'Monserrate, museos y gastronomía en la capital.' }
-];
+function destinationPopup(dest) {
+    const trips = appState.trips.filter(t => t.destinationId === dest.id && t.status === 'disponible').length;
+    const tripsLine = trips ? `<br>✈️ ${trips} ${trips === 1 ? 'viaje disponible' : 'viajes disponibles'}` : '';
+    return `<b>📍 ${esc(dest.name)}</b><br>${esc(dest.city)}, ${esc(dest.country)}<br>${esc(dest.description || '')}` +
+        `<br><strong>Desde $${dest.pricePerDay.toLocaleString()} / día</strong>${tripsLine}`;
+}
 
 function initMap() {
     const mapEl = document.getElementById('destinations-map');
@@ -354,13 +354,14 @@ function initMap() {
         attribution: '&copy; OpenStreetMap &copy; CARTO', subdomains: 'abcd', maxZoom: 19
     }).addTo(appState.map);
 
-    const colombiaIcon = L.divIcon({ html: '<i class="fas fa-map-marker-alt" style="color:#ffd60a;font-size:1.4rem;"></i>', iconSize: [22, 22], className: 'map-icon' });
+    const destinationIcon = L.divIcon({ html: '<i class="fas fa-map-marker-alt" style="color:#ffd60a;font-size:1.4rem;"></i>', iconSize: [22, 22], className: 'map-icon' });
     const planeIcon = L.divIcon({ html: '<i class="fas fa-plane" style="color:#4a6fff;font-size:1.2rem;"></i>', iconSize: [20, 20], className: 'map-icon' });
     const hotelIcon = L.divIcon({ html: '<i class="fas fa-hotel" style="color:#ff3860;font-size:1.2rem;"></i>', iconSize: [20, 20], className: 'map-icon' });
 
-    colombiaSpots.forEach(spot => {
-        const marker = L.marker([spot.lat, spot.lng], { icon: colombiaIcon }).addTo(appState.map);
-        marker.bindPopup(`<b>🇨🇴 ${spot.name}</b><br>${spot.city}<br>${spot.desc}<br><strong>Desde $${spot.price.toLocaleString()}</strong>`);
+    appState.destinations.forEach(dest => {
+        if (!dest.coordinates) return;
+        const marker = L.marker([dest.coordinates.lat, dest.coordinates.lng], { icon: destinationIcon }).addTo(appState.map);
+        marker.bindPopup(destinationPopup(dest));
         appState.mapMarkers.push(marker);
     });
 
@@ -625,23 +626,27 @@ function updateFavoritesDisplay() {
 // ============================
 // RESERVAS / CARRITO
 // ============================
+// El carrito son las reservas del usuario guardadas en el backend (el admin recibe todas: se filtran)
+function toCartItem(b) {
+    return { id: b.id, backendId: b.id, nombre: b.itemName, precio: b.total, tipo: b.itemType, fecha: new Date(b.createdAt).toLocaleDateString(), paid: b.status !== 'pendiente' };
+}
+async function loadReservations() {
+    const user = api.getUser();
+    if (!api.isAuthenticated() || !user) { appState.reservations = []; return; }
+    const bookings = await api.getBookings().catch(() => []);
+    appState.reservations = bookings.filter(b => b.userId === user.id).map(toCartItem);
+}
 async function addReservation(item, type) {
     if (!api.isAuthenticated()) { showNotification('Inicia sesión para reservar', 'warning'); showView('login'); return; }
 
-    const nombre = type === 'viaje' ? item.destination : type === 'car' ? `Renta: ${item.name}` : `Hotel: ${item.name}`;
-    const precio = type === 'car' ? item.price * 3 : item.price;
+    // Viaje: 1 persona; hotel: 1 noche; renta: 3 días. Nombre y precio los fija el servidor.
+    const itemType = type === 'viaje' ? 'viaje' : type === 'car' ? 'renta' : 'hotel';
+    const quantity = type === 'car' ? 3 : 1;
 
     try {
-        const booking = await api.createBooking({
-            tripId: type === 'viaje' ? item.id : null,
-            itemName: nombre,
-            itemType: type === 'viaje' ? 'viaje' : type === 'car' ? 'renta' : 'hotel',
-            price: precio,
-            quantity: 1
-        });
-        appState.reservations.push({ id: booking.id, backendId: booking.id, nombre, precio, tipo: type === 'viaje' ? 'viaje' : type === 'car' ? 'renta' : 'hotel', fecha: new Date().toLocaleDateString(), paid: false });
-        localStorage.setItem('touristchain-reservations', JSON.stringify(appState.reservations));
-        createNotification('Nueva reserva', `Has agregado ${nombre} a tus reservas.`);
+        const booking = await api.createBooking({ itemType, itemId: item.id, quantity });
+        await loadReservations();
+        createNotification('Nueva reserva', `Has agregado ${booking.itemName} a tus reservas.`);
         showNotification('¡Agregado al carrito! 🛒');
         updateReservationsDisplay();
         updateDashboardStats();
@@ -675,9 +680,8 @@ function updateReservationsDisplay() {
         btn.addEventListener('click', async () => {
             const index = parseInt(btn.dataset.index);
             const r = pending[index];
-            if (r.backendId) { try { await api.deleteBooking(r.backendId); } catch (e) {} }
-            appState.reservations = appState.reservations.filter(res => res !== r);
-            localStorage.setItem('touristchain-reservations', JSON.stringify(appState.reservations));
+            try { await api.deleteBooking(r.backendId); } catch (e) { showNotification(e.message, 'error'); return; }
+            await loadReservations();
             updateReservationsDisplay();
             updateDashboardStats();
             showNotification('Reserva cancelada');
@@ -1026,6 +1030,7 @@ async function renderHistory() {
 // PAGOS
 // ============================
 let currentPayment = null;
+let paidSummary = null; // lo que se acaba de pagar, para el ticket (el carrito ya quedó vacío)
 let qrInterval = null;
 function initPaymentModal() {
     const modal = document.getElementById('payment-modal');
@@ -1035,7 +1040,7 @@ function initPaymentModal() {
         ['payment-method-step', 'nequi-form-step', 'card-form-step', 'qr-form-step', 'ticket-success-step'].forEach(id => document.getElementById(id)?.classList.add('tc-hidden'));
         document.getElementById(step)?.classList.remove('tc-hidden');
     }
-    function reset() { showStep('payment-method-step'); currentPayment = null; if (qrInterval) clearInterval(qrInterval); document.getElementById('nequi-payment-form')?.reset(); document.getElementById('card-payment-form')?.reset(); }
+    function reset() { showStep('payment-method-step'); currentPayment = null; paidSummary = null; if (qrInterval) clearInterval(qrInterval); document.getElementById('nequi-payment-form')?.reset(); document.getElementById('card-payment-form')?.reset(); }
     function close() { modal.classList.remove('is-active'); reset(); }
     function getSummary() {
         const pending = appState.reservations.filter(r => !r.paid);
@@ -1047,13 +1052,14 @@ function initPaymentModal() {
         document.getElementById('payment-total-amount').textContent = `$${total.toLocaleString()}`;
     }
     async function markPaid() {
-        appState.reservations.filter(r => !r.paid).forEach(r => r.paid = true);
-        localStorage.setItem('touristchain-reservations', JSON.stringify(appState.reservations));
+        // El backend ya marcó las reservas como pagadas; aquí solo se recarga el carrito
+        paidSummary = getSummary();
+        await loadReservations();
         updateReservationsDisplay();
         updateDashboardStats();
     }
     function showTicket(method) {
-        const { items, total } = getSummary();
+        const { items, total } = paidSummary || getSummary();
         const code = currentPayment?.reference || 'TC-' + Math.floor(10000 + Math.random() * 90000);
         document.getElementById('ticket-code').textContent = code;
         document.getElementById('ticket-user').textContent = appState.user.name;
@@ -1085,7 +1091,7 @@ function initPaymentModal() {
         try {
             // Simulación: espera 2s como si aprobaras en el celular
             await new Promise(r => setTimeout(r, 2000));
-            currentPayment = await api.createPayment({ amount: total, method: 'nequi', description: `Pago Nequi ${phone}`, reservationIds: appState.reservations.filter(r => !r.paid).map(r => r.backendId).filter(Boolean) });
+            currentPayment = await api.createPayment({ method: 'nequi', description: `Pago Nequi ${phone}` });
             await markPaid();
             createNotification('Pago exitoso', `Pago Nequi por $${total.toLocaleString()} aprobado.`);
             showTicket('Nequi');
@@ -1105,7 +1111,7 @@ function initPaymentModal() {
         if (!/^\d{2}\/\d{2}$/.test(exp)) return showNotification('Vencimiento inválido (MM/AA)', 'error');
         if (cvc.length < 3) return showNotification('CVC inválido', 'error');
         try {
-            currentPayment = await api.createPayment({ amount: total, method: 'tarjeta', description: `Pago con tarjeta ****${num.slice(-4)}`, reservationIds: appState.reservations.filter(r => !r.paid).map(r => r.backendId).filter(Boolean) });
+            currentPayment = await api.createPayment({ method: 'tarjeta', description: `Pago con tarjeta ****${num.slice(-4)}` });
             await markPaid();
             createNotification('Pago exitoso', `Pago con tarjeta por $${total.toLocaleString()} aprobado.`);
             showTicket('Tarjeta');
@@ -1118,9 +1124,9 @@ function initPaymentModal() {
         if (total <= 0) { showNotification('No tienes reservas pendientes', 'warning'); showStep('payment-method-step'); return; }
         showStep('qr-form-step');
         try {
-            const result = await api.createQrPayment({ amount: total, description: 'Pago QR', reservationIds: appState.reservations.filter(r => !r.paid).map(r => r.backendId).filter(Boolean) });
-            currentPayment = result.payment;
-            document.getElementById('qr-payment-image').src = result.qrImage;
+            const result = await api.createQrPayment({ description: 'Pago QR' });
+            currentPayment = { ...result.payment, confirmUrl: result.confirmUrl };
+            document.getElementById('qr-payment-image').src = await QRCode.toDataURL(result.qrPayload, { width: 300, margin: 2, color: { dark: '#1a2a6c', light: '#ffffff' } });
             document.getElementById('qr-payment-reference').textContent = result.payment.reference;
             document.getElementById('qr-status-message').textContent = 'Esperando pago...';
             qrInterval = setInterval(async () => {
@@ -1137,8 +1143,8 @@ function initPaymentModal() {
     }
 
     document.getElementById('simulate-qr-scan')?.addEventListener('click', async () => {
-        if (!currentPayment?.qrToken) return;
-        try { await fetch(`${api.baseUrl}/payments/qr/${currentPayment.qrToken}/confirm`); } catch (err) {}
+        if (!currentPayment?.confirmUrl) return;
+        try { await api.simulateQrScan(currentPayment.confirmUrl); } catch (err) {}
     });
     document.getElementById('close-payment-modal')?.addEventListener('click', close);
     document.getElementById('close-ticket-btn')?.addEventListener('click', close);
@@ -1210,6 +1216,7 @@ function initForms() {
         try {
             const data = await api.login(document.getElementById('login-email').value.trim(), document.getElementById('login-password').value);
             appState.user = data.user;
+            await loadReservations();
             updateAuthUI();
             e.target.reset();
             // Sin botón de Admin visible: el rol decide a dónde ir
@@ -1334,13 +1341,11 @@ function initPackages() {
         btn.addEventListener('click', async () => {
             if (!api.isAuthenticated()) { showNotification('Inicia sesión', 'warning'); showView('login'); return; }
             const pkg = btn.dataset.package;
-            const packages = { basico: 799, medio: 1299, black: 2499 };
-            const names = { basico: 'Paquete Básico', medio: 'Paquete Medio', black: 'Paquete Black' };
             try {
-                const booking = await api.createBooking({ itemName: names[pkg], itemType: 'paquete', price: packages[pkg], quantity: 1 });
-                appState.reservations.push({ id: booking.id, backendId: booking.id, nombre: names[pkg], precio: packages[pkg], tipo: 'paquete', fecha: new Date().toLocaleDateString(), paid: false });
-                localStorage.setItem('touristchain-reservations', JSON.stringify(appState.reservations));
-                showNotification(`${names[pkg]} agregado al carrito`);
+                const booking = await api.createBooking({ itemType: 'paquete', itemId: pkg });
+                await loadReservations();
+                updateReservationsDisplay();
+                showNotification(`${booking.itemName} agregado al carrito`);
             } catch (err) { showNotification(err.message, 'error'); }
         });
     });
@@ -1355,6 +1360,7 @@ function bindTripButtons() {
 async function initViajes() {
     if (appState.trips.length === 0) await loadTrips();
     if (appState.hotels.length === 0) await loadHotels();
+    if (appState.destinations.length === 0) await loadDestinations();
     const destacados = appState.trips.filter(t => t.status === 'disponible').slice(0, 5);
     initCarousel('viajes', destacados, renderCarouselSlide, 'viajes-carousel-track', 'viajes-carousel-nav');
     renderTripsGrid();
@@ -1425,7 +1431,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('car-sort')?.addEventListener('change', initRenta);
     document.getElementById('car-clear-filters')?.addEventListener('click', () => { document.getElementById('car-category-filter').value = ''; document.getElementById('car-sort').value = ''; initRenta(); });
 
-    await Promise.all([loadTrips(), loadCars(), loadHotels()]);
+    await Promise.all([loadTrips(), loadCars(), loadHotels(), loadDestinations()]);
     initForms();
     initPaymentModal();
     initChatbot();
@@ -1433,7 +1439,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateFavoritesDisplay();
     updateReservationsDisplay();
 
-    document.getElementById('hero-destinations').textContent = appState.trips.length;
+    document.getElementById('hero-destinations').textContent = appState.destinations.length;
     document.getElementById('hero-hotels').textContent = appState.hotels.length;
     document.getElementById('hero-cars').textContent = appState.cars.length;
 
@@ -1443,6 +1449,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (stored) appState.user = stored;
             appState.user = await api.getMe();
             localStorage.setItem('touristchain-user', JSON.stringify(appState.user));
+            await loadReservations();
+            updateReservationsDisplay();
         } catch (e) {
             // Token inválido/expirado -> limpiar sin romper la app
             api.logout();

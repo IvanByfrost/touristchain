@@ -4,9 +4,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import authRoutes from './routes/auth.js';
-import tripsRoutes from './routes/trips.js';
-import bookingsRoutes from './routes/bookings.js';
-import paymentsRoutes from './routes/payments.js';
 import itinerariesRoutes from './routes/itineraries.js';
 import budgetsRoutes from './routes/budgets.js';
 import notificationsRoutes from './routes/notifications.js';
@@ -23,13 +20,10 @@ app.use(express.urlencoded({ extended: true }));
 
 // Rutas públicas
 app.use('/api/auth', authRoutes);
-app.use('/api/trips', tripsRoutes);
 app.post('/api/chat/ask', sendChatMessage);
 app.get('/api/chat/suggestions', getChatSuggestions);
 
 // Rutas protegidas
-app.use('/api/bookings', bookingsRoutes);
-app.use('/api/payments', paymentsRoutes);
 app.use('/api/itineraries', itinerariesRoutes);
 app.use('/api/budgets', budgetsRoutes);
 app.use('/api/notifications', notificationsRoutes);
