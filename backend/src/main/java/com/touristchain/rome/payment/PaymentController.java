@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.touristchain.common.NotFoundException;
 import com.touristchain.geneva.security.UserPrincipal;
 import com.touristchain.rome.payment.PaymentDtos.PaymentRequest;
+import com.touristchain.rome.payment.PaymentDtos.PaymentStats;
 import com.touristchain.rome.payment.PaymentDtos.PaymentStatus;
 import com.touristchain.rome.payment.PaymentDtos.PaymentView;
 import com.touristchain.rome.payment.PaymentDtos.QrPaymentRequest;
@@ -66,6 +67,34 @@ public class PaymentController {
     @GetMapping("/{paymentId}/status")
     public PaymentStatus status(@AuthenticationPrincipal UserPrincipal principal, @PathVariable UUID paymentId) {
         return paymentService.status(principal.getUserId(), isAdmin(principal), paymentId);
+    }
+
+    // ========== Custodia (escrow): solo administradores (ver SecurityConfig) ==========
+
+    @GetMapping("/escrow")
+    public List<PaymentView> held() {
+        return paymentService.held();
+    }
+
+    @PatchMapping("/{paymentId}/release")
+    public PaymentView release(@PathVariable UUID paymentId) {
+        return paymentService.release(paymentId);
+    }
+
+    @PatchMapping("/{paymentId}/refund")
+    public PaymentView refund(@PathVariable UUID paymentId) {
+        return paymentService.refund(paymentId);
+    }
+
+    @GetMapping("/stats")
+    public PaymentStats stats() {
+        return paymentService.stats();
+    }
+
+    /** Rechaza los pagos QR abandonados (pendientes hace más de {@code hours} horas). */
+    @PostMapping("/expired/reject")
+    public List<PaymentView> rejectExpired(@RequestParam(defaultValue = "24") int hours) {
+        return paymentService.rejectExpired(hours);
     }
 
     /** Pública: es la URL que lleva el QR y simula la pasarela de pago. Responde una página HTML. */

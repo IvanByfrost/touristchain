@@ -22,6 +22,11 @@ public class PaymentEntity {
     public static final String COMPLETED = "completado";
     public static final String REJECTED = "rechazado";
 
+    /** Custodia del dinero de un pago completado (antes el escrow del módulo NewYork). */
+    public static final String ESCROW_HELD = "retenido";
+    public static final String ESCROW_RELEASED = "liberado";
+    public static final String ESCROW_REFUNDED = "reembolsado";
+
     @Id
     @Column(name = "payment_id", columnDefinition = "uuid", nullable = false)
     private UUID paymentId = UUID.randomUUID();
@@ -50,6 +55,15 @@ public class PaymentEntity {
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
 
+    @Column(name = "escrow_status", length = 20)
+    private String escrowStatus;
+
+    @Column(name = "released_at")
+    private LocalDateTime releasedAt;
+
+    @Column(name = "refunded_at")
+    private LocalDateTime refundedAt;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -61,5 +75,25 @@ public class PaymentEntity {
     public void complete(LocalDateTime when) {
         status = COMPLETED;
         paidAt = when;
+        escrowStatus = ESCROW_HELD;
+    }
+
+    /** Solo se libera o reembolsa el dinero que sigue retenido. */
+    public void release(LocalDateTime when) {
+        requireHeld();
+        escrowStatus = ESCROW_RELEASED;
+        releasedAt = when;
+    }
+
+    public void refund(LocalDateTime when) {
+        requireHeld();
+        escrowStatus = ESCROW_REFUNDED;
+        refundedAt = when;
+    }
+
+    private void requireHeld() {
+        if (!COMPLETED.equals(status) || !ESCROW_HELD.equals(escrowStatus)) {
+            throw new IllegalStateException("Solo se pueden liberar o reembolsar pagos completados con el dinero retenido");
+        }
     }
 }

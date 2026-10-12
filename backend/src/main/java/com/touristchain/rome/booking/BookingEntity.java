@@ -93,6 +93,14 @@ public class BookingEntity {
         this.status = BookingStatus.CONFIRMED;
     }
 
+    /** Después del viaje o la estadía: solo las reservas pagadas. */
+    public void complete() {
+        if (status != BookingStatus.CONFIRMED) {
+            throw new IllegalStateException("Solo se pueden completar reservas pagadas");
+        }
+        status = BookingStatus.COMPLETED;
+    }
+
     /** Estados de la tabla; el frontend los ve en español (ver {@link #label()}). */
     public enum BookingStatus {
         PENDING("pendiente"),

@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Positive;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 /** Formatos de entrada y salida de reservas, con los nombres de campo que usa el frontend. */
@@ -28,6 +29,10 @@ public final class BookingDtos {
             @NotNull(message = "La cantidad es obligatoria")
             @Positive(message = "La cantidad debe ser mayor que cero")
             @Max(value = 30, message = "La cantidad máxima por reserva es 30") Integer quantity) {
+    }
+
+    /** {@code byStatus} usa las etiquetas del frontend; {@code revenue} suma las pagadas y completadas. */
+    public record BookingStats(long total, Map<String, Long> byStatus, double revenue) {
     }
 
     public record BookingView(

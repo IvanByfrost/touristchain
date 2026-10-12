@@ -55,6 +55,33 @@ public class PartnerController {
     }
 
     /**
+     * Socios verificados o pendientes de verificar (solo administradores).
+     * GET /api/v1/partners/verification?verified=true|false
+     */
+    @GetMapping("/verification")
+    public List<PartnerEntity> getPartnersByVerification(@RequestParam(defaultValue = "true") boolean verified) {
+        return partnerService.getPartnersByVerification(verified);
+    }
+
+    /**
+     * Verifica a un socio (solo administradores).
+     * PATCH /api/v1/partners/{partnerId}/verify
+     */
+    @PatchMapping("/{partnerId}/verify")
+    public PartnerEntity verifyPartner(@PathVariable UUID partnerId) {
+        return partnerService.setVerified(partnerId, true);
+    }
+
+    /**
+     * Quita la verificación a un socio (solo administradores).
+     * PATCH /api/v1/partners/{partnerId}/unverify
+     */
+    @PatchMapping("/{partnerId}/unverify")
+    public PartnerEntity unverifyPartner(@PathVariable UUID partnerId) {
+        return partnerService.setVerified(partnerId, false);
+    }
+
+    /**
      * Obtiene un partner por su ID (solo administradores).
      * GET /api/v1/partners/{partnerId}
      */

@@ -14,7 +14,8 @@ public record PartnerShowcase(
         String description,
         String website,
         String logo,
-        List<String> benefits) {
+        List<String> benefits,
+        boolean verified) {
 
     static PartnerShowcase from(PartnerEntity partner) {
         String seed = partner.getTaxId() != null ? partner.getTaxId() : partner.getCompanyName();
@@ -34,6 +35,7 @@ public record PartnerShowcase(
                         : Arrays.stream(partner.getBenefits().split("\n"))
                                 .map(String::trim)
                                 .filter(b -> !b.isEmpty())
-                                .toList());
+                                .toList(),
+                Boolean.TRUE.equals(partner.getVerified()));
     }
 }

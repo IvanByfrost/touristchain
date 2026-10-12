@@ -20,6 +20,9 @@ public record ReviewView(
         UUID packageId,
         Integer rating,
         String comment,
+        String response,
+        LocalDateTime respondedAt,
+        boolean verified,
         LocalDateTime createdAt) {
 
     static ReviewView from(ReviewEntity review, UserEntity author) {
@@ -39,6 +42,9 @@ public record ReviewView(
                 review.getPackageId(),
                 review.getRating(),
                 review.getComment(),
+                review.getResponse(),
+                review.getRespondedAt(),
+                Boolean.TRUE.equals(review.getVerified()),
                 review.getCreatedAt());
     }
 }

@@ -44,13 +44,22 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/health").permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_CATALOG).permitAll()
                         .requestMatchers(PUBLIC_CATALOG).hasRole("ADMIN")
-                        .requestMatchers("/api/v1/kyoto/companies/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/kyoto/companies/**", "/api/v1/kyoto/stats").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/reviews", "/api/v1/reviews/stats",
-                                "/api/v1/reviews/partner/**", "/api/v1/reviews/package/**")
+                                "/api/v1/reviews/partner/**", "/api/v1/reviews/package/**",
+                                "/api/v1/reviews/partners/top")
                         .permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/reviews/*/verify").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/reviews/*/response").hasAnyRole("SOCIO", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/partners").permitAll()
                         // URL del QR: la abre quien escanea (pasarela simulada), sin sesión
                         .requestMatchers(HttpMethod.GET, "/api/v1/payments/qr/*/confirm").permitAll()
+                        .requestMatchers("/api/v1/payments/escrow", "/api/v1/payments/stats",
+                                "/api/v1/payments/expired/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/payments/*/release", "/api/v1/payments/*/refund")
+                        .hasRole("ADMIN")
+                        .requestMatchers("/api/v1/bookings/stats").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/bookings/*/complete").hasRole("ADMIN")
                         .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/partners/me").hasAnyRole("SOCIO", "ADMIN")
                         .requestMatchers("/api/v1/partners/**").hasRole("ADMIN")

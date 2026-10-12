@@ -5,7 +5,9 @@ import com.touristchain.geneva.users.UserEntity;
 import com.touristchain.geneva.users.UserRepository;
 import com.touristchain.rome.booking.BookingEntity;
 import com.touristchain.rome.booking.BookingService;
+import com.touristchain.rome.payment.PaymentDtos.PaymentStats;
 import com.touristchain.rome.payment.PaymentDtos.PaymentStatus;
+import com.touristchain.rome.payment.PaymentDtos.Summary;
 import com.touristchain.rome.payment.PaymentDtos.PaymentView;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -40,9 +43,12 @@ public class PaymentService {
 
     @Transactional(readOnly = true)
     public List<PaymentView> list(UUID userId, boolean isAdmin) {
-        List<PaymentEntity> payments = isAdmin
+        return toViews(isAdmin
                 ? paymentRepository.findAllByOrderByCreatedAtAsc()
-                : paymentRepository.findByUserIdOrderByCreatedAtAsc(userId);
+                : paymentRepository.findByUserIdOrderByCreatedAtAsc(userId));
+    }
+
+    private List<PaymentView> toViews(List<PaymentEntity> payments) {
         Set<UUID> userIds = payments.stream().map(PaymentEntity::getUserId).collect(Collectors.toSet());
         Map<UUID, UserEntity> users = userRepository.findAllById(userIds).stream()
                 .collect(Collectors.toMap(UserEntity::getUserId, Function.identity()));
@@ -94,7 +100,66 @@ public class PaymentService {
         if (!isAdmin && !payment.getUserId().equals(userId)) {
             throw new SecurityException("Acceso denegado");
         }
-        return new PaymentStatus(payment.getPaymentId(), payment.getStatus(), payment.getReference());
+        return new PaymentStatus(payment.getPaymentId(), payment.getStatus(), payment.getReference(),
+                payment.getEscrowStatus());
+    }
+
+    // ========== Custodia (escrow) y mantenimiento: solo administradores ==========
+
+    /** Pagos completados cuyo dinero sigue retenido, el más antiguo primero. */
+    @Transactional(readOnly = true)
+    public List<PaymentView> held() {
+        return toViews(paymentRepository.findByEscrowStatusOrderByPaidAtAsc(PaymentEntity.ESCROW_HELD));
+    }
+
+    /** Entrega al socio el dinero retenido. */
+    @Transactional
+    public PaymentView release(UUID paymentId) {
+        PaymentEntity payment = find(paymentId);
+        payment.release(LocalDateTime.now());
+        return toViews(List.of(payment)).get(0);
+    }
+
+    /** Devuelve el dinero retenido al turista y cancela sus reservas (los viajes recuperan los cupos). */
+    @Transactional
+    public PaymentView refund(UUID paymentId) {
+        PaymentEntity payment = find(paymentId);
+        payment.refund(LocalDateTime.now());
+        bookingService.cancelForRefund(paymentId);
+        return toViews(List.of(payment)).get(0);
+    }
+
+    @Transactional(readOnly = true)
+    public PaymentStats stats() {
+        Map<String, Summary> byStatus = summaries(paymentRepository.summarizeByStatus());
+        Map<String, Summary> byEscrow = summaries(paymentRepository.summarizeByEscrowStatus());
+        long total = byStatus.values().stream().mapToLong(Summary::count).sum();
+        return new PaymentStats(total, byStatus, byEscrow);
+    }
+
+    /** Rechaza los QR que siguen pendientes después de {@code hours} horas; sus reservas siguen pendientes. */
+    @Transactional
+    public List<PaymentView> rejectExpired(int hours) {
+        if (hours < 1) {
+            throw new IllegalArgumentException("Las horas deben ser al menos 1");
+        }
+        List<PaymentEntity> expired = paymentRepository.findByStatusAndCreatedAtBefore(
+                PaymentEntity.PENDING, LocalDateTime.now().minusHours(hours));
+        expired.forEach(payment -> payment.setStatus(PaymentEntity.REJECTED));
+        return toViews(expired);
+    }
+
+    private PaymentEntity find(UUID paymentId) {
+        return paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new NotFoundException("Pago no encontrado"));
+    }
+
+    private static Map<String, Summary> summaries(List<Object[]> rows) {
+        Map<String, Summary> result = new TreeMap<>();
+        for (Object[] row : rows) {
+            result.put((String) row[0], new Summary((Long) row[1], ((BigDecimal) row[2]).doubleValue()));
+        }
+        return result;
     }
 
     private List<BookingEntity> requirePendingBookings(UUID userId) {

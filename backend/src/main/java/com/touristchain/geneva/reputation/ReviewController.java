@@ -43,6 +43,19 @@ public class ReviewController {
         return reviewService.getReviewsByPartner(partnerId);
     }
 
+    /** GET /api/v1/reviews/partner/{partnerId}/reputation (público) */
+    @GetMapping("/partner/{partnerId}/reputation")
+    public PartnerReputation getPartnerReputation(@PathVariable UUID partnerId) {
+        return reviewService.getPartnerReputation(partnerId);
+    }
+
+    /** GET /api/v1/reviews/partners/top?limit=&minReviews= (público) */
+    @GetMapping("/partners/top")
+    public List<TopPartner> getTopPartners(@RequestParam(defaultValue = "10") int limit,
+            @RequestParam(defaultValue = "3") int minReviews) {
+        return reviewService.getTopPartners(limit, minReviews);
+    }
+
     @GetMapping("/package/{packageId}")
     public List<ReviewView> getReviewsByPackage(@PathVariable UUID packageId) {
         return reviewService.getReviewsByPackage(packageId);
@@ -64,9 +77,25 @@ public class ReviewController {
     @DeleteMapping("/{reviewId}")
     public Map<String, String> deleteReview(@AuthenticationPrincipal UserPrincipal principal,
             @PathVariable UUID reviewId) {
-        boolean isAdmin = principal.getAuthorities().stream()
-                .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
-        reviewService.deleteReview(reviewId, principal.getUserId(), isAdmin);
+        reviewService.deleteReview(reviewId, principal.getUserId(), isAdmin(principal));
         return Map.of("message", "Reseña eliminada");
+    }
+
+    /** Socio dueño de la reseña o administrador (ver SecurityConfig). */
+    @PatchMapping("/{reviewId}/response")
+    public ReviewView respond(@AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable UUID reviewId, @RequestBody RespondRequest request) {
+        return reviewService.respond(reviewId, principal.getUserId(), isAdmin(principal), request.response());
+    }
+
+    /** Solo administradores (ver SecurityConfig). */
+    @PatchMapping("/{reviewId}/verify")
+    public ReviewView verify(@PathVariable UUID reviewId) {
+        return reviewService.verify(reviewId);
+    }
+
+    private static boolean isAdmin(UserPrincipal principal) {
+        return principal.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
     }
 }

@@ -2,6 +2,7 @@ package com.touristchain.rome.booking;
 
 import com.touristchain.geneva.security.UserPrincipal;
 import com.touristchain.rome.booking.BookingDtos.BookingRequest;
+import com.touristchain.rome.booking.BookingDtos.BookingStats;
 import com.touristchain.rome.booking.BookingDtos.BookingView;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,18 @@ public class BookingController {
                                       @PathVariable UUID bookingId) {
         bookingService.cancel(principal.getUserId(), isAdmin(principal), bookingId);
         return Map.of("message", "Reserva cancelada");
+    }
+
+    /** Solo administradores (ver SecurityConfig). */
+    @PatchMapping("/{bookingId}/complete")
+    public BookingView complete(@PathVariable UUID bookingId) {
+        return bookingService.complete(bookingId);
+    }
+
+    /** Solo administradores (ver SecurityConfig). */
+    @GetMapping("/stats")
+    public BookingStats stats() {
+        return bookingService.stats();
     }
 
     static boolean isAdmin(UserPrincipal principal) {

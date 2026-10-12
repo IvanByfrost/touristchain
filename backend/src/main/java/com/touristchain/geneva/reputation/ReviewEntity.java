@@ -1,6 +1,7 @@
 package com.touristchain.geneva.reputation;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -47,6 +48,16 @@ public class ReviewEntity {
 
     @Column(name = "comment", columnDefinition = "text")
     private String comment;
+
+    @Column(name = "response", columnDefinition = "text")
+    private String response;
+
+    @Column(name = "responded_at")
+    private LocalDateTime respondedAt;
+
+    @Builder.Default
+    @Column(name = "verified", nullable = false)
+    private Boolean verified = false;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

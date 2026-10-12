@@ -20,8 +20,24 @@ public class AdminAccountController {
     private final AdminAccountService adminAccountService;
 
     @GetMapping("/users")
-    public List<AdminUser> listUsers() {
-        return adminAccountService.listUsers();
+    public List<AdminUser> listUsers(@RequestParam(required = false) String role,
+            @RequestParam(required = false) String status) {
+        return adminAccountService.listUsers(role, status);
+    }
+
+    @GetMapping("/users/stats")
+    public UserStats stats() {
+        return adminAccountService.stats();
+    }
+
+    @PatchMapping("/users/{userId}/activate")
+    public AdminUser activate(@AuthenticationPrincipal UserPrincipal principal, @PathVariable UUID userId) {
+        return adminAccountService.setActive(principal.getUserId(), userId, true);
+    }
+
+    @PatchMapping("/users/{userId}/deactivate")
+    public AdminUser deactivate(@AuthenticationPrincipal UserPrincipal principal, @PathVariable UUID userId) {
+        return adminAccountService.setActive(principal.getUserId(), userId, false);
     }
 
     @PostMapping("/users")

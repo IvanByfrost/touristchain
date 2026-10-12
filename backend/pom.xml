@@ -95,13 +95,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Blockchain Integration -->
-        <dependency>
-            <groupId>org.web3j</groupId>
-            <artifactId>core</artifactId>
-            <version>4.9.7</version>
-        </dependency>
-
         <!-- JSON Processing -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

@@ -1,6 +1,7 @@
 package com.touristchain.geneva.partners;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -62,6 +63,13 @@ public class PartnerEntity {
 
     @Column(name = "benefits", columnDefinition = "text")
     private String benefits;
+
+    @Builder.Default
+    @Column(name = "verified", nullable = false)
+    private Boolean verified = false;
+
+    @Column(name = "verified_at")
+    private LocalDateTime verifiedAt;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;

@@ -213,6 +213,22 @@ public class PartnerService {
     }
 
     /**
+     * Marca al socio como verificado (o le quita la verificación).
+     */
+    @Transactional
+    public PartnerEntity setVerified(UUID partnerId, boolean verified) {
+        PartnerEntity partner = getPartnerById(partnerId);
+        partner.setVerified(verified);
+        partner.setVerifiedAt(verified ? LocalDateTime.now() : null);
+        return partnerRepository.save(partner);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PartnerEntity> getPartnersByVerification(boolean verified) {
+        return partnerRepository.findByVerifiedOrderByCompanyNameAsc(verified);
+    }
+
+    /**
      * Elimina un perfil de partner.
      */
     @Transactional

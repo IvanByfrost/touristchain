@@ -174,7 +174,9 @@ SET destination_id = d.id
 FROM public.destinations d
 WHERE t.destination_id IS NULL AND d.name = split_part(t.destination, ',', 1);
 
-INSERT INTO public.payment (user_id, amount, method, status, reference, description, paid_at, created_at, updated_at)
+-- Viaje ya realizado: el dinero se liberó al socio
+INSERT INTO public.payment (user_id, amount, method, status, reference, description, paid_at, created_at, updated_at,
+                            escrow_status, released_at)
 SELECT '00000000-0000-0000-0000-000000000002', 1200, 'tarjeta', 'completado', 'PAY-001', 'Reserva París 2024',
-       '2024-12-01 10:00', '2024-12-01 10:00', '2024-12-01 10:00'
+       '2024-12-01 10:00', '2024-12-01 10:00', '2024-12-01 10:00', 'liberado', '2024-12-20 10:00'
 WHERE NOT EXISTS (SELECT 1 FROM public.payment WHERE reference = 'PAY-001');

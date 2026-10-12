@@ -3,6 +3,7 @@ package com.touristchain.geneva.admin;
 import com.touristchain.geneva.partners.PartnerEntity;
 import com.touristchain.geneva.users.UserEntity;
 
+import java.util.Map;
 import java.util.UUID;
 
 /** Usuario tal como lo muestra el panel de administración. */
@@ -61,6 +62,14 @@ record PartnerProfile(
                 partner.getCity(),
                 partner.getBusinessType());
     }
+}
+
+/** Totales del panel; las cuentas deshabilitadas (eliminadas) no cuentan. */
+record UserStats(
+        long total,
+        Map<String, Long> byRole,
+        Map<String, Long> byStatus,
+        long verifiedPartners) {
 }
 
 /** Alta o edición de un usuario desde el panel (rol "user" o "admin"). */

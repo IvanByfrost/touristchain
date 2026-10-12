@@ -1,5 +1,8 @@
 package com.touristchain.geneva.reputation;
 
+import com.touristchain.common.NotFoundException;
+import com.touristchain.geneva.partners.PartnerEntity;
+import com.touristchain.geneva.partners.PartnerRepository;
 import com.touristchain.geneva.tourists.TouristEntity;
 import com.touristchain.geneva.tourists.TouristRepository;
 import com.touristchain.geneva.users.UserEntity;
@@ -8,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,6 +30,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final TouristRepository touristRepository;
     private final UserRepository userRepository;
+    private final PartnerRepository partnerRepository;
 
     @Transactional(readOnly = true)
     public List<ReviewView> getReviews(String itemType, String itemId) {
@@ -126,6 +132,82 @@ public class ReviewService {
         reviewRepository.delete(getEditableReview(reviewId, userId, isAdmin));
     }
 
+    /** El socio responde las reseñas de su empresa (una sola vez); un administrador, cualquiera. */
+    @Transactional
+    public ReviewView respond(UUID reviewId, UUID userId, boolean isAdmin, String response) {
+        if (isBlank(response)) {
+            throw new IllegalArgumentException("La respuesta no puede estar vacía");
+        }
+        ReviewEntity review = findReview(reviewId);
+        if (!isAdmin) {
+            boolean ownsPartner = review.getPartnerId() != null && partnerRepository.findByUserId(userId)
+                    .map(partner -> partner.getPartnerId().equals(review.getPartnerId()))
+                    .orElse(false);
+            if (!ownsPartner) {
+                throw new SecurityException("Solo el socio reseñado puede responder esta reseña");
+            }
+        }
+        if (review.getResponse() != null) {
+            throw new IllegalStateException("Esta reseña ya tiene una respuesta");
+        }
+        review.setResponse(response.trim());
+        review.setRespondedAt(LocalDateTime.now());
+        return toView(reviewRepository.save(review));
+    }
+
+    @Transactional
+    public ReviewView verify(UUID reviewId) {
+        ReviewEntity review = findReview(reviewId);
+        if (Boolean.TRUE.equals(review.getVerified())) {
+            throw new IllegalStateException("La reseña ya está verificada");
+        }
+        review.setVerified(true);
+        return toView(reviewRepository.save(review));
+    }
+
+    @Transactional(readOnly = true)
+    public PartnerReputation getPartnerReputation(UUID partnerId) {
+        if (!partnerRepository.existsById(partnerId)) {
+            throw new NotFoundException("Socio no encontrado");
+        }
+        long total = reviewRepository.countReviewsForPartner(partnerId);
+        Double average = reviewRepository.calculateAverageRatingForPartner(partnerId);
+        Map<Integer, Long> distribution = new LinkedHashMap<>();
+        for (int stars = 5; stars >= 1; stars--) {
+            distribution.put(stars, 0L);
+        }
+        for (Object[] row : reviewRepository.countRatingsByValueForPartner(partnerId)) {
+            distribution.put((Integer) row[0], (Long) row[1]);
+        }
+        double responseRate = total == 0 ? 0
+                : reviewRepository.countRespondedForPartner(partnerId) * 100.0 / total;
+        return new PartnerReputation(partnerId, round1(average == null ? 0 : average), total, distribution,
+                round1(responseRate));
+    }
+
+    /** Ranking de socios por promedio; exige un mínimo de reseñas para que una sola no decida. */
+    @Transactional(readOnly = true)
+    public List<TopPartner> getTopPartners(int limit, int minReviews) {
+        List<Object[]> rows = reviewRepository.rankPartners(Math.max(minReviews, 1)).stream()
+                .limit(Math.min(Math.max(limit, 1), 50))
+                .toList();
+        Map<UUID, String> names = partnerRepository.findAllById(rows.stream().map(row -> (UUID) row[0]).toList())
+                .stream().collect(Collectors.toMap(PartnerEntity::getPartnerId, PartnerEntity::getCompanyName));
+        return rows.stream()
+                .map(row -> new TopPartner((UUID) row[0], names.get((UUID) row[0]),
+                        round1((Double) row[1]), (Long) row[2]))
+                .toList();
+    }
+
+    private ReviewEntity findReview(UUID reviewId) {
+        return reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new NotFoundException("Reseña no encontrada"));
+    }
+
+    private static double round1(double value) {
+        return Math.round(value * 10) / 10.0;
+    }
+
     /** La reseña solo la modifica su autor; un administrador puede eliminarla. */
     private ReviewEntity getEditableReview(UUID reviewId, UUID userId, boolean isAdmin) {
         ReviewEntity review = reviewRepository.findById(reviewId)
@@ -178,6 +260,20 @@ public class ReviewService {
             UUID bookingId,
             Integer rating,
             String comment) {
+    }
+
+    public record PartnerReputation(
+            UUID partnerId,
+            double average,
+            long total,
+            Map<Integer, Long> distribution,
+            double responseRate) {
+    }
+
+    public record TopPartner(UUID partnerId, String companyName, double average, long total) {
+    }
+
+    public record RespondRequest(String response) {
     }
 
     public record UpdateReviewRequest(

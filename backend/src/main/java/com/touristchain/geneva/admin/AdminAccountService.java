@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -52,6 +53,35 @@ public class AdminAccountService {
     private final AdministratorRepository administratorRepository;
     private final PartnerService partnerService;
     private final PartnerRepository partnerRepository;
+
+    /** Filtros opcionales: rol (user, socio, admin) y estado (activo, pendiente, bloqueado, inactivo). */
+    @Transactional(readOnly = true)
+    public List<AdminUser> listUsers(String role, String status) {
+        return listUsers().stream()
+                .filter(user -> isBlank(role) || user.role().equals(role))
+                .filter(user -> isBlank(status) || user.status().equals(status))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public UserStats stats() {
+        List<AdminUser> users = listUsers();
+        Map<String, Long> byRole = new TreeMap<>(users.stream()
+                .collect(Collectors.groupingBy(AdminUser::role, Collectors.counting())));
+        Map<String, Long> byStatus = new TreeMap<>(users.stream()
+                .collect(Collectors.groupingBy(AdminUser::status, Collectors.counting())));
+        long verifiedPartners = partnerRepository.findByVerifiedOrderByCompanyNameAsc(true).size();
+        return new UserStats(users.size(), byRole, byStatus, verifiedPartners);
+    }
+
+    @Transactional
+    public AdminUser setActive(UUID currentUserId, UUID userId, boolean active) {
+        if (userId.equals(currentUserId)) {
+            throw new IllegalArgumentException("No puedes cambiar el estado de tu propia cuenta");
+        }
+        userService.setAccountStatus(userId, active ? AccountStatus.active : AccountStatus.suspended);
+        return getUser(userId);
+    }
 
     @Transactional(readOnly = true)
     public List<AdminUser> listUsers() {

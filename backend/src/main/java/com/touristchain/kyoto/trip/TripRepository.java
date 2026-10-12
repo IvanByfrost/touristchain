@@ -12,6 +12,11 @@ import java.util.Optional;
 
 public interface TripRepository extends JpaRepository<TripEntity, Long> {
 
+    /** [estado, viajes, cupos libres, capacidad]. */
+    @Query("SELECT t.status, COUNT(t), COALESCE(SUM(t.available), 0), COALESCE(SUM(t.capacity), 0) "
+            + "FROM TripEntity t GROUP BY t.status")
+    List<Object[]> summarizeByStatus();
+
     /** Un destino vacío coincide con todo; los demás filtros nulos se ignoran. */
     @Query("""
             SELECT t FROM TripEntity t

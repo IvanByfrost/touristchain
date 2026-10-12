@@ -49,6 +49,8 @@ public interface PartnerRepository extends JpaRepository<PartnerEntity, UUID> {
      */
     boolean existsByTaxId(String taxId);
 
+    List<PartnerEntity> findByVerifiedOrderByCompanyNameAsc(Boolean verified);
+
     /**
      * Obtiene todos los partners ordenados por nombre de empresa.
      */

@@ -32,6 +32,19 @@ public interface ReviewRepository extends JpaRepository<ReviewEntity, UUID> {
     @Query("SELECT r.rating, COUNT(r) FROM ReviewEntity r WHERE r.partnerId = :partnerId GROUP BY r.rating")
     List<Object[]> countRatingsByValueForPartner(@Param("partnerId") UUID partnerId);
 
+    @Query("SELECT COUNT(r) FROM ReviewEntity r WHERE r.partnerId = :partnerId AND r.response IS NOT NULL")
+    Long countRespondedForPartner(@Param("partnerId") UUID partnerId);
+
+    /** Socios con al menos {@code minReviews} reseñas: [partnerId, promedio, total], mejor promedio primero. */
+    @Query("""
+            SELECT r.partnerId, AVG(r.rating), COUNT(r) FROM ReviewEntity r
+            WHERE r.partnerId IS NOT NULL
+            GROUP BY r.partnerId
+            HAVING COUNT(r) >= :minReviews
+            ORDER BY AVG(r.rating) DESC, COUNT(r) DESC
+            """)
+    List<Object[]> rankPartners(@Param("minReviews") long minReviews);
+
     boolean existsByTouristIdAndPartnerIdAndItemRefIsNull(UUID touristId, UUID partnerId);
 
     boolean existsByTouristIdAndItemTypeAndItemRef(UUID touristId, String itemType, String itemRef);

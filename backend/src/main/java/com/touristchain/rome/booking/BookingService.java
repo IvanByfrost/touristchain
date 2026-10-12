@@ -13,6 +13,7 @@ import com.touristchain.kyoto.hotel.HotelService;
 import com.touristchain.kyoto.trip.TripDtos.TripView;
 import com.touristchain.kyoto.trip.TripService;
 import com.touristchain.rome.booking.BookingDtos.BookingRequest;
+import com.touristchain.rome.booking.BookingDtos.BookingStats;
 import com.touristchain.rome.booking.BookingDtos.BookingView;
 import com.touristchain.rome.booking.BookingEntity.BookingStatus;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -135,6 +137,35 @@ public class BookingService {
         bookingRepository.delete(booking);
     }
 
+    /** Solo administradores: marca como completada una reserva pagada. */
+    @Transactional
+    public BookingView complete(UUID bookingId) {
+        BookingEntity booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new NotFoundException("Reserva no encontrada"));
+        booking.complete();
+        return toViews(List.of(bookingRepository.save(booking))).get(0);
+    }
+
+    @Transactional(readOnly = true)
+    public BookingStats stats() {
+        Map<String, Long> byStatus = new LinkedHashMap<>();
+        for (BookingStatus status : BookingStatus.values()) {
+            byStatus.put(status.label(), 0L);
+        }
+        long total = 0;
+        BigDecimal revenue = BigDecimal.ZERO;
+        for (Object[] row : bookingRepository.summarizeByStatus()) {
+            BookingStatus status = (BookingStatus) row[0];
+            long count = (Long) row[1];
+            byStatus.put(status.label(), count);
+            total += count;
+            if (status == BookingStatus.CONFIRMED || status == BookingStatus.COMPLETED) {
+                revenue = revenue.add((BigDecimal) row[2]);
+            }
+        }
+        return new BookingStats(total, byStatus, revenue.doubleValue());
+    }
+
     // ========== Para el módulo de pagos ==========
 
     /** Reservas pendientes de pago del usuario (vacío si no es turista). */
@@ -163,6 +194,19 @@ public class BookingService {
     @Transactional
     public void confirmPayment(UUID paymentId, LocalDateTime paidAt) {
         confirmPayment(bookingRepository.findByPaymentIdAndStatus(paymentId, BookingStatus.PENDING), paymentId, paidAt);
+    }
+
+    /** Pago reembolsado: sus reservas pagadas quedan canceladas y los viajes recuperan los cupos. */
+    @Transactional
+    public void cancelForRefund(UUID paymentId) {
+        List<BookingEntity> bookings = bookingRepository.findByPaymentIdAndStatus(paymentId, BookingStatus.CONFIRMED);
+        for (BookingEntity booking : bookings) {
+            if (booking.getTripId() != null) {
+                tripService.releaseSeats(booking.getTripId(), booking.getQuantity());
+            }
+            booking.setStatus(BookingStatus.CANCELLED);
+        }
+        bookingRepository.saveAll(bookings);
     }
 
     private TouristEntity requireTourist(UUID userId) {

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 /** Formatos de entrada y salida de pagos, con los nombres de campo que usa el frontend. */
@@ -36,7 +37,10 @@ public final class PaymentDtos {
             String reference,
             String description,
             String qrToken,
-            LocalDateTime paidAt) {
+            LocalDateTime paidAt,
+            String escrowStatus,
+            LocalDateTime releasedAt,
+            LocalDateTime refundedAt) {
 
         static PaymentView from(PaymentEntity payment, String userName, boolean withToken) {
             return new PaymentView(
@@ -50,7 +54,10 @@ public final class PaymentDtos {
                     payment.getReference(),
                     payment.getDescription(),
                     withToken ? payment.getQrToken() : null,
-                    payment.getPaidAt());
+                    payment.getPaidAt(),
+                    payment.getEscrowStatus(),
+                    payment.getReleasedAt(),
+                    payment.getRefundedAt());
         }
     }
 
@@ -58,6 +65,14 @@ public final class PaymentDtos {
     public record QrPaymentResponse(PaymentView payment, String qrPayload, String confirmUrl) {
     }
 
-    public record PaymentStatus(UUID id, String status, String reference) {
+    public record PaymentStatus(UUID id, String status, String reference, String escrowStatus) {
+    }
+
+    /** Cantidad e importe total por estado. */
+    public record Summary(long count, double amount) {
+    }
+
+    /** {@code byStatus}: pendiente/completado/rechazado. {@code byEscrow}: retenido/liberado/reembolsado. */
+    public record PaymentStats(long total, Map<String, Summary> byStatus, Map<String, Summary> byEscrow) {
     }
 }

@@ -2,6 +2,7 @@ package com.touristchain.rome.booking;
 
 import com.touristchain.rome.booking.BookingEntity.BookingStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,4 +18,7 @@ public interface BookingRepository extends JpaRepository<BookingEntity, UUID> {
     List<BookingEntity> findByTouristIdAndStatusOrderByCreatedAtAsc(UUID touristId, BookingStatus status);
 
     List<BookingEntity> findByPaymentIdAndStatus(UUID paymentId, BookingStatus status);
+
+    @Query("SELECT b.status, COUNT(b), COALESCE(SUM(b.totalPrice), 0) FROM BookingEntity b GROUP BY b.status")
+    List<Object[]> summarizeByStatus();
 }
