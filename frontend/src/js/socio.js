@@ -10,7 +10,7 @@ const SocioApp = {
     user: null,
     showcase: null,
     bookings: [],
-    trips: [],
+    destinations: [],
     notifications: []
 };
 
@@ -119,13 +119,13 @@ async function loadData() {
         showNotification('No se pudo cargar tu perfil: ' + err.message, 'error');
     }
     try {
-        const [bookings, trips, notifications] = await Promise.all([
+        const [bookings, destinations, notifications] = await Promise.all([
             api.getBookings().catch(() => []),
-            api.getTrips().catch(() => []),
+            api.getDestinations().catch(() => []),
             api.getNotifications().catch(() => [])
         ]);
         SocioApp.bookings = bookings;
-        SocioApp.trips = trips;
+        SocioApp.destinations = destinations;
         SocioApp.notifications = notifications;
     } catch (err) { /* datos opcionales */ }
     renderResumen();
@@ -138,7 +138,7 @@ function renderResumen() {
     const sc = SocioApp.showcase;
     document.getElementById('stat-estado').textContent = u.status === 'activo' ? 'Activa' : (u.status || '-');
     document.getElementById('stat-vitrina').textContent = sc ? 'Sí' : 'No';
-    document.getElementById('stat-destinos').textContent = SocioApp.trips.length;
+    document.getElementById('stat-destinos').textContent = SocioApp.destinations.length;
     document.getElementById('stat-reservas').textContent = SocioApp.bookings.length;
 
     const p = u.partnerProfile || {};

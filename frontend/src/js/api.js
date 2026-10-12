@@ -255,65 +255,61 @@ export const api = {
         return handleResponse(response);
     },
 
-    // Bookings
+    // Bookings: el servidor fija nombre y precio; quantity = personas, noches, días o 1 (paquete)
     async getBookings() {
-        const response = await fetch(`${MOCK_API_URL}/bookings`, { headers: getHeaders() });
+        const response = await fetch(`${API_URL}/bookings`, { headers: getHeaders() });
         return handleResponse(response);
     },
 
-    async createBooking(booking) {
-        const response = await fetch(`${MOCK_API_URL}/bookings`, {
+    async createBooking({ itemType, itemId, quantity = 1 }) {
+        const response = await fetch(`${API_URL}/bookings`, {
             method: 'POST',
             headers: getHeaders(),
-            body: JSON.stringify(booking)
-        });
-        return handleResponse(response);
-    },
-
-    async updateBooking(id, booking) {
-        const response = await fetch(`${MOCK_API_URL}/bookings/${id}`, {
-            method: 'PUT',
-            headers: getHeaders(),
-            body: JSON.stringify(booking)
+            body: JSON.stringify({ itemType, itemId: String(itemId), quantity })
         });
         return handleResponse(response);
     },
 
     async deleteBooking(id) {
-        const response = await fetch(`${MOCK_API_URL}/bookings/${id}`, {
+        const response = await fetch(`${API_URL}/bookings/${id}`, {
             method: 'DELETE',
             headers: getHeaders()
         });
         return handleResponse(response);
     },
 
-    // Payments
+    // Payments: el importe es la suma de las reservas pendientes, lo calcula el servidor
     async getPayments() {
-        const response = await fetch(`${MOCK_API_URL}/payments`, { headers: getHeaders() });
+        const response = await fetch(`${API_URL}/payments`, { headers: getHeaders() });
         return handleResponse(response);
     },
 
-    async createPayment(payment) {
-        const response = await fetch(`${MOCK_API_URL}/payments`, {
+    async createPayment({ method, description }) {
+        const response = await fetch(`${API_URL}/payments`, {
             method: 'POST',
             headers: getHeaders(),
-            body: JSON.stringify(payment)
+            body: JSON.stringify({ method, description })
         });
         return handleResponse(response);
     },
 
-    async createQrPayment({ amount, description, reservationIds }) {
-        const response = await fetch(`${MOCK_API_URL}/payments/qr`, {
+    async createQrPayment({ description } = {}) {
+        const response = await fetch(`${API_URL}/payments/qr`, {
             method: 'POST',
             headers: getHeaders(),
-            body: JSON.stringify({ amount, description, reservationIds })
+            body: JSON.stringify({ description })
         });
         return handleResponse(response);
     },
 
     async checkPaymentStatus(paymentId) {
-        const response = await fetch(`${MOCK_API_URL}/payments/${paymentId}/status`, { headers: getHeaders() });
+        const response = await fetch(`${API_URL}/payments/${paymentId}/status`, { headers: getHeaders() });
         return handleResponse(response);
+    },
+
+    // Simula que alguien escanea el QR y paga (abre la URL de confirmación)
+    async simulateQrScan(confirmUrl) {
+        await fetch(confirmUrl);
     },
 
     // Reviews

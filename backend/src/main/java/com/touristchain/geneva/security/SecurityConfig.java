@@ -49,6 +49,8 @@ public class SecurityConfig {
                                 "/api/v1/reviews/partner/**", "/api/v1/reviews/package/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/partners").permitAll()
+                        // URL del QR: la abre quien escanea (pasarela simulada), sin sesión
+                        .requestMatchers(HttpMethod.GET, "/api/v1/payments/qr/*/confirm").permitAll()
                         .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/partners/me").hasAnyRole("SOCIO", "ADMIN")
                         .requestMatchers("/api/v1/partners/**").hasRole("ADMIN")
