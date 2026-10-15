@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="assets/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "Inter"; font-weight: 400; src: url("assets/Inter-Regular.otf"); }
+      @font-face { font-family: "Inter"; font-weight: 700; src: url("assets/Inter-Bold.otf"); }
+      @font-face { font-family: "Inter"; font-weight: 800; src: url("assets/Inter-ExtraBold.otf"); }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #0a1450; }
+      #root { position: relative; width: 100%; height: 100%; font-family: "Inter", sans-serif; color: #fff;
+        background: linear-gradient(135deg, #0b1b5c 0%, #1247f3 100%); overflow: hidden; }
+      .scene { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+      .glow { position: absolute; border-radius: 50%; filter: blur(90px); opacity: .5; }
+      .h1 { font-size: 110px; font-weight: 800; letter-spacing: -0.03em; text-align: center; line-height: 1.08; max-width: 1500px; }
+      .h2 { font-size: 76px; font-weight: 800; letter-spacing: -0.02em; text-align: center; line-height: 1.1; }
+      .sub { font-size: 40px; font-weight: 400; opacity: .85; text-align: center; margin-top: 28px; }
+      .yellow { color: #ffd60a; }
+      .word { display: inline-block; margin: 0 .14em; }
+      .chip { display: inline-block; padding: 30px 60px; margin: 0 22px; border-radius: 28px; font-size: 68px; font-weight: 800;
+        background: rgba(255,255,255,.14); border: 2px solid rgba(255,255,255,.3); position: relative; }
+      .chip .strike { position: absolute; left: 20px; top: 50%; height: 8px; width: calc(100% - 40px); background: #f87955; border-radius: 4px; }
+      .block { width: 250px; height: 250px; border-radius: 30px; background: rgba(255,255,255,.14); border: 2px solid #ffd60a;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; }
+      .block b { font-size: 54px; color: #ffd60a; margin-bottom: 8px; }
+      .link { width: 90px; height: 8px; background: #ffd60a; border-radius: 4px; }
+      .card { width: 440px; padding: 36px; border-radius: 28px; background: rgba(255,255,255,.16); border: 2px solid rgba(255,255,255,.3); }
+      .card small { font-size: 26px; opacity: .75; display: block; margin-bottom: 10px; letter-spacing: .08em; text-transform: uppercase; }
+      .card h3 { font-size: 44px; font-weight: 800; }
+      .card p { font-size: 28px; margin-top: 12px; color: #ffd60a; }
+      .node { width: 330px; padding: 40px 20px; border-radius: 30px; background: rgba(255,255,255,.16); border: 2px solid rgba(255,255,255,.35);
+        text-align: center; font-size: 46px; font-weight: 800; }
+      .node span { display: block; font-size: 26px; font-weight: 400; opacity: .8; margin-top: 12px; }
+      .wire { height: 8px; border-radius: 4px; background: #ffd60a; }
+      .bars { display: flex; gap: 14px; align-items: flex-end; height: 120px; margin-top: 24px; }
+      .bars i { width: 28px; background: #ffd60a; border-radius: 6px 6px 0 0; display: block; }
+      #cap { position: absolute; left: 0; right: 0; bottom: 70px; text-align: center; font-size: 40px; font-weight: 700; z-index: 20; }
+      #cap span { display: inline-block; padding: 12px 34px; border-radius: 18px; background: rgba(5,10,40,.6); }
+      .logo { font-size: 150px; font-weight: 800; letter-spacing: -0.04em; }
+      #plane { position: absolute; width: 520px; height: auto; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="promo" data-start="0" data-duration="31" data-width="1920" data-height="1080">
+      <div class="glow" style="width:700px;height:700px;background:#7fb0ff;left:-200px;top:-200px;opacity:.35"></div>
+      <div class="glow" style="width:800px;height:800px;background:#f87955;right:-250px;bottom:-300px;opacity:.3"></div>
+
+      <!-- S1 -->
+      <div id="s1" class="scene clip" data-start="0" data-duration="3.6" data-track-index="0">
+        <div class="h1" id="s1t"></div>
+      </div>
+      <!-- S2 -->
+      <div id="s2" class="scene clip" data-start="3.6" data-duration="3.0" data-track-index="0">
+        <div style="display:flex">
+          <div class="chip c2">Fraudes<i class="strike"></i></div>
+          <div class="chip c2">Intermediarios<i class="strike"></i></div>
+          <div class="chip c2">Costos ocultos<i class="strike"></i></div>
+        </div>
+      </div>
+      <!-- S3 -->
+      <div id="s3" class="scene clip" data-start="6.6" data-duration="3.2" data-track-index="0">
+        <img id="plane" src="assets/avion.png" alt="" />
+        <div class="logo" id="s3logo">Tourist<span class="yellow">Chain</span></div>
+        <div class="sub yellow" id="s3sub" style="font-size:56px;font-weight:700">El Turismo Futurista</div>
+      </div>
+      <!-- S4 -->
+      <div id="s4" class="scene clip" data-start="9.8" data-duration="5.5" data-track-index="0">
+        <div class="h2" id="s4h" style="margin-bottom:70px">Blockchain: <span class="yellow">confianza</span> en cada reserva</div>
+        <div style="display:flex;align-items:center" id="s4chain">
+          <div class="block b4"><b>#1</b>Reserva</div><div class="link l4"></div>
+          <div class="block b4"><b>#2</b>Contrato</div><div class="link l4"></div>
+          <div class="block b4"><b>#3</b>Escrow</div><div class="link l4"></div>
+          <div class="block b4"><b>#4</b>Pago liberado</div>
+        </div>
+      </div>
+      <!-- S5 -->
+      <div id="s5" class="scene clip" data-start="15.3" data-duration="5.0" data-track-index="0">
+        <div class="h2" id="s5h" style="margin-bottom:60px">IA que viaja <span class="yellow">a tu medida</span></div>
+        <div style="display:flex;gap:40px">
+          <div class="card c5"><small>Destino</small><h3>Cartagena</h3><p>98% afín a ti</p></div>
+          <div class="card c5"><small>Hotel</small><h3>Casa del Mar</h3><p>Mejor precio</p></div>
+          <div class="card c5"><small>Ruta</small><h3>5 días · 3 ciudades</h3><p>Optimizada</p></div>
+        </div>
+      </div>
+      <!-- S6 -->
+      <div id="s6" class="scene clip" data-start="20.3" data-duration="6.9" data-track-index="0">
+        <div class="h2" id="s6h" style="margin-bottom:70px">Todos conectados, <span class="yellow">sin intermediarios</span></div>
+        <div style="display:flex;align-items:center">
+          <div class="node n6">Turistas<span>reservan directo</span></div>
+          <div class="wire w6" style="width:150px"></div>
+          <div class="node n6">Proveedores<span>cobran al instante</span></div>
+          <div class="wire w6" style="width:150px"></div>
+          <div class="node n6">Autoridades<span>monitoreo en vivo
+            <div class="bars"><i style="height:50px"></i><i style="height:90px"></i><i style="height:70px"></i><i style="height:120px"></i><i style="height:100px"></i></div></span></div>
+        </div>
+      </div>
+      <!-- S7 -->
+      <div id="s7" class="scene clip" data-start="27.2" data-duration="3.8" data-track-index="0">
+        <div class="logo" id="s7logo">Tourist<span class="yellow">Chain</span></div>
+        <div class="h2" id="s7tag" style="margin-top:20px">Viaja con confianza.</div>
+      </div>
+
+      <div id="cap"></div>
+
+      <audio id="vo1" src="assets/vo/01.wav" data-start="0.4" data-duration="2.97" data-volume="1"></audio>
+      <audio id="vo2" src="assets/vo/02.wav" data-start="3.8" data-duration="2.58" data-volume="1"></audio>
+      <audio id="vo3" src="assets/vo/03.wav" data-start="6.8" data-duration="2.67" data-volume="1"></audio>
+      <audio id="vo4" src="assets/vo/04.wav" data-start="10.0" data-duration="4.95" data-volume="1"></audio>
+      <audio id="vo5" src="assets/vo/05.wav" data-start="15.5" data-duration="4.55" data-volume="1"></audio>
+      <audio id="vo6" src="assets/vo/06.wav" data-start="20.5" data-duration="6.43" data-volume="1"></audio>
+      <audio id="vo7" src="assets/vo/07.wav" data-start="27.6" data-duration="2.16" data-volume="1"></audio>
+      <audio id="bgm" src="assets/bgm.wav" data-start="0" data-duration="31" data-volume="0.22"></audio>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      const caps = [
+        [0.4, 3.3, "¿Cuántas veces has dudado al reservar un viaje?"],
+        [3.8, 6.4, "Fraudes, intermediarios y costos ocultos."],
+        [6.8, 9.5, "Conoce TouristChain: el turismo futurista."],
+        [10.0, 15.0, "Blockchain para reservas transparentes y pagos protegidos por contratos inteligentes."],
+        [15.5, 20.1, "Inteligencia artificial que recomienda destinos, hoteles y rutas a tu medida."],
+        [20.5, 27.0, "Proveedores conectados directamente contigo, sin intermediarios. Y autoridades con paneles en tiempo real."],
+        [27.6, 29.8, "TouristChain. Viaja con confianza."],
+      ];
+      const cap = document.getElementById("cap");
+      caps.forEach(([a, b, t], i) => {
+        const s = document.createElement("span");
+        s.textContent = t; s.style.opacity = 0; s.style.position = "absolute"; s.style.left = "50%"; s.style.bottom = "0";
+        s.style.width = "max-content"; s.style.maxWidth = "1500px";
+        s.style.marginLeft = "-" + 0 + "px";
+        s.id = "cap" + i; cap.appendChild(s);
+      });
+      // centre captions with xPercent (no CSS transform)
+      caps.forEach(([a, b], i) => {
+        tl.fromTo("#cap" + i, { opacity: 0, xPercent: -50, y: 12 }, { opacity: 1, xPercent: -50, y: 0, duration: 0.3 }, a);
+        tl.to("#cap" + i, { opacity: 0, duration: 0.25 }, b);
+      });
+
+      // S1 words
+      const w = "¿Cuántas veces has dudado al reservar un viaje?".split(" ");
+      document.getElementById("s1t").innerHTML = w.map((x, i) => `<span class="word ${i >= 4 && i <= 5 ? "yellow" : ""}">${x}</span>`).join("");
+      tl.fromTo("#s1t .word", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.45, stagger: 0.17, ease: "power3.out" }, 0.4);
+      tl.to("#s1t", { opacity: 0, duration: 0.3 }, 3.2);
+
+      // S2
+      tl.fromTo(".c2", { opacity: 0, y: -120 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.35, ease: "bounce.out" }, 3.7);
+      tl.fromTo(".c2 .strike", { scaleX: 0, transformOrigin: "left center" }, { scaleX: 1, duration: 0.35, stagger: 0.25 }, 4.9);
+      tl.to("#s2 .chip", { opacity: 0, duration: 0.3 }, 6.2);
+
+      // S3
+      tl.fromTo("#plane", { x: -900, y: 160, opacity: 0, rotation: -8 }, { x: 0, y: -330, opacity: 1, rotation: 0, duration: 1.6, ease: "power2.out" }, 6.7);
+      tl.fromTo("#s3logo", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.7, ease: "back.out(1.6)" }, 7.0);
+      tl.fromTo("#s3sub", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6 }, 7.8);
+      tl.to("#s3 > *", { opacity: 0, duration: 0.3 }, 9.5);
+
+      // S4
+      tl.fromTo("#s4h", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6 }, 9.9);
+      tl.fromTo(".b4", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, stagger: 0.7, ease: "back.out(1.7)" }, 11.0);
+      tl.fromTo(".l4", { opacity: 0, scaleX: 0 }, { opacity: 1, scaleX: 1, duration: 0.4, stagger: 0.7 }, 11.4);
+      tl.to("#s4 > *", { opacity: 0, duration: 0.3 }, 15.0);
+
+      // S5
+      tl.fromTo("#s5h", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6 }, 15.4);
+      tl.fromTo(".c5", { opacity: 0, y: 80 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.6, ease: "power3.out" }, 16.6);
+      tl.to("#s5 > *", { opacity: 0, duration: 0.3 }, 20.0);
+
+      // S6
+      tl.fromTo("#s6h", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6 }, 20.4);
+      tl.fromTo(".n6", { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.5, stagger: 1.0, ease: "back.out(1.6)" }, 21.6);
+      tl.fromTo(".w6", { opacity: 0, scaleX: 0 }, { opacity: 1, scaleX: 1, duration: 0.5, stagger: 1.0 }, 22.1);
+      tl.fromTo(".bars i", { scaleY: 0, transformOrigin: "bottom" }, { scaleY: 1, duration: 0.5, stagger: 0.1 }, 23.8);
+      tl.to("#s6 > *", { opacity: 0, duration: 0.3 }, 26.9);
+
+      // S7
+      tl.fromTo("#s7logo", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.7, ease: "back.out(1.5)" }, 27.3);
+      tl.fromTo("#s7tag", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6 }, 28.0);
+      tl.to("#s7 > *", { opacity: 0, duration: 0.5 }, 30.4);
+
+      window.__timelines["promo"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

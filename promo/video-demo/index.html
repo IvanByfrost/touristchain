@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="assets/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "Inter"; font-weight: 400; src: url("assets/Inter-Regular.otf"); }
+      @font-face { font-family: "Inter"; font-weight: 700; src: url("assets/Inter-Bold.otf"); }
+      @font-face { font-family: "Inter"; font-weight: 800; src: url("assets/Inter-ExtraBold.otf"); }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #0a1450; }
+      #root { position: relative; width: 100%; height: 100%; font-family: "Inter", sans-serif; color: #fff; overflow: hidden;
+        background: linear-gradient(135deg, #0b1b5c 0%, #1247f3 100%); }
+      .yellow { color: #ffd60a; }
+      .glow { position: absolute; border-radius: 50%; filter: blur(90px); }
+      .scene { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+      .logo { font-size: 150px; font-weight: 800; letter-spacing: -0.04em; }
+      .h2 { font-size: 76px; font-weight: 800; letter-spacing: -0.02em; text-align: center; }
+      #win { position: absolute; left: 210px; top: 70px; width: 1500px; height: 810px; border-radius: 26px; overflow: hidden;
+        background: linear-gradient(160deg, #2f58c9 0%, #1a3fc4 45%, #0f2a9a 100%); box-shadow: 0 40px 100px rgba(0,0,20,.55); }
+      #bar { position: absolute; left: 0; top: 0; width: 100%; height: 50px; background: #0e1a55; }
+      #bar i { position: absolute; top: 18px; width: 14px; height: 14px; border-radius: 50%; }
+      #url { position: absolute; left: 540px; top: 9px; width: 420px; height: 32px; border-radius: 16px; background: rgba(255,255,255,.12);
+        font-size: 18px; text-align: center; line-height: 32px; opacity: .85; }
+      #nav { position: absolute; left: 20px; top: 62px; width: 1460px; height: 62px; border-radius: 18px; background: #142a7d; }
+      #brand { position: absolute; left: 28px; top: 0; line-height: 62px; font-size: 28px; font-weight: 800; color: #ffd60a; }
+      #pill { position: absolute; top: 9px; left: 0; width: 134px; height: 44px; border-radius: 12px; background: rgba(255,255,255,.18); }
+      .tab { position: absolute; top: 0; width: 134px; line-height: 62px; text-align: center; font-size: 22px; font-weight: 700; }
+      .view { position: absolute; left: 0; top: 140px; width: 1500px; height: 670px; }
+      .glass { background: rgba(255,255,255,.2); border: 1px solid rgba(255,255,255,.35); border-radius: 22px; box-shadow: 0 8px 24px rgba(0,0,40,.18); }
+      .dark { color: #0b1b5c; }
+      .btn { position: absolute; border-radius: 14px; background: #1247f3; color: #fff; font-weight: 800; text-align: center; box-shadow: 0 6px 16px rgba(0,0,40,.35); }
+      .abs { position: absolute; }
+      .field { position: absolute; height: 62px; border-radius: 14px; background: rgba(255,255,255,.92); color: #0b1b5c; font-size: 24px; line-height: 62px; padding-left: 22px; overflow: hidden; white-space: nowrap; }
+      .ty { display: inline-block; white-space: nowrap; }
+      .dest { position: absolute; width: 330px; height: 250px; border-radius: 22px; overflow: hidden; color: #fff; }
+      .dest .nm { position: absolute; left: 20px; bottom: 56px; font-size: 32px; font-weight: 800; }
+      .dest .pr { position: absolute; left: 20px; bottom: 20px; font-size: 22px; font-weight: 700; color: #ffd60a; }
+      .dest .tg { position: absolute; right: 16px; top: 16px; padding: 6px 14px; border-radius: 12px; background: rgba(0,0,40,.45); font-size: 18px; font-weight: 700; }
+      .pin { position: absolute; width: 22px; height: 22px; border-radius: 50%; background: #ffd60a; border: 4px solid #fff; }
+      .tile { position: absolute; width: 330px; height: 250px; border-radius: 24px; padding: 28px; }
+      .tile h3 { font-size: 36px; font-weight: 800; color: #ffd60a; }
+      .tile p { font-size: 24px; margin-top: 10px; opacity: .95; line-height: 1.35; }
+      .bub { position: absolute; max-width: 760px; padding: 22px 30px; border-radius: 24px; font-size: 28px; line-height: 1.35; }
+      #cap { position: absolute; left: 0; width: 1920px; bottom: 48px; height: 60px; z-index: 30; }
+      #cap span { position: absolute; left: 50%; bottom: 0; width: max-content; max-width: 1500px; padding: 12px 34px; border-radius: 18px; background: rgba(5,10,40,.7);
+        font-size: 38px; font-weight: 700; text-align: center; opacity: 0; }
+      #cursor { position: absolute; left: 0; top: 0; width: 34px; height: 34px; z-index: 40; opacity: 0; }
+      .rowline { position: absolute; left: 0; width: 100%; height: 2px; background: rgba(255,255,255,.25); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="demo" data-start="0" data-duration="48.5" data-width="1920" data-height="1080">
+      <div class="glow" style="width:700px;height:700px;background:#7fb0ff;left:-200px;top:-200px;opacity:.35"></div>
+      <div class="glow" style="width:800px;height:800px;background:#f87955;right:-250px;bottom:-300px;opacity:.3"></div>
+
+      <!-- Intro -->
+      <div id="intro" class="scene clip" data-start="0" data-duration="3.5" data-track-index="0">
+        <div class="logo" id="il">Tourist<span class="yellow">Chain</span></div>
+        <div class="h2" id="it" style="margin-top:18px;font-size:58px">Demo del producto</div>
+      </div>
+
+      <!-- Window -->
+      <div id="win" class="clip" data-start="3.4" data-duration="41.8" data-track-index="1">
+        <div id="bar"><i style="left:22px;background:#f87955"></i><i style="left:48px;background:#ffd60a"></i><i style="left:74px;background:#59d38c"></i><div id="url">touristchain.app</div></div>
+        <div id="nav">
+          <div id="brand">TouristChain</div>
+          <div id="pill"></div>
+          <div class="tab" style="left:310px">Inicio</div>
+          <div class="tab" style="left:444px">Viajes</div>
+          <div class="tab" style="left:578px">Hoteles</div>
+          <div class="tab" style="left:712px">Renta</div>
+          <div class="tab" style="left:846px">Socios</div>
+          <div class="tab" style="left:980px">Nosotros</div>
+          <div class="tab" style="left:1114px">Mi Cuenta</div>
+        </div>
+
+        <!-- V2 login -->
+        <div id="v2" class="view clip" data-start="3.5" data-duration="4.0">
+          <div class="glass abs" style="left:470px;top:20px;width:560px;height:440px"></div>
+          <div class="abs" style="left:470px;top:44px;width:560px;text-align:center;font-size:42px;font-weight:800" >Iniciar <span class="yellow">sesión</span></div>
+          <div class="field" style="left:510px;top:130px;width:480px"><span class="ty" id="t-mail">juan@example.com</span></div>
+          <div class="field" style="left:510px;top:216px;width:480px"><span class="ty" id="t-pass">••••••••</span></div>
+          <div class="btn" id="login-btn" style="left:510px;top:314px;width:480px;height:66px;line-height:66px;font-size:26px">Ingresar</div>
+          <div class="abs" id="welcome" style="left:520px;top:420px;width:460px;text-align:center;font-size:30px;font-weight:800;color:#ffd60a;opacity:0">Bienvenido, Juan Pérez</div>
+        </div>
+
+        <!-- V3 destinos -->
+        <div id="v3" class="view clip" data-start="7.5" data-duration="6.1">
+          <div class="glass abs" style="left:40px;top:10px;width:860px;height:74px"></div>
+          <div class="abs dark" style="left:70px;top:24px;font-size:26px;font-weight:700">Buscar destino…  <span style="opacity:.6;margin-left:20px">Precio ▾   Tipo ▾</span></div>
+          <div class="dest d3" style="left:40px;top:110px;background:linear-gradient(135deg,#f87955,#fccf65)"><div class="tg">Playa</div><div class="nm">Cartagena</div><div class="pr">desde $420.000</div></div>
+          <div class="dest d3" style="left:390px;top:110px;background:linear-gradient(135deg,#0aa3c2,#7fe3d0)"><div class="tg">Isla</div><div class="nm">San Andrés</div><div class="pr">desde $680.000</div></div>
+          <div class="dest d3" style="left:40px;top:380px;background:linear-gradient(135deg,#3b8d4f,#c3e88d)"><div class="tg">Naturaleza</div><div class="nm">Eje Cafetero</div><div class="pr">desde $350.000</div></div>
+          <div class="dest d3" style="left:390px;top:380px;background:linear-gradient(135deg,#6a4bd8,#b4a1ff)"><div class="tg">Ciudad</div><div class="nm">Medellín</div><div class="pr">desde $390.000</div></div>
+          <div class="glass abs" id="map" style="left:960px;top:10px;width:500px;height:630px">
+            <div class="abs" style="left:24px;top:18px;font-size:28px;font-weight:800">Mapa de <span class="yellow">Colombia</span></div>
+            <svg class="abs" style="left:90px;top:80px" width="320" height="520" viewBox="0 0 320 520"><path d="M120 20 L190 10 L250 50 L290 110 L270 170 L300 230 L260 300 L270 380 L220 470 L150 500 L110 440 L60 390 L70 310 L30 240 L50 160 L90 100 Z" fill="rgba(255,255,255,.28)" stroke="#fff" stroke-width="3"/></svg>
+            <div class="pin p3" style="left:225px;top:140px"></div>
+            <div class="pin p3" style="left:130px;top:100px"></div>
+            <div class="pin p3" style="left:215px;top:230px"></div>
+            <div class="pin p3" style="left:150px;top:350px"></div>
+            <div class="pin p3" style="left:330px;top:170px"></div>
+            <div class="pin p3" style="left:340px;top:470px"></div>
+          </div>
+        </div>
+
+        <!-- V4 hoteles + renta -->
+        <div id="v4" class="view clip" data-start="13.6" data-duration="4.5">
+          <div class="glass abs h4" style="left:40px;top:20px;width:700px;height:180px"><div class="abs" style="left:30px;top:26px;font-size:34px;font-weight:800">Hotel Caribe Real</div><div class="abs yellow" style="left:30px;top:78px;font-size:30px">★★★★★</div><div class="abs" style="left:30px;top:124px;font-size:26px;opacity:.9">Cartagena · $280.000 / noche</div><div class="btn" style="right:28px;top:62px;width:170px;height:56px;line-height:56px;font-size:24px">Reservar</div></div>
+          <div class="glass abs h4" style="left:40px;top:225px;width:700px;height:180px"><div class="abs" style="left:30px;top:26px;font-size:34px;font-weight:800">Hotel Paisa Centro</div><div class="abs yellow" style="left:30px;top:78px;font-size:30px">★★★★</div><div class="abs" style="left:30px;top:124px;font-size:26px;opacity:.9">Medellín · $190.000 / noche</div><div class="btn" style="right:28px;top:62px;width:170px;height:56px;line-height:56px;font-size:24px">Reservar</div></div>
+          <div class="glass abs h4" style="left:40px;top:430px;width:700px;height:180px"><div class="abs" style="left:30px;top:26px;font-size:34px;font-weight:800">Hotel Café & Montaña</div><div class="abs yellow" style="left:30px;top:78px;font-size:30px">★★★★</div><div class="abs" style="left:30px;top:124px;font-size:26px;opacity:.9">Eje Cafetero · $160.000 / noche</div><div class="btn" style="right:28px;top:62px;width:170px;height:56px;line-height:56px;font-size:24px">Reservar</div></div>
+          <div class="glass abs" id="car" style="left:800px;top:20px;width:660px;height:590px">
+            <div class="abs" style="left:30px;top:24px;font-size:34px;font-weight:800">Renta de Carros <span class="yellow">3D</span></div>
+            <div class="abs" id="ring" style="left:130px;top:130px;width:400px;height:400px;border-radius:50%;border:6px dashed #ffd60a"></div>
+            <svg class="abs" id="carsvg" style="left:130px;top:230px" width="400" height="200" viewBox="0 0 400 200"><path d="M20 130 L50 85 Q70 60 110 58 L250 58 Q295 62 325 100 L375 110 Q390 118 388 140 L388 150 L20 150 Z" fill="#ffd60a"/><path d="M85 88 L120 68 L190 68 L190 100 L70 100 Z M205 68 L250 68 Q280 72 300 100 L205 100 Z" fill="#0b1b5c" opacity=".8"/><circle cx="105" cy="152" r="32" fill="#0b1b5c"/><circle cx="105" cy="152" r="14" fill="#fff"/><circle cx="305" cy="152" r="32" fill="#0b1b5c"/><circle cx="305" cy="152" r="14" fill="#fff"/></svg>
+            <div class="btn" style="left:230px;top:520px;width:200px;height:52px;line-height:52px;font-size:24px">Ver en 3D</div>
+          </div>
+        </div>
+
+        <!-- V5 pago -->
+        <div id="v5" class="view clip" data-start="18.1" data-duration="5.9">
+          <div class="glass abs" style="left:300px;top:10px;width:900px;height:640px"></div>
+          <div class="abs" style="left:300px;top:32px;width:900px;text-align:center;font-size:40px;font-weight:800">Pasarela de <span class="yellow">Pago</span> <span style="font-size:22px;opacity:.8;font-weight:400">· simulada</span></div>
+          <div class="abs m5" id="m-card" style="left:340px;top:110px;width:260px;height:76px;border-radius:16px;background:rgba(255,255,255,.22);text-align:center;line-height:76px;font-size:28px;font-weight:800">Tarjeta</div>
+          <div class="abs m5" id="m-qr" style="left:620px;top:110px;width:260px;height:76px;border-radius:16px;background:rgba(255,255,255,.22);text-align:center;line-height:76px;font-size:28px;font-weight:800">QR</div>
+          <div class="abs m5" id="m-nq" style="left:900px;top:110px;width:260px;height:76px;border-radius:16px;background:rgba(255,255,255,.22);text-align:center;line-height:76px;font-size:28px;font-weight:800">Nequi</div>
+          <div class="abs" id="p-card" style="left:340px;top:230px;width:820px;height:300px">
+            <div class="field" style="left:0;top:0;width:820px">4242 4242 4242 4242</div>
+            <div class="field" style="left:0;top:90px;width:390px">12 / 28</div>
+            <div class="field" style="left:430px;top:90px;width:390px">CVC •••</div>
+          </div>
+          <svg class="abs" id="p-qr" style="left:620px;top:215px;opacity:0" width="260" height="260" viewBox="0 0 21 21"></svg>
+          <div class="abs" id="p-nq" style="left:340px;top:230px;width:820px;opacity:0">
+            <div class="field" style="left:0;top:0;width:820px">300 123 4567</div>
+            <div class="abs" id="push" style="left:0;top:100px;width:820px;text-align:center;font-size:30px;font-weight:700;color:#ffd60a">Enviando notificación a tu celular…</div>
+          </div>
+          <div class="abs" style="left:340px;top:560px;font-size:30px;font-weight:700">Total: <span class="yellow">$420.000</span></div>
+          <div class="btn" id="pay" style="left:900px;top:545px;width:260px;height:70px;line-height:70px;font-size:28px">Pagar</div>
+        </div>
+
+        <!-- V6 ticket -->
+        <div id="v6" class="view clip" data-start="24.0" data-duration="5.3">
+          <div class="glass abs" id="ticket" style="left:210px;top:20px;width:620px;height:620px">
+            <div class="abs yellow" style="left:40px;top:34px;font-size:30px;font-weight:800;letter-spacing:.08em">TICKET · PAGADO ✓</div>
+            <div class="abs" style="left:40px;top:90px;font-size:44px;font-weight:800">Cartagena, Colombia</div>
+            <div class="abs" style="left:40px;top:156px;font-size:26px;opacity:.9">Juan Pérez · 2 viajeros · 5 noches</div>
+            <svg class="abs" id="t-qr" style="left:180px;top:240px;background:#fff;padding:16px;border-radius:16px" width="280" height="280" viewBox="0 0 21 21"></svg>
+            <div class="abs" style="left:40px;top:550px;width:540px;text-align:center;font-size:24px;opacity:.9">Reserva #TC-2026-0187</div>
+          </div>
+          <div class="glass abs" id="hist" style="left:880px;top:20px;width:410px;height:620px">
+            <div class="abs" style="left:30px;top:30px;font-size:34px;font-weight:800">Historial</div>
+            <div class="abs hr" style="left:30px;top:110px;width:350px;font-size:26px"><b>Cartagena</b><br><span class="yellow">Pagada · $420.000</span></div>
+            <div class="abs" style="left:30px;top:215px;width:350px;font-size:26px;opacity:.8"><b>Medellín</b><br>Completada</div>
+            <div class="abs" style="left:30px;top:320px;width:350px;font-size:26px;opacity:.8"><b>Eje Cafetero</b><br>Completada</div>
+          </div>
+        </div>
+
+        <!-- V7 organizar -->
+        <div id="v7" class="view clip" data-start="29.3" data-duration="4.8">
+          <div class="tile glass o7" style="left:50px;top:60px"><h3>♥ Favoritos</h3><p>Guarda destinos y hoteles con un clic.</p></div>
+          <div class="tile glass o7" style="left:420px;top:60px"><h3>Itinerarios</h3><p>Día 1: Ciudad amurallada<br>Día 2: Islas del Rosario<br>Día 3: Getsemaní</p></div>
+          <div class="tile glass o7" style="left:790px;top:60px"><h3>Presupuestos</h3>
+            <div class="abs" style="left:28px;top:96px;width:274px;height:30px;border-radius:8px;background:rgba(255,255,255,.3)"><div class="bg7" style="width:80%;height:100%;border-radius:8px;background:#ffd60a"></div></div>
+            <div class="abs" style="left:28px;top:140px;width:274px;height:30px;border-radius:8px;background:rgba(255,255,255,.3)"><div class="bg7" style="width:55%;height:100%;border-radius:8px;background:#f87955"></div></div>
+            <div class="abs" style="left:28px;top:184px;width:274px;height:30px;border-radius:8px;background:rgba(255,255,255,.3)"><div class="bg7" style="width:35%;height:100%;border-radius:8px;background:#7fb0ff"></div></div></div>
+          <div class="tile glass o7" style="left:1160px;top:60px"><h3>Reseñas</h3><p class="yellow" style="font-size:44px">★★★★★</p><p>“Experiencia increíble y pagos seguros.”</p></div>
+          <div class="abs glass o7" style="left:50px;top:360px;width:1440px;height:230px;border-radius:24px;padding:34px">
+            <div style="font-size:34px;font-weight:800" class="yellow">Resumen del viajero</div>
+            <div style="font-size:28px;margin-top:18px;line-height:1.6">3 reservas pagadas · 5 favoritos · 2 itinerarios · presupuesto promedio $1.850.000</div></div>
+        </div>
+
+        <!-- V8 chatbot -->
+        <div id="v8" class="view clip" data-start="34.1" data-duration="5.0">
+          <div class="glass abs" style="left:230px;top:10px;width:1040px;height:640px"></div>
+          <div class="abs yellow" style="left:270px;top:34px;font-size:34px;font-weight:800">Asistente TouristChain</div>
+          <div class="bub b8" id="b8a" style="right:260px;top:110px;background:#1247f3">¿Qué puedo hacer en Cartagena con poco presupuesto?</div>
+          <div class="bub b8 dark" id="b8b" style="left:270px;top:240px;background:rgba(255,255,255,.92)"><span class="ty" id="botx" style="white-space:normal;display:block;width:700px">Te recomiendo caminar la ciudad amurallada, visitar Getsemaní y tomar un tour en lancha a las Islas del Rosario. Tu presupuesto alcanza para 3 días.</span></div>
+          <div class="abs" id="chips8" style="left:270px;top:480px;display:flex;gap:16px;font-size:24px;font-weight:700">
+            <span class="glass" style="padding:12px 24px;border-radius:30px">Reservas</span><span class="glass" style="padding:12px 24px;border-radius:30px">Pagos</span><span class="glass" style="padding:12px 24px;border-radius:30px">Destinos</span></div>
+        </div>
+
+        <!-- V9 socio / admin -->
+        <div id="v9" class="view clip" data-start="39.1" data-duration="5.9">
+          <div class="glass abs" id="socio" style="left:40px;top:10px;width:700px;height:640px">
+            <div class="abs" style="left:30px;top:26px;font-size:36px;font-weight:800">Panel <span class="yellow">Socio</span></div>
+            <div class="abs" style="left:30px;top:100px;font-size:28px;line-height:2.1">Hotel Caribe Real<br>Tour Islas del Rosario<br>Renta SUV 4x4</div>
+            <div class="abs" style="left:520px;top:104px;font-size:24px;line-height:2.35;font-weight:700;text-align:right;width:150px" class="yellow">Activo<br>Activo<br>Pausado</div>
+            <div class="abs" style="left:30px;top:380px;width:640px;height:200px;border-radius:18px;background:rgba(255,255,255,.16);padding:26px;font-size:26px">Reservas del mes<div style="font-size:70px;font-weight:800;color:#ffd60a;margin-top:10px">128</div></div>
+          </div>
+          <div class="glass abs" id="admin" style="left:780px;top:10px;width:680px;height:640px">
+            <div class="abs" style="left:30px;top:26px;font-size:36px;font-weight:800">Panel <span class="yellow">Administrador</span></div>
+            <div class="abs" style="left:30px;top:100px;width:190px;height:120px;border-radius:16px;background:rgba(255,255,255,.18);padding:20px;font-size:22px">Usuarios<div style="font-size:48px;font-weight:800;color:#ffd60a">1.204</div></div>
+            <div class="abs" style="left:245px;top:100px;width:190px;height:120px;border-radius:16px;background:rgba(255,255,255,.18);padding:20px;font-size:22px">Reservas<div style="font-size:48px;font-weight:800;color:#ffd60a">3.870</div></div>
+            <div class="abs" style="left:460px;top:100px;width:190px;height:120px;border-radius:16px;background:rgba(255,255,255,.18);padding:20px;font-size:22px">Socios<div style="font-size:48px;font-weight:800;color:#ffd60a">86</div></div>
+            <div class="abs" style="left:30px;top:250px;width:620px;height:340px;border-radius:18px;background:rgba(255,255,255,.12)">
+              <div class="abs" style="left:0;bottom:0;width:100%;height:300px;display:flex;align-items:flex-end;gap:36px;padding:0 44px">
+                <i class="ab9" style="display:block;width:56px;height:110px;background:#ffd60a;border-radius:8px 8px 0 0"></i>
+                <i class="ab9" style="display:block;width:56px;height:170px;background:#ffd60a;border-radius:8px 8px 0 0"></i>
+                <i class="ab9" style="display:block;width:56px;height:140px;background:#f87955;border-radius:8px 8px 0 0"></i>
+                <i class="ab9" style="display:block;width:56px;height:230px;background:#ffd60a;border-radius:8px 8px 0 0"></i>
+                <i class="ab9" style="display:block;width:56px;height:200px;background:#7fb0ff;border-radius:8px 8px 0 0"></i>
+                <i class="ab9" style="display:block;width:56px;height:270px;background:#ffd60a;border-radius:8px 8px 0 0"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Outro -->
+      <div id="outro" class="scene clip" data-start="45.0" data-duration="3.5" data-track-index="0">
+        <div class="logo" id="ol">Tourist<span class="yellow">Chain</span></div>
+        <div class="h2" id="ot" style="margin-top:20px">Viaja con confianza.</div>
+      </div>
+
+      <svg id="cursor" viewBox="0 0 24 24"><path d="M3 2 L3 19 L8 15 L11.5 22 L14.5 20.5 L11 13.5 L18 13 Z" fill="#fff" stroke="#0b1b5c" stroke-width="1.5"/></svg>
+      <div id="cap"></div>
+
+      <audio id="vo1" src="assets/vo/01.wav" data-start="0.3" data-duration="3.12"></audio>
+      <audio id="vo2" src="assets/vo/02.wav" data-start="3.8" data-duration="3.63"></audio>
+      <audio id="vo3" src="assets/vo/03.wav" data-start="7.7" data-duration="5.83"></audio>
+      <audio id="vo4" src="assets/vo/04.wav" data-start="13.8" data-duration="4.23"></audio>
+      <audio id="vo5" src="assets/vo/05.wav" data-start="18.3" data-duration="5.47"></audio>
+      <audio id="vo6" src="assets/vo/06.wav" data-start="24.2" data-duration="4.87"></audio>
+      <audio id="vo7" src="assets/vo/07.wav" data-start="29.5" data-duration="4.42"></audio>
+      <audio id="vo8" src="assets/vo/08.wav" data-start="34.3" data-duration="4.7"></audio>
+      <audio id="vo9" src="assets/vo/09.wav" data-start="39.3" data-duration="5.53"></audio>
+      <audio id="vo10" src="assets/vo/10.wav" data-start="45.2" data-duration="2.16"></audio>
+      <audio id="bgm" src="assets/bgm.wav" data-start="0" data-duration="32" data-volume="0.2"></audio>
+      <audio id="bgm2" src="assets/bgm.wav" data-start="32" data-duration="16.5" data-volume="0.2" data-media-start="4"></audio>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      // seeded QR pattern
+      function qr(id) {
+        let s = 7, svg = document.getElementById(id), out = "";
+        const r = () => (s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+        const fin = (x, y) => `<rect x="${x}" y="${y}" width="7" height="7" fill="#0b1b5c"/><rect x="${x+1}" y="${y+1}" width="5" height="5" fill="#fff"/><rect x="${x+2}" y="${y+2}" width="3" height="3" fill="#0b1b5c"/>`;
+        for (let y = 0; y < 21; y++) for (let x = 0; x < 21; x++) {
+          const inF = (x < 8 && y < 8) || (x > 12 && y < 8) || (x < 8 && y > 12);
+          if (!inF && r() > 0.5) out += `<rect x="${x}" y="${y}" width="1" height="1" fill="#0b1b5c"/>`;
+        }
+        svg.innerHTML = `<rect width="21" height="21" fill="#fff"/>` + out + fin(0,0) + fin(14,0) + fin(0,14);
+      }
+      qr("p-qr"); qr("t-qr");
+
+      // captions
+      const caps = [
+        [0.3, 3.3, "Te mostramos cómo funciona TouristChain, paso a paso."],
+        [3.8, 7.4, "Ingresas con tu cuenta, y tu sesión se mantiene al recargar."],
+        [7.7, 13.4, "Explora destinos con filtros por precio y tipo, y un mapa de Colombia con los lugares destacados."],
+        [13.8, 18.0, "Reserva hoteles, y renta carros que puedes explorar en tres dimensiones."],
+        [18.3, 23.7, "Paga con tarjeta, código QR o Nequi. Todo simulado en esta demo, sin cargos reales."],
+        [24.2, 29.0, "Recibes tu ticket con código QR, y tu reserva queda registrada en el historial."],
+        [29.5, 33.9, "Organiza tu viaje con favoritos, itinerarios, presupuestos y reseñas."],
+        [34.3, 39.0, "El asistente inteligente responde tus dudas sobre destinos, reservas y pagos."],
+        [39.3, 44.8, "Los socios gestionan su oferta, y el administrador supervisa todo el sistema desde su panel."],
+        [45.2, 47.4, "TouristChain. Viaja con confianza."],
+      ];
+      const cap = document.getElementById("cap");
+      caps.forEach(([a, b, t], i) => {
+        const s = document.createElement("span"); s.id = "cap" + i; s.textContent = t; cap.appendChild(s);
+        tl.fromTo("#cap" + i, { opacity: 0, xPercent: -50, y: 12 }, { opacity: 1, xPercent: -50, y: 0, duration: 0.3 }, a);
+        tl.to("#cap" + i, { opacity: 0, duration: 0.25 }, b);
+      });
+
+      // intro / outro
+      tl.fromTo("#il", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.7, ease: "back.out(1.5)" }, 0.2);
+      tl.fromTo("#it", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6 }, 0.9);
+      tl.to("#intro > *", { opacity: 0, duration: 0.3 }, 3.15);
+      tl.fromTo("#win", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 3.4);
+      tl.to("#win", { opacity: 0, duration: 0.4 }, 44.7);
+      tl.fromTo("#ol", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.7, ease: "back.out(1.5)" }, 45.1);
+      tl.fromTo("#ot", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6 }, 45.8);
+      tl.to("#outro > *", { opacity: 0, duration: 0.5 }, 48.0);
+
+      // nav pill: tab x offsets 310 + 134*i, pill left = tab left
+      const pillTo = (x, t) => tl.to("#pill", { x, duration: 0.4, ease: "power2.inOut" }, t);
+      tl.set("#pill", { x: 1114 }, 0);
+      pillTo(1114, 3.6); pillTo(444, 7.55); pillTo(578, 13.65); pillTo(712, 16.2); pillTo(1114, 18.15); pillTo(310, 34.15);
+      tl.to("#pill", { opacity: 0, duration: 0.3 }, 39.2);
+      tl.set("#pill", { opacity: 1 }, 0);
+
+      // helpers
+      const typeIn = (sel, a, d, n) => tl.fromTo(sel, { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: d, ease: `steps(${n})` }, a);
+      const viewIn = (id, a) => tl.fromTo(id, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, a);
+      const viewOut = (id, a) => tl.to(id, { opacity: 0, duration: 0.25 }, a);
+      // cursor (root coordinates)
+      const cur = (x, y, a, d = 0.6) => tl.to("#cursor", { x, y, duration: d, ease: "power2.inOut" }, a);
+      const click = (t) => { tl.to("#cursor", { scale: 0.8, duration: 0.1 }, t); tl.to("#cursor", { scale: 1, duration: 0.15 }, t + 0.1); };
+      tl.set("#cursor", { x: 1100, y: 800 }, 0);
+      tl.to("#cursor", { opacity: 1, duration: 0.3 }, 3.6);
+      tl.to("#cursor", { opacity: 0, duration: 0.3 }, 44.4);
+
+      // V2 login (view x origin = win 210, y = 70+140 = 210)
+      viewIn("#v2", 3.55);
+      typeIn("#t-mail", 4.3, 1.0, 16);
+      typeIn("#t-pass", 5.4, 0.6, 8);
+      cur(960, 590, 5.7, 0.8); click(6.6);
+      tl.to("#login-btn", { backgroundColor: "#ffd60a", color: "#0b1b5c", duration: 0.2 }, 6.7);
+      tl.fromTo("#welcome", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4 }, 6.8);
+      viewOut("#v2", 7.2);
+
+      // V3 destinos
+      viewIn("#v3", 7.55);
+      tl.fromTo(".d3", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.3 }, 8.2);
+      tl.fromTo("#map", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.5 }, 9.6);
+      tl.fromTo(".p3", { scale: 0 }, { scale: 1, duration: 0.35, stagger: 0.25, ease: "back.out(2)" }, 10.4);
+      cur(460, 640, 8.0, 0.8); cur(1200, 520, 10.4, 1.0);
+      viewOut("#v3", 13.35);
+
+      // V4 hoteles + renta
+      viewIn("#v4", 13.65);
+      tl.fromTo(".h4", { opacity: 0, x: -50 }, { opacity: 1, x: 0, duration: 0.45, stagger: 0.25 }, 14.0);
+      tl.fromTo("#car", { opacity: 0, x: 50 }, { opacity: 1, x: 0, duration: 0.5 }, 15.4);
+      tl.to("#ring", { rotation: 360, duration: 2.6, ease: "none" }, 15.6);
+      tl.fromTo("#carsvg", { scaleX: 1 }, { scaleX: -1, duration: 1.2, ease: "power1.inOut", yoyo: true, repeat: 1 }, 16.0);
+      cur(740, 560, 14.4, 0.7); click(15.1); cur(1100, 720, 16.1, 0.8);
+      viewOut("#v4", 17.85);
+
+      // V5 pago
+      viewIn("#v5", 18.15);
+      tl.fromTo("#p-card", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 18.3);
+      const hl = (id, a, b) => { tl.to(id, { backgroundColor: "#ffd60a", color: "#0b1b5c", duration: 0.2 }, a); tl.to(id, { backgroundColor: "rgba(255,255,255,0.22)", color: "#ffffff", duration: 0.2 }, b); };
+      hl("#m-card", 18.4, 19.9); tl.to("#p-card", { opacity: 0, duration: 0.25 }, 19.9);
+      hl("#m-qr", 20.0, 21.6); tl.to("#p-qr", { opacity: 1, duration: 0.3 }, 20.1); tl.to("#p-qr", { opacity: 0, duration: 0.25 }, 21.6);
+      hl("#m-nq", 21.7, 23.6); tl.to("#p-nq", { opacity: 1, duration: 0.3 }, 21.8);
+      tl.fromTo("#push", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 22.6);
+      cur(1240, 560, 18.5, 0.6); cur(880, 340, 19.2, 0.5); cur(1200, 340, 21.0, 0.5); cur(1330, 755, 22.9, 0.6); click(23.5);
+      viewOut("#v5", 23.75);
+
+      // V6 ticket
+      viewIn("#v6", 24.05);
+      tl.fromTo("#ticket", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.4)" }, 24.3);
+      tl.fromTo("#hist", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.5 }, 26.5);
+      tl.fromTo(".hr", { backgroundColor: "rgba(255,214,10,0)" }, { backgroundColor: "rgba(255,214,10,0.28)", duration: 0.4 }, 27.4);
+      viewOut("#v6", 28.8);
+
+      // V7 organizar
+      viewIn("#v7", 29.35);
+      tl.fromTo(".o7", { opacity: 0, y: 50, scale: 0.92 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.45, ease: "power3.out" }, 29.9);
+      tl.fromTo(".bg7", { scaleX: 0, transformOrigin: "left center" }, { scaleX: 1, duration: 0.6, stagger: 0.15 }, 31.5);
+      viewOut("#v7", 33.85);
+
+      // V8 chatbot
+      viewIn("#v8", 34.15);
+      tl.fromTo("#b8a", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4 }, 34.6);
+      tl.fromTo("#b8b", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4 }, 35.6);
+      typeIn("#botx", 35.9, 2.6, 30);
+      tl.fromTo("#chips8", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 38.4);
+      viewOut("#v8", 38.85);
+
+      // V9 socio / admin
+      viewIn("#v9", 39.15);
+      tl.fromTo("#socio", { opacity: 0, x: -50 }, { opacity: 1, x: 0, duration: 0.5 }, 39.4);
+      tl.fromTo("#admin", { opacity: 0, x: 50 }, { opacity: 1, x: 0, duration: 0.5 }, 41.0);
+      tl.fromTo(".ab9", { scaleY: 0, transformOrigin: "bottom" }, { scaleY: 1, duration: 0.5, stagger: 0.12 }, 42.0);
+      viewOut("#v9", 44.6);
+
+      window.__timelines["demo"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
